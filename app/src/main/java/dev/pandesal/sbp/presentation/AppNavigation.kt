@@ -8,22 +8,29 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import dev.pandesal.sbp.presentation.categories.CategoriesScreen
+import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
+import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
-import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
-import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
-import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import kotlinx.serialization.Serializable
 
-sealed class NavigationDestination(val route: String) {
-    data object Home : NavigationDestination("home")
-    data object History : NavigationDestination("history")
+@Serializable
+sealed class NavigationDestination() {
+    @Serializable
+    data object Home : NavigationDestination()
+    @Serializable
+    data object Categories : NavigationDestination()
+    @Serializable
+    data object NewCategoryGroup : NavigationDestination()
+    @Serializable
+    data class NewCategory(val groupId: String) : NavigationDestination()
 }
 
 val LocalNavigationManager = compositionLocalOf<NavHostController> { error("No nav host found") }
 
 @Composable
-fun AppNavigation() {
-    val navController = rememberNavController()
+fun AppNavigation(navController: NavHostController) {
     // It is recommended to not pass navController into the the composables
     // https://developer.android.com/develop/ui/compose/navigation#testing .
     // What I did is to create a composition local of NavHostController and then bind it to navController
@@ -31,56 +38,26 @@ fun AppNavigation() {
     CompositionLocalProvider(
         LocalNavigationManager provides navController
     ) {
-        NavHost(navController = navController, startDestination = NavigationDestination.Home.route) {
-            composable(NavigationDestination.Home.route) {
-                val dummyBudgets = listOf(
-                    BudgetCategoryUiModel("Groceries", 5000.0, 3200.0),
-                    BudgetCategoryUiModel("Utilities", 3000.0, 1200.0),
-                    BudgetCategoryUiModel("Transport", 2000.0, 1800.0),
-                    BudgetCategoryUiModel("Dining Out", 1500.0, 800.0),
-                )
-
-                val dummyAccounts = listOf(
-                    AccountSummaryUiModel("GCash", 2200.0, isSpendingWallet = true, isFundingWallet = false),
-                    AccountSummaryUiModel("BPI Savings", 15000.0, isSpendingWallet = false, isFundingWallet = true),
-                    AccountSummaryUiModel("Wallet", 500.0, isSpendingWallet = true, isFundingWallet = false),
-                    AccountSummaryUiModel("UnionBank", 8500.0, isSpendingWallet = true, isFundingWallet = true),
-                )
-
-                val dummyNetWorth = listOf(
-                    NetWorthUiModel("Jan", 40000.0, 10000.0),
-                    NetWorthUiModel("Feb", 42000.0, 9500.0),
-                    NetWorthUiModel("Mar", 45000.0, 8700.0),
-                    NetWorthUiModel("Apr", 47000.0, 8000.0),
-                )
-
-                HomeScreen(
-                    favoriteBudgets = dummyBudgets,
-                    accounts = dummyAccounts,
-                    netWorthData = dummyNetWorth,
-                    onAddExpense = { println("Add Expense") },
-                    onAddFund = { println("Add Fund") },
-                    onAddLoan = { println("Add Loan") },
-                    onViewReports = { println("View Reports") },
-                    onViewAllBudgets = { println("View All Budgets") }
-                )
-
+        NavHost(navController = navController, startDestination = NavigationDestination.Home) {
+            composable<NavigationDestination.Home> {
+                HomeScreen()
             }
-            composable(NavigationDestination.History.route,
-                enterTransition = {
-                    slideIntoContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(700)
-                    )
-                },
-                exitTransition = {
-                    slideOutOfContainer(
-                        AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(500)
-                    )
-                }) {
-
+            composable<NavigationDestination.Categories> {
+                CategoriesScreen()
             }
+            composable<NavigationDestination.NewCategoryGroup> {
+                NewCategoryGroupScreen(onSubmit = {}, onCancel = {
+                    navController.navigateUp()
+                })
+            }
+            composable<NavigationDestination.NewCategory> {
+                val args = it.toRoute<NavigationDestination.NewCategory>()
+
+                NewCategoryScreen(groupId = args.groupId, onSubmit = { _, _ -> }, onCancel = {
+                    navController.navigateUp()
+                })
+            }
+
         }
     }
 

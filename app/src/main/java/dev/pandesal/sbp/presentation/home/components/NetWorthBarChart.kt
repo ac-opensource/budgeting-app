@@ -1,4 +1,4 @@
-package dev.pandesal.sbp.presentation.home
+package dev.pandesal.sbp.presentation.home.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

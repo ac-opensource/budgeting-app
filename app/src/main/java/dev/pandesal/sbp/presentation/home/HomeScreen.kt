@@ -21,15 +21,57 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pandesal.sbp.presentation.home.components.AccountCard
+import dev.pandesal.sbp.presentation.home.components.BudgetCategoryCard
+import dev.pandesal.sbp.presentation.home.components.BudgetSummaryHeader
+import dev.pandesal.sbp.presentation.home.components.NetWorthBarChart
+import dev.pandesal.sbp.presentation.home.components.QuickActionCard
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+
+    val uiState by viewModel.uiState.collectAsState()
+
+    if (uiState is HomeUiState.Loading) {
+        Dialog(onDismissRequest = {  }, properties = DialogProperties(
+            dismissOnClickOutside = false,
+            dismissOnBackPress = false
+        )) {
+        }
+    }
+
+    if (uiState is HomeUiState.Success) {
+        HomeScreen(
+            favoriteBudgets = (uiState as HomeUiState.Success).favoriteBudgets,
+            accounts = (uiState as HomeUiState.Success).accounts,
+            netWorthData = (uiState as HomeUiState.Success).netWorthData,
+            onAddExpense = { println("Add Expense") },
+            onAddFund = { println("Add Fund") },
+            onAddLoan = { println("Add Loan") },
+            onViewReports = { println("View Reports") },
+            onViewAllBudgets = { println("View All Budgets") }
+        )
+    }
+
+
+
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeScreen(
     favoriteBudgets: List<BudgetCategoryUiModel>,
     accounts: List<AccountSummaryUiModel>,
     netWorthData: List<NetWorthUiModel>,
@@ -93,4 +135,41 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
+}
+
+
+@Composable
+@Preview
+fun HomeScreenPreview() {
+    val dummyBudgets = listOf(
+        BudgetCategoryUiModel("Groceries", 5000.0, 3200.0),
+        BudgetCategoryUiModel("Utilities", 3000.0, 1200.0),
+        BudgetCategoryUiModel("Transport", 2000.0, 1800.0),
+        BudgetCategoryUiModel("Dining Out", 1500.0, 800.0),
+    )
+
+    val dummyAccounts = listOf(
+        AccountSummaryUiModel("GCash", 2200.0, isSpendingWallet = true, isFundingWallet = false),
+        AccountSummaryUiModel("BPI Savings", 15000.0, isSpendingWallet = false, isFundingWallet = true),
+        AccountSummaryUiModel("Wallet", 500.0, isSpendingWallet = true, isFundingWallet = false),
+        AccountSummaryUiModel("UnionBank", 8500.0, isSpendingWallet = true, isFundingWallet = true),
+    )
+
+    val dummyNetWorth = listOf(
+        NetWorthUiModel("Jan", 40000.0, 10000.0),
+        NetWorthUiModel("Feb", 42000.0, 9500.0),
+        NetWorthUiModel("Mar", 45000.0, 8700.0),
+        NetWorthUiModel("Apr", 47000.0, 8000.0),
+    )
+
+    HomeScreen(
+        favoriteBudgets = dummyBudgets,
+        accounts = dummyAccounts,
+        netWorthData = dummyNetWorth,
+        onAddExpense = { println("Add Expense") },
+        onAddFund = { println("Add Fund") },
+        onAddLoan = { println("Add Loan") },
+        onViewReports = { println("View Reports") },
+        onViewAllBudgets = { println("View All Budgets") }
+    )
 }

@@ -1,4 +1,4 @@
-package dev.pandesal.sbp.presentation.home
+package dev.pandesal.sbp.presentation.home.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.extensions.format
+import dev.pandesal.sbp.presentation.home.HomeScreen
+import dev.pandesal.sbp.presentation.home.HomeUiState
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
@@ -49,39 +51,3 @@ fun BudgetCategoryCard(budget: BudgetCategoryUiModel) {
     }
 }
 
-
-@Composable
-@Preview
-fun BudgetHomeScreenPreview() {
-    val dummyBudgets = listOf(
-        BudgetCategoryUiModel("Groceries", 5000.0, 3200.0),
-        BudgetCategoryUiModel("Utilities", 3000.0, 1200.0),
-        BudgetCategoryUiModel("Transport", 2000.0, 1800.0),
-        BudgetCategoryUiModel("Dining Out", 1500.0, 800.0),
-    )
-
-    val dummyAccounts = listOf(
-        AccountSummaryUiModel("GCash", 2200.0, isSpendingWallet = true, isFundingWallet = false),
-        AccountSummaryUiModel("BPI Savings", 15000.0, isSpendingWallet = false, isFundingWallet = true),
-        AccountSummaryUiModel("Wallet", 500.0, isSpendingWallet = true, isFundingWallet = false),
-        AccountSummaryUiModel("UnionBank", 8500.0, isSpendingWallet = true, isFundingWallet = true),
-    )
-
-    val dummyNetWorth = listOf(
-        NetWorthUiModel("Jan", 40000.0, 10000.0),
-        NetWorthUiModel("Feb", 42000.0, 9500.0),
-        NetWorthUiModel("Mar", 45000.0, 8700.0),
-        NetWorthUiModel("Apr", 47000.0, 8000.0),
-    )
-
-    HomeScreen(
-        favoriteBudgets = dummyBudgets,
-        accounts = dummyAccounts,
-        netWorthData = dummyNetWorth,
-        onAddExpense = { println("Add Expense") },
-        onAddFund = { println("Add Fund") },
-        onAddLoan = { println("Add Loan") },
-        onViewReports = { println("View Reports") },
-        onViewAllBudgets = { println("View All Budgets") }
-    )
-}
