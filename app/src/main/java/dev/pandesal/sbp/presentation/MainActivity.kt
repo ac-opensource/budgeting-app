@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     Surface(
-                        color = MaterialTheme.colorScheme.surface,
+                        color = MaterialTheme.colorScheme.background,
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         AppNavigation(navController)

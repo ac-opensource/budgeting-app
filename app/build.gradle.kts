@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.android.hilt)
+    alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
     id(libs.plugins.kotlin.serialization.get().pluginId)
 }
@@ -74,7 +75,7 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.lottie.compose)
-
+    implementation(libs.reorderable)
 
     implementation(libs.generativeai)
     implementation(libs.kotlinx.serialization.json)

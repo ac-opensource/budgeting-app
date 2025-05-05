@@ -1,8 +1,13 @@
 package dev.pandesal.sbp.domain.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.util.UUID
 
+@Parcelize
 data class Transaction(
     val id: String = UUID.randomUUID().toString(),
     val categoryId: String,
@@ -11,9 +16,10 @@ data class Transaction(
     val note: String? = null,
     val accountId: String, // Track which account was used
     val transactionType: TransactionType
-)
+): Parcelable
 
-enum class TransactionType {
+@Parcelize
+enum class TransactionType : Parcelable {
     INFLOW,
     OUTFLOW,
     TRANSFER,
