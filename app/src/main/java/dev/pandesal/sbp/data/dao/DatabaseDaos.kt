@@ -1,0 +1,6 @@
+package dev.pandesal.sbp.data.dao
+
+interface DatabaseDaos {
+    fun categoryDao(): CategoryDao
+    fun transactionDao(): TransactionDao
+}

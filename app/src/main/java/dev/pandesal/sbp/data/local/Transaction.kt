@@ -5,13 +5,14 @@ import androidx.room.PrimaryKey
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Entity(tableName = "transactions")
 data class TransactionEntity(
     @PrimaryKey val id: String,
     val categoryId: String,
-    val amount: Double,
+    val amount: BigDecimal,
     val date: String,
     val note: String? = null,
     val accountId: String,

@@ -4,6 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
 
@@ -11,7 +12,7 @@ import java.util.UUID
 data class Transaction(
     val id: String = UUID.randomUUID().toString(),
     val categoryId: String,
-    val amount: Double,
+    val amount: BigDecimal,
     val date: LocalDate,
     val note: String? = null,
     val accountId: String, // Track which account was used

@@ -6,6 +6,7 @@ import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import kotlinx.coroutines.flow.Flow
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -25,7 +26,7 @@ interface TransactionRepositoryInterface {
     fun searchTransactions(query: String): Flow<List<Transaction>>
     fun getPagedTransactions(limit: Int, offset: Int): Flow<List<Transaction>>
     fun getPagedTransactionsByCategory(categoryId: String, limit: Int, offset: Int): Flow<List<Transaction>>
-    fun getTotalAmountByCategory(type: TransactionType): Flow<List<Pair<String, Double>>>
+    fun getTotalAmountByCategory(type: TransactionType): Flow<List<Pair<Int, BigDecimal>>>
     suspend fun insert(transaction: Transaction)
     suspend fun delete(transaction: Transaction)
 }

@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun NewCategoryScreen(
     sheetState: SheetState = rememberModalBottomSheetState(),
-    groupId: String,
-    onSubmit: (String, String) -> Unit,
+    groupId: Int,
+    onSubmit: (name: String, groupId: Int) -> Unit,
     onCancel: () -> Unit,
     onDismissRequest: () -> Unit
 ) {

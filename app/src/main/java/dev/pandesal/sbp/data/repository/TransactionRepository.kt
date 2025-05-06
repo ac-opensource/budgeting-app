@@ -8,6 +8,7 @@ import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.math.BigDecimal
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -106,9 +107,9 @@ class TransactionRepository @Inject constructor(
         dao.getPagedTransactionsByCategory(categoryId, limit, offset)
             .map { it.map { it.toDomainModel() } }
 
-    override fun getTotalAmountByCategory(type: TransactionType): Flow<List<Pair<String, Double>>> =
+    override fun getTotalAmountByCategory(type: TransactionType): Flow<List<Pair<Int, BigDecimal>>> =
         dao.getTotalAmountByCategory(type.name)
-            .map { list -> list.map { it.categoryId to it.totalAmount } }
+            .map { list -> list.map { it.categoryId to it.total } }
 
     override suspend fun insert(transaction: Transaction) =
         dao.insert(transaction.toEntity())

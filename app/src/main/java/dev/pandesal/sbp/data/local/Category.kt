@@ -6,16 +6,16 @@ import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.model.TransactionType
+import java.math.BigDecimal
 import java.time.YearMonth
 import java.util.UUID
 
 @Entity(tableName = "category_groups")
 data class CategoryGroupEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val description: String = "",
     val icon: String,
-    val categoryGroupId: String = "",
     val weight: Int = 0,
     val isFavorite: Boolean = false,
     val isArchived: Boolean = false,
@@ -24,11 +24,11 @@ data class CategoryGroupEntity(
 
 @Entity(tableName = "categories")
 data class CategoryEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val icon: String,
     val description: String = "",
-    val categoryGroupId: String = "",
+    val categoryGroupId: Int = -1,
     val categoryType: String,
     val weight: Int = 0,
     val isFavorite: Boolean = false,
@@ -38,11 +38,11 @@ data class CategoryEntity(
 
 @Entity(tableName = "monthly_budgets")
 data class MonthlyBudgetEntity(
-    @PrimaryKey val id: String,
-    val categoryId: String,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val categoryId: Int,
     val yearMonth: String,
-    val allocated: Double,
-    val spent: Double
+    val allocated: BigDecimal,
+    val spent: BigDecimal
 )
 
 fun CategoryGroup.toEntity(): CategoryGroupEntity {
@@ -96,7 +96,7 @@ fun CategoryEntity.toDomainModel(): Category {
 
 fun MonthlyBudget.toEntity(): MonthlyBudgetEntity {
     return MonthlyBudgetEntity(
-        id = UUID.randomUUID().toString(),
+        id = id,
         categoryId = categoryId,
         yearMonth = month.toString(),
         allocated = allocated,
@@ -106,6 +106,7 @@ fun MonthlyBudget.toEntity(): MonthlyBudgetEntity {
 
 fun MonthlyBudgetEntity.toDomainModel(): MonthlyBudget {
     return MonthlyBudget(
+        id = id,
         categoryId = categoryId,
         month = YearMonth.parse(yearMonth),
         allocated = allocated,
