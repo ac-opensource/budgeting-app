@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,8 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
@@ -46,10 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
-import dev.pandesal.sbp.extensions.ReorderHapticFeedback
 import dev.pandesal.sbp.extensions.ReorderHapticFeedbackType
 import dev.pandesal.sbp.extensions.rememberReorderHapticFeedback
 import dev.pandesal.sbp.presentation.LocalNavigationManager
+import dev.pandesal.sbp.presentation.categories.budget.SetBudgetSheet
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import sh.calvin.reorderable.ReorderableItem
@@ -60,19 +59,24 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 private fun CategoriesContent(
     parentList: List<CategoryGroup>,
     categories: List<Category>,
-    onAddCategoryGroup: () -> Unit,
-    onAddCategory: (String) -> Unit,
+    onAddCategoryGroup: (name: String) -> Unit,
+    onAddCategory: (name: String, groupId: Int) -> Unit,
     reorderGroup: (from: Int, to: Int) -> Unit,
-    reorderCategory: (groupId: String, from: Int, to: Int) -> Unit,
+    reorderCategory: (groupId: Int, from: Int, to: Int) -> Unit,
 ) {
     var showNewCategoryGroup by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var showNewCategorySheet by remember { mutableStateOf(false) }
-    var selectedGroupId by remember { mutableStateOf<String?>(null) }
+    var selectedGroupId by remember { mutableStateOf<Int?>(null) }
     val newCategorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var groupList by remember { mutableStateOf(parentList) }
+
+    LaunchedEffect(parentList) {
+        groupList = parentList
+    }
+
     val lazyGroupsState = rememberLazyListState()
     val reorderableLazyGroupsColumnState =
         rememberReorderableLazyListState(lazyGroupsState) { from, to ->
@@ -81,6 +85,10 @@ private fun CategoriesContent(
             }
             reorderGroup(from.index, to.index)
         }
+
+    // State for Set Budget sheet
+    var showSetBudgetSheet by remember { mutableStateOf(false) }
+    var budgetTargetAmount by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -175,9 +183,8 @@ private fun CategoriesContent(
 
                         ChildListContent(
                             childCategories = childCategories,
-                            onAddBudgetClick = { id ->
-                                selectedGroupId = id
-                                showNewCategorySheet = true
+                            onAddBudgetClick = {
+                                showSetBudgetSheet = true
                             },
                             reorderCategory = { from, to ->
                                 reorderCategory(item.id, from, to)
@@ -193,7 +200,7 @@ private fun CategoriesContent(
         NewCategoryGroupScreen(
             sheetState = sheetState,
             onSubmit = {
-                onAddCategoryGroup()
+                onAddCategoryGroup(it)
                 showNewCategoryGroup = false
             },
             onCancel = { showNewCategoryGroup = false },
@@ -206,7 +213,7 @@ private fun CategoriesContent(
             sheetState = newCategorySheetState,
             groupId = selectedGroupId!!,
             onSubmit = { name, groupId ->
-                onAddCategory(groupId)
+                onAddCategory(name, groupId)
                 showNewCategorySheet = false
                 selectedGroupId = null
             },
@@ -220,15 +227,36 @@ private fun CategoriesContent(
             }
         )
     }
+
+    if (showSetBudgetSheet) {
+        SetBudgetSheet(
+            initialAmount = budgetTargetAmount,
+            onSubmit = {
+                budgetTargetAmount = it
+                showSetBudgetSheet = false
+            },
+            onCancel = {
+                showSetBudgetSheet = false
+            },
+            onDismissRequest = {
+                showSetBudgetSheet = false
+            }
+        )
+    }
 }
 
 @Composable
 private fun ChildListContent(
     childCategories: List<Category>,
-    onAddBudgetClick: (String) -> Unit,
+    onAddBudgetClick: (Int) -> Unit,
     reorderCategory: (from: Int, to: Int) -> Unit
 ) {
     var childList by remember { mutableStateOf(childCategories) }
+
+    LaunchedEffect(childCategories) {
+        childList = childCategories
+    }
+
     val lazyCategoriesListState = rememberLazyListState()
     val reorderableLazyCategoriesColumnState =
         rememberReorderableLazyListState(lazyCategoriesListState) { from, to ->
@@ -335,15 +363,19 @@ fun CategoriesScreen(
         CategoriesContent(
             parentList = state.categoryGroups,
             categories = state.categories,
-            onAddCategoryGroup = { /* handle action, e.g., viewModel.createCategoryGroup(...) */ },
-            onAddCategory = { groupId -> /* handle action, e.g., viewModel.createCategory(..., groupId) */ },
+            onAddCategoryGroup = { name ->
+                viewModel.createCategoryGroup(name)
+            },
+            onAddCategory = { name, groupId ->
+                viewModel.createCategory(name, groupId)
+            },
             reorderGroup = { from, to ->
                 haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
-                // handle group reorder (e.g., viewModel.reorderGroup(from, to))
+                viewModel.reorderGroup(from, to)
             },
             reorderCategory = { groupId, from, to ->
                 haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
-                // handle category reorder (e.g., viewModel.reorderCategory(groupId, from, to))
+                viewModel.reorderCategory(from, to, groupId)
             }
         )
     }
