@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import dev.pandesal.sbp.data.local.CategoryEntity
 import dev.pandesal.sbp.data.local.CategoryGroupEntity
+import dev.pandesal.sbp.data.local.CategoryWithBudgetRaw
 import dev.pandesal.sbp.data.local.MonthlyBudgetEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -25,6 +26,22 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories WHERE categoryGroupId = :categoryGroupId")
     fun getCategoriesByCategoryGroupId(categoryGroupId: String): Flow<List<CategoryEntity>>
+
+    @Query("""
+        SELECT 
+            c.*, 
+            mb.id AS mb_id, 
+            mb.yearMonth, 
+            mb.allocated, 
+            mb.spent
+        FROM categories c
+        LEFT JOIN monthly_budgets mb 
+            ON mb.categoryId = c.id 
+            AND mb.yearMonth = (
+                SELECT MAX(yearMonth) FROM monthly_budgets WHERE categoryId = c.id
+            )
+    """)
+    fun getCategoriesWithLatestBudget(): Flow<List<CategoryWithBudgetRaw>>
 
     @Query("SELECT * FROM category_groups WHERE isArchived = 0 AND isFavorite = 1 ORDER BY weight ASC")
     fun getFavoriteCategoryGroups(): Flow<List<CategoryGroupEntity>>

@@ -5,6 +5,7 @@ import dev.pandesal.sbp.data.local.toDomainModel
 import dev.pandesal.sbp.data.local.toEntity
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
+import dev.pandesal.sbp.domain.model.CategoryWithBudget
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import kotlinx.coroutines.flow.Flow
@@ -46,6 +47,11 @@ class CategoryRepository @Inject constructor(private val dao: CategoryDao): Cate
 
     override fun getFavoriteCategoriesByGroupId(categoryGroupId: String): Flow<List<Category>> =
         dao.getFavoriteCategoriesByCategoryGroupId(categoryGroupId).map { it.map { entity -> entity.toDomainModel() } }
+
+    override fun getCategoriesWithLatestBudget(): Flow<List<CategoryWithBudget>> =
+        dao.getCategoriesWithLatestBudget().map {
+            it.map { entity -> entity.toDomain() }
+    }
 
     override suspend fun insertCategory(value: Category) =
         dao.insert(value.toEntity())

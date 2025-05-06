@@ -45,3 +45,9 @@ data class CategoryTotalSummary(
     val categoryId: Int,
     val total: BigDecimal
 ): Parcelable
+
+@Parcelize
+data class CategoryWithBudget(
+    val category: Category,
+    val budget: MonthlyBudget?
+): Parcelable

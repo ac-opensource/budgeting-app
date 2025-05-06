@@ -34,18 +34,10 @@ class CategoriesViewModel @Inject constructor(
 
     private fun observeData() {
         viewModelScope.launch {
-
-            useCase.getCategories()
-                .onEach {
-                    Log.d("CategoriesViewModel", "categories = $it")
-                }
-                .launchIn(viewModelScope)
-
             combine(
                 useCase.getCategoryGroups(),
-                useCase.getCategories()
+                useCase.getCategoriesWithLatestBudget()
             ) { groups, categories ->
-                Log.d("combine", "group count = ${groups.size}, category count = ${categories.size}")
                 CategoriesUiState.Success(groups, categories)
             }.collect { state ->
                 _uiState.value = state
@@ -86,8 +78,8 @@ class CategoriesViewModel @Inject constructor(
         viewModelScope.launch {
             val current = uiState.value
             if (current is CategoriesUiState.Success) {
-                val filtered = current.categories.filter { it.categoryGroupId == groupId }
-                val other = current.categories.filterNot { it.categoryGroupId == groupId }
+                val filtered = current.categoriesWithBudget.filter { it.category.categoryGroupId == groupId }.map { it.category }
+                val other = current.categoriesWithBudget.filterNot { it.category.categoryGroupId == groupId }.map { it.category }
 
                 val updated = filtered.toMutableList().apply {
                     add(to, removeAt(from))

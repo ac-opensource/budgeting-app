@@ -2,6 +2,7 @@ package dev.pandesal.sbp.domain.usecase
 
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
+import dev.pandesal.sbp.domain.model.CategoryWithBudget
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,9 @@ class CategoryUseCase @Inject constructor(
     // Categories
     fun getCategories(): Flow<List<Category>> =
         repository.getCategories()
+
+    fun getCategoriesWithLatestBudget(): Flow<List<CategoryWithBudget>> =
+        repository.getCategoriesWithLatestBudget()
 
     fun getFavoriteCategories(): Flow<List<Category>> =
         repository.getFavoriteCategories()

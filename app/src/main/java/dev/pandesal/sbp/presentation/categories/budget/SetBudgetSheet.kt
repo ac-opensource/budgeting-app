@@ -1,5 +1,7 @@
 package dev.pandesal.sbp.presentation.categories.budget
 
+import java.math.BigDecimal
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,8 +26,8 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetBudgetSheet(
-    initialAmount: String = "",
-    onSubmit: (String) -> Unit,
+    initialAmount: BigDecimal = BigDecimal.ZERO,
+    onSubmit: (BigDecimal) -> Unit,
     onCancel: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -44,8 +46,8 @@ fun SetBudgetSheet(
         ) {
             Text("Set Target Budget", style = MaterialTheme.typography.titleLarge)
             OutlinedTextField(
-                value = amount.value,
-                onValueChange = { amount.value = it },
+                value = amount.value.toString(),
+                onValueChange = { amount.value = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
                 label = { Text("Amount") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true

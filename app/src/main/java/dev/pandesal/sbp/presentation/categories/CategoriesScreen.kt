@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
+import dev.pandesal.sbp.domain.model.CategoryWithBudget
+import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.extensions.ReorderHapticFeedbackType
 import dev.pandesal.sbp.extensions.rememberReorderHapticFeedback
 import dev.pandesal.sbp.presentation.LocalNavigationManager
@@ -53,14 +55,16 @@ import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoriesContent(
     parentList: List<CategoryGroup>,
-    categories: List<Category>,
+    categoriesWithBudget: List<CategoryWithBudget>,
     onAddCategoryGroup: (name: String) -> Unit,
     onAddCategory: (name: String, groupId: Int) -> Unit,
+    onAddBudget: (amount: BigDecimal, categoryId: Int) -> Unit,
     reorderGroup: (from: Int, to: Int) -> Unit,
     reorderCategory: (groupId: Int, from: Int, to: Int) -> Unit,
 ) {
@@ -69,6 +73,7 @@ private fun CategoriesContent(
 
     var showNewCategorySheet by remember { mutableStateOf(false) }
     var selectedGroupId by remember { mutableStateOf<Int?>(null) }
+    var selectedCategoryId by remember { mutableStateOf<Int?>(null) }
     val newCategorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var groupList by remember { mutableStateOf(parentList) }
@@ -88,7 +93,7 @@ private fun CategoriesContent(
 
     // State for Set Budget sheet
     var showSetBudgetSheet by remember { mutableStateOf(false) }
-    var budgetTargetAmount by remember { mutableStateOf("") }
+    var budgetTargetAmount by remember { mutableStateOf(BigDecimal.ZERO) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -110,7 +115,7 @@ private fun CategoriesContent(
             itemsIndexed(groupList, key = { _, item -> item.id }) { index, item ->
                 ReorderableItem(reorderableLazyGroupsColumnState, item.id) {
                     val interactionSource = remember { MutableInteractionSource() }
-                    val childCategories = categories.filter { it.categoryGroupId == item.id }
+                    val childCategories = categoriesWithBudget.filter { it.category.categoryGroupId == item.id }
 
                     Card(
                         onClick = {},
@@ -184,6 +189,7 @@ private fun CategoriesContent(
                         ChildListContent(
                             childCategories = childCategories,
                             onAddBudgetClick = {
+                                selectedCategoryId = it
                                 showSetBudgetSheet = true
                             },
                             reorderCategory = { from, to ->
@@ -231,8 +237,9 @@ private fun CategoriesContent(
     if (showSetBudgetSheet) {
         SetBudgetSheet(
             initialAmount = budgetTargetAmount,
-            onSubmit = {
-                budgetTargetAmount = it
+            onSubmit = { amount ->
+                onAddBudget(amount, selectedCategoryId!!)
+                budgetTargetAmount = amount
                 showSetBudgetSheet = false
             },
             onCancel = {
@@ -247,8 +254,8 @@ private fun CategoriesContent(
 
 @Composable
 private fun ChildListContent(
-    childCategories: List<Category>,
-    onAddBudgetClick: (Int) -> Unit,
+    childCategories: List<CategoryWithBudget>,
+    onAddBudgetClick: (categoryId: Int) -> Unit,
     reorderCategory: (from: Int, to: Int) -> Unit
 ) {
     var childList by remember { mutableStateOf(childCategories) }
@@ -274,8 +281,8 @@ private fun ChildListContent(
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            itemsIndexed(childList, key = { _, item -> item.id }) { index, item ->
-                ReorderableItem(reorderableLazyCategoriesColumnState, item.id) {
+            itemsIndexed(childList, key = { _, item -> item.category.id }) { index, item ->
+                ReorderableItem(reorderableLazyCategoriesColumnState, item.category.id) {
                     val interactionSource = remember { MutableInteractionSource() }
 
                     Card(
@@ -322,14 +329,23 @@ private fun ChildListContent(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Spacer(Modifier.size(16.dp))
-                            Text(item.name)
+                            Text(item.category.name)
 
                             Spacer(Modifier.weight(1f))
-                            TextButton(onClick = {
-                                onAddBudgetClick(item.id)
-                            }) {
-                                Text("Set Budget")
+
+
+                            if (item.budget != null) {
+                                item.budget.let {
+                                    Text("₱${it.spent} / ₱${it.allocated}")
+                                }
+                            } else {
+                                TextButton(onClick = {
+                                    onAddBudgetClick(item.category.id)
+                                }) {
+                                    Text("Set Budget")
+                                }
                             }
+
                             IconButton(
                                 modifier = Modifier
                                     .draggableHandle(
@@ -362,12 +378,15 @@ fun CategoriesScreen(
         val state = uiState.value as CategoriesUiState.Success
         CategoriesContent(
             parentList = state.categoryGroups,
-            categories = state.categories,
+            categoriesWithBudget = state.categoriesWithBudget,
             onAddCategoryGroup = { name ->
                 viewModel.createCategoryGroup(name)
             },
             onAddCategory = { name, groupId ->
                 viewModel.createCategory(name, groupId)
+            },
+            onAddBudget = { amount, categoryId ->
+                viewModel.setBudgetForCategory(categoryId, amount)
             },
             reorderGroup = { from, to ->
                 haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)

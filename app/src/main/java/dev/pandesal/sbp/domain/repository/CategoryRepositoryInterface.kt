@@ -2,6 +2,7 @@ package dev.pandesal.sbp.domain.repository
 
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
+import dev.pandesal.sbp.domain.model.CategoryWithBudget
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import kotlinx.coroutines.flow.Flow
 import java.time.YearMonth
@@ -20,6 +21,7 @@ interface CategoryRepositoryInterface {
     fun getCategoryById(id: String): Flow<Category>
     fun getCategoriesByGroupId(categoryGroupId: String): Flow<List<Category>>
     fun getFavoriteCategoriesByGroupId(categoryGroupId: String): Flow<List<Category>>
+    fun getCategoriesWithLatestBudget(): Flow<List<CategoryWithBudget>>
     suspend fun insertCategory(value: Category)
     suspend fun deleteCategory(value: Category)
 
