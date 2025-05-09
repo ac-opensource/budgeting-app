@@ -4,29 +4,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import dagger.hilt.android.AndroidEntryPoint
+import dev.pandesal.sbp.presentation.components.BottomBar
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 
 @AndroidEntryPoint
@@ -37,69 +36,39 @@ class MainActivity : ComponentActivity() {
         setContent {
             StopBeingPoorTheme {
                 val navController = rememberNavController()
-                Scaffold(
-                    bottomBar = {
-                        BottomBar(navController)
+                var fabVisible by remember { mutableStateOf(true) }
+
+                val scrollConnection = remember {
+                    object : NestedScrollConnection {
+                        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                            if (available.y < -5) fabVisible = false  // scrolling down
+                            else if (available.y > 5) fabVisible = true // scrolling up
+                            return Offset.Zero
+                        }
                     }
+                }
+                Scaffold(
+                    floatingActionButton = {
+                        AnimatedVisibility(
+                            visible = fabVisible,
+                            enter = slideInVertically { fullHeight -> fullHeight }, // slides in from bottom
+                            exit = slideOutVertically { fullHeight -> fullHeight }  // slides out to bottom
+                        ) {
+                            BottomBar(navController)
+                        }
+                    },
+                    floatingActionButtonPosition = FabPosition.Center
                 ) { innerPadding ->
-                    Surface(
-                        color = MaterialTheme.colorScheme.background,
-                        modifier = Modifier.padding(innerPadding)
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .nestedScroll(scrollConnection)
                     ) {
                         AppNavigation(navController)
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Composable
-fun BottomBar(navController: NavController) {
-    val items = listOf(
-        BottomNavItem("Home", NavigationDestination.Home, Icons.Filled.Home),
-        BottomNavItem("Categories", NavigationDestination.Categories, Icons.Filled.List),
-        BottomNavItem("Reports", NavigationDestination.Home, Icons.Filled.Info),
-        BottomNavItem("Profile", NavigationDestination.Home, Icons.Filled.Person)
-    )
-
-    val navBackStackEntry = navController.currentBackStackEntryAsState()
-    val currentDestination: NavigationDestination? = navBackStackEntry.value?.toRoute()
-
-    NavigationBar {
-        items.forEach { item ->
-            NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = item.name) },
-                label = { Text(item.name) },
-                selected = currentDestination == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            )
-        }
-    }
-}
-
-data class BottomNavItem(val name: String, val route: NavigationDestination, val icon: ImageVector)
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    StopBeingPoorTheme {
-        Greeting("Android")
     }
 }

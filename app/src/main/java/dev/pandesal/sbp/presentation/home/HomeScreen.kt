@@ -134,7 +134,10 @@ private fun HomeScreen(
             AccountCard(account)
             Spacer(modifier = Modifier.height(8.dp))
         }
+
+        Spacer(modifier = Modifier.height(130.dp))
     }
+
 }
 
 

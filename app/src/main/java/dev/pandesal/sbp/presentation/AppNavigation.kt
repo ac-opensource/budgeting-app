@@ -16,6 +16,8 @@ sealed class NavigationDestination() {
     data object Home : NavigationDestination()
     @Serializable
     data object Categories : NavigationDestination()
+    data object Insights : NavigationDestination()
+    data object More : NavigationDestination()
 }
 
 val LocalNavigationManager = compositionLocalOf<NavHostController> { error("No nav host found") }
