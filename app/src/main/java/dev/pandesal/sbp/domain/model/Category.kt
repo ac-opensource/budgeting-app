@@ -2,6 +2,7 @@ package dev.pandesal.sbp.domain.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import java.time.YearMonth
 
@@ -17,6 +18,7 @@ data class CategoryGroup(
     val isArchived: Boolean = false
 ): Parcelable
 
+@Serializable
 @Parcelize
 data class Category(
     val id: Int = 0,

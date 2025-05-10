@@ -1,5 +1,6 @@
 package dev.pandesal.sbp.data.local
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import dev.pandesal.sbp.domain.model.Transaction
@@ -12,7 +13,9 @@ data class TransactionEntity(
     @PrimaryKey val id: String,
     val name: String,
     val note: String? = null,
-    val categoryId: String,
+    val categoryId: String? = null,
+    @Embedded(prefix = "category_")
+    val category: CategoryEntity? = null,
     val amount: BigDecimal,
     val createdAt: String,
     val updatedAt: String,
@@ -35,6 +38,7 @@ fun TransactionEntity.toDomainModel(): Transaction {
         name = name,
         note = note,
         categoryId = categoryId,
+        category = category?.toDomainModel(),
         amount = amount,
         createdAt = LocalDate.parse(createdAt),
         updatedAt = LocalDate.parse(updatedAt),
@@ -58,6 +62,7 @@ fun Transaction.toEntity(): TransactionEntity {
         name = name,
         note = note,
         categoryId = categoryId,
+        category = category?.toEntity(),
         amount = amount,
         createdAt = createdAt.toString(),
         updatedAt = updatedAt.toString(),

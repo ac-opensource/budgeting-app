@@ -16,7 +16,8 @@ data class Transaction(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
     val note: String? = null,
-    val categoryId: String,
+    val categoryId: String? = null,
+    val category: Category? = null,
     @Serializable(with = BigDecimalSerializer::class)
     val amount: BigDecimal,
     @Serializable(with = LocalDateSerializer::class)

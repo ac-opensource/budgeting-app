@@ -10,52 +10,200 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
-    @Query("SELECT * FROM transactions")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+    """)
     fun getAllTransactions(): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.transactionType = :transactionType
+    """)
     fun getTransactionsByType(transactionType: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND accountId = :accountId")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.transactionType = :transactionType AND t.accountId = :accountId
+    """)
     fun getTransactionsByTypeAndAccountId(transactionType: String, accountId: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND categoryId = :categoryId")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.transactionType = :transactionType AND t.categoryId = :categoryId
+    """)
     fun getTransactionsByTypeAndCategoryId(transactionType: String, categoryId: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND accountId = :accountId AND categoryId = :categoryId")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.transactionType = :transactionType AND t.accountId = :accountId AND t.categoryId = :categoryId
+    """)
     fun getTransactionsByTypeAndAccountIdAndCategoryId(transactionType: String, accountId: String, categoryId: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND createdAt BETWEEN :startDate AND :endDate")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.transactionType = :transactionType AND t.createdAt BETWEEN :startDate AND :endDate
+    """)
     fun getTransactionsByTypeAndDateRange(transactionType: String, startDate: String, endDate: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND accountId = :accountId AND createdAt BETWEEN :startDate AND :endDate")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.transactionType = :transactionType AND t.accountId = :accountId AND t.createdAt BETWEEN :startDate AND :endDate
+    """)
     fun getTransactionsByTypeAndAccountIdAndDateRange(transactionType: String, accountId: String, startDate: String, endDate: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE id = :id")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.id = :id
+    """)
     fun getTransactionById(id: String): Flow<TransactionEntity>
 
-    @Query("SELECT * FROM transactions WHERE accountId = :accountId")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.accountId = :accountId
+    """)
     fun getTransactionsByAccountId(accountId: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE categoryId = :categoryId")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.categoryId = :categoryId
+    """)
     fun getTransactionsByCategoryId(categoryId: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE createdAt BETWEEN :startDate AND :endDate")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.createdAt BETWEEN :startDate AND :endDate
+    """)
     fun getTransactionsByDateRange(startDate: String, endDate: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE createdAt BETWEEN :startDate AND :endDate AND accountId = :accountId")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.createdAt BETWEEN :startDate AND :endDate AND t.accountId = :accountId
+    """)
     fun getTransactionsByDateRangeAndAccountId(startDate: String, endDate: String, accountId: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE note LIKE '%' || :query || '%' ORDER BY createdAt DESC")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.note LIKE '%' || :query || '%'
+        ORDER BY t.createdAt DESC
+    """)
     fun searchTransactions(query: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
+    @Query("""
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        ORDER BY t.createdAt DESC
+        LIMIT :limit OFFSET :offset
+    """)
     fun getPagedTransactions(limit: Int, offset: Int): Flow<List<TransactionEntity>>
 
     @Query("""
-        SELECT * FROM transactions 
-        WHERE categoryId = :categoryId 
-        ORDER BY createdAt DESC 
+        SELECT t.*, 
+               c.id AS category_id, 
+               c.name AS category_name, 
+               c.categoryGroupId AS category_categoryGroupId, 
+               c.isArchived AS category_isArchived, 
+               c.weight AS category_weight
+        FROM transactions t
+        INNER JOIN categories c ON t.categoryId = c.id
+        WHERE t.categoryId = :categoryId
+        ORDER BY t.createdAt DESC
         LIMIT :limit OFFSET :offset
     """)
     fun getPagedTransactionsByCategory(
