@@ -10,7 +10,9 @@ import dev.pandesal.sbp.data.dao.CategoryDao
 import dev.pandesal.sbp.data.dao.TransactionDao
 import dev.pandesal.sbp.data.local.SbpDatabase
 import dev.pandesal.sbp.data.repository.CategoryRepository
+import dev.pandesal.sbp.data.repository.TransactionRepository
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
+import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -41,9 +43,17 @@ object DataModule {
     @Provides
     fun provideCategoryRepository(
         categoryDao: CategoryDao,
-        transactionDao: TransactionDao
     ): CategoryRepositoryInterface {
         return CategoryRepository(categoryDao)
     }
+
+    @Singleton
+    @Provides
+    fun provideTransactionRepository(
+        transactionDao: TransactionDao
+    ): TransactionRepositoryInterface {
+        return TransactionRepository(transactionDao)
+    }
+
 
 }
