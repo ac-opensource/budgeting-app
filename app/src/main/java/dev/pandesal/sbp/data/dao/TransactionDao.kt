@@ -25,10 +25,10 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND accountId = :accountId AND categoryId = :categoryId")
     fun getTransactionsByTypeAndAccountIdAndCategoryId(transactionType: String, accountId: String, categoryId: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND date BETWEEN :startDate AND :endDate")
+    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND createdAt BETWEEN :startDate AND :endDate")
     fun getTransactionsByTypeAndDateRange(transactionType: String, startDate: String, endDate: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND accountId = :accountId AND date BETWEEN :startDate AND :endDate")
+    @Query("SELECT * FROM transactions WHERE transactionType = :transactionType AND accountId = :accountId AND createdAt BETWEEN :startDate AND :endDate")
     fun getTransactionsByTypeAndAccountIdAndDateRange(transactionType: String, accountId: String, startDate: String, endDate: String): Flow<List<TransactionEntity>>
 
     @Query("SELECT * FROM transactions WHERE id = :id")
@@ -40,22 +40,22 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE categoryId = :categoryId")
     fun getTransactionsByCategoryId(categoryId: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE date BETWEEN :startDate AND :endDate")
+    @Query("SELECT * FROM transactions WHERE createdAt BETWEEN :startDate AND :endDate")
     fun getTransactionsByDateRange(startDate: String, endDate: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE date BETWEEN :startDate AND :endDate AND accountId = :accountId")
+    @Query("SELECT * FROM transactions WHERE createdAt BETWEEN :startDate AND :endDate AND accountId = :accountId")
     fun getTransactionsByDateRangeAndAccountId(startDate: String, endDate: String, accountId: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE note LIKE '%' || :query || '%' ORDER BY date DESC")
+    @Query("SELECT * FROM transactions WHERE note LIKE '%' || :query || '%' ORDER BY createdAt DESC")
     fun searchTransactions(query: String): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions ORDER BY date DESC LIMIT :limit OFFSET :offset")
+    @Query("SELECT * FROM transactions ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
     fun getPagedTransactions(limit: Int, offset: Int): Flow<List<TransactionEntity>>
 
     @Query("""
         SELECT * FROM transactions 
         WHERE categoryId = :categoryId 
-        ORDER BY date DESC 
+        ORDER BY createdAt DESC 
         LIMIT :limit OFFSET :offset
     """)
     fun getPagedTransactionsByCategory(

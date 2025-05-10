@@ -1,12 +1,14 @@
 package dev.pandesal.sbp.data.local
 
 import android.content.Context
+import androidx.compose.ui.input.key.type
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import dev.pandesal.sbp.data.dao.DatabaseDaos
+import kotlinx.serialization.json.Json
 import java.math.BigDecimal
 
 @Database(
@@ -18,7 +20,7 @@ import java.math.BigDecimal
     version = 1,
     exportSchema = false
 )
-@TypeConverters(BigDecimalConverter::class)
+@TypeConverters(BigDecimalConverter::class, ListStringConverter::class)
 abstract class SbpDatabase : RoomDatabase(), DatabaseDaos {
 
     companion object {
@@ -55,5 +57,17 @@ class BigDecimalConverter {
     @TypeConverter
     fun toBigDecimal(value: String?): BigDecimal? {
         return value?.let { BigDecimal(it) }
+    }
+}
+
+class ListStringConverter {
+    @TypeConverter
+    fun fromListString(list: List<String>): String {
+        return Json.encodeToString(list)
+    }
+
+    @TypeConverter
+    fun toListString(jsonString: String): List<String> {
+        return Json.decodeFromString(jsonString)
     }
 }
