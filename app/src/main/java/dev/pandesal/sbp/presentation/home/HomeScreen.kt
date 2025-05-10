@@ -1,178 +1,237 @@
 package dev.pandesal.sbp.presentation.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
-import dev.pandesal.sbp.presentation.home.components.AccountCard
-import dev.pandesal.sbp.presentation.home.components.BudgetCategoryCard
-import dev.pandesal.sbp.presentation.home.components.BudgetSummaryHeader
-import dev.pandesal.sbp.presentation.home.components.NetWorthBarChart
-import dev.pandesal.sbp.presentation.home.components.QuickActionCard
-import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
-import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
-import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import dev.pandesal.sbp.domain.model.Transaction
+import dev.pandesal.sbp.domain.model.TransactionType
+import dev.pandesal.sbp.presentation.LocalNavigationManager
+import dev.pandesal.sbp.presentation.NavigationDestination
+import dev.pandesal.sbp.presentation.components.TransactionItem
+import java.math.BigDecimal
+import java.time.LocalDate
+
 
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
-) {
+fun HomeScreen() {
 
-    val uiState by viewModel.uiState.collectAsState()
+    val navController = LocalNavigationManager.current
 
-    if (uiState is HomeUiState.Loading) {
-        Dialog(onDismissRequest = {  }, properties = DialogProperties(
-            dismissOnClickOutside = false,
-            dismissOnBackPress = false
-        )) {
+    HomeScreen(
+        totalAmount = 12345.67,
+        categoryPercentages = listOf(
+            "Invest" to 30.0,
+            "Healthcare" to 20.0,
+            "Self Reward" to 15.0,
+            "Food" to 10.0,
+            "Transport" to 5.0
+        ),
+        transactions = List(100) { index ->
+            Transaction(
+                categoryId = "${index + 1}",
+                amount = BigDecimal(100 + index * 10),
+                createdAt = LocalDate.now().minusDays(index.toLong()),
+                updatedAt = LocalDate.now().minusDays(index.toLong()),
+                name = "Transaction #${index + 1}",
+                accountId = "1",
+                transactionType = if (index % 2 == 0) TransactionType.OUTFLOW else TransactionType.INFLOW
+            )
+        },
+        onViewAllTransactions = {
+            navController.navigate(NavigationDestination.Transactions)
         }
-    }
-
-    if (uiState is HomeUiState.Success) {
-        HomeScreen(
-            favoriteBudgets = (uiState as HomeUiState.Success).favoriteBudgets,
-            accounts = (uiState as HomeUiState.Success).accounts,
-            netWorthData = (uiState as HomeUiState.Success).netWorthData,
-            onAddExpense = { println("Add Expense") },
-            onAddFund = { println("Add Fund") },
-            onAddLoan = { println("Add Loan") },
-            onViewReports = { println("View Reports") },
-            onViewAllBudgets = { println("View All Budgets") }
-        )
-    }
-
-
-
+    )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
-    favoriteBudgets: List<BudgetCategoryUiModel>,
-    accounts: List<AccountSummaryUiModel>,
-    netWorthData: List<NetWorthUiModel>,
-    onAddExpense: () -> Unit,
-    onAddFund: () -> Unit,
-    onAddLoan: () -> Unit,
-    onViewReports: () -> Unit,
-    onViewAllBudgets: () -> Unit
+    totalAmount: Double,
+    categoryPercentages: List<Pair<String, Double>>,
+    transactions: List<Transaction>,
+    onViewAllTransactions: () -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        val assignedAmount = favoriteBudgets.sumOf { it.allocated }
-        val totalAvailable = accounts.sumOf { it.balance }
-        val unassignedAmount = totalAvailable - assignedAmount
+    val topCategories = categoryPercentages
+        .sortedByDescending { it.second }
+        .take(3)
+    val othersPercentage = 100.0 - topCategories.sumOf { it.second }
 
-        BudgetSummaryHeader(
-            unassigned = unassignedAmount,
-            assigned = assignedAmount
-        )
-        Spacer(modifier = Modifier.height(24.dp))
+    val displayCategories = topCategories.toMutableList()
 
-        NetWorthBarChart(data = netWorthData)
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Text("Your Budget", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(favoriteBudgets) { budget ->
-                BudgetCategoryCard(budget)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-        TextButton(onClick = onViewAllBudgets) {
-            Text("View All Budgets")
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Text("Quick Actions", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(5),
-            modifier = Modifier.height(80.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item { QuickActionCard("Add Expense", Icons.Default.ShoppingCart, onAddExpense) }
-            item { QuickActionCard("Add Fund", Icons.Default.AccountBox, onAddFund) }
-            item { QuickActionCard("Add Loan", Icons.Default.AccountCircle, onAddLoan) }
-            item { QuickActionCard("Reports", Icons.Default.Create, onViewReports) }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Text("Accounts", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        accounts.forEach { account ->
-            AccountCard(account)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        Spacer(modifier = Modifier.height(130.dp))
+    if (othersPercentage > 0f) {
+        displayCategories.add("Others" to othersPercentage)
     }
 
+    val sheetHeightPx = remember { mutableFloatStateOf(0f) }
+    val density = LocalDensity.current
+    val screenHeightPx = with(density) { LocalConfiguration.current.screenHeightDp.dp.toPx() }
+    val scaffoldState = rememberBottomSheetScaffoldState()
+
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = with(density) {
+            val heightWithPadding = sheetHeightPx.floatValue.toDp() - 24.dp
+            if (heightWithPadding > 0.dp) {
+                heightWithPadding
+            } else {
+                400.dp
+            }
+        },
+        sheetContent = {
+
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Recent Transactions", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "View All",
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            onViewAllTransactions()
+                        })
+                }
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    items(transactions) { transaction ->
+                        TransactionItem(transaction)
+                    }
+                }
+
+                Spacer(Modifier.height(120.dp))
+            }
+        },
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
+                .padding(16.dp)
+        ) {
+            Text("Consolidated Account", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = "$${"%,.2f".format(totalAmount)}",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(32.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                displayCategories.forEach { (label, percent) ->
+                    Box(
+                        modifier = Modifier
+                            .weight(percent.toFloat())
+                            .clip(RoundedCornerShape(8.dp))
+                            .fillMaxHeight()
+                            .background(getCategoryColor(label))
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            displayCategories.forEach { (label, percent) ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(label)
+                    Text("${percent.toInt()}%")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider(
+                modifier = Modifier
+                    .onGloballyPositioned { coordinates ->
+                        val positionY = coordinates.positionInWindow().y
+                        val calculatedPeekHeight = screenHeightPx - positionY
+                        sheetHeightPx.floatValue = calculatedPeekHeight
+                    }
+            )
+        }
+    }
 }
 
+fun getCategoryColor(label: String): Color = when (label) {
+    "Invest" -> Color(0xFF6FCF97)
+    "Healthcare" -> Color(0xFFF29BBB)
+    "Self Reward" -> Color(0xFFF2C94C)
+    "Others" -> Color.Gray
+    else -> Color.LightGray
+}
 
-@Composable
 @Preview
+@Composable
 fun HomeScreenPreview() {
-    val dummyBudgets = listOf(
-        BudgetCategoryUiModel("Groceries", 5000.0, 3200.0),
-        BudgetCategoryUiModel("Utilities", 3000.0, 1200.0),
-        BudgetCategoryUiModel("Transport", 2000.0, 1800.0),
-        BudgetCategoryUiModel("Dining Out", 1500.0, 800.0),
-    )
-
-    val dummyAccounts = listOf(
-        AccountSummaryUiModel("GCash", 2200.0, isSpendingWallet = true, isFundingWallet = false),
-        AccountSummaryUiModel("BPI Savings", 15000.0, isSpendingWallet = false, isFundingWallet = true),
-        AccountSummaryUiModel("Wallet", 500.0, isSpendingWallet = true, isFundingWallet = false),
-        AccountSummaryUiModel("UnionBank", 8500.0, isSpendingWallet = true, isFundingWallet = true),
-    )
-
-    val dummyNetWorth = listOf(
-        NetWorthUiModel("Jan", 40000.0, 10000.0),
-        NetWorthUiModel("Feb", 42000.0, 9500.0),
-        NetWorthUiModel("Mar", 45000.0, 8700.0),
-        NetWorthUiModel("Apr", 47000.0, 8000.0),
-    )
-
     HomeScreen(
-        favoriteBudgets = dummyBudgets,
-        accounts = dummyAccounts,
-        netWorthData = dummyNetWorth,
-        onAddExpense = { println("Add Expense") },
-        onAddFund = { println("Add Fund") },
-        onAddLoan = { println("Add Loan") },
-        onViewReports = { println("View Reports") },
-        onViewAllBudgets = { println("View All Budgets") }
+        totalAmount = 12345.67,
+        categoryPercentages = listOf(
+            "Invest" to 30.0,
+            "Healthcare" to 20.0,
+            "Self Reward" to 15.0,
+            "Food" to 10.0,
+            "Transport" to 5.0
+        ),
+        transactions = listOf(
+            Transaction(
+                categoryId = "1",
+                amount = BigDecimal(120.00),
+                createdAt = LocalDate.now(),
+                updatedAt = LocalDate.now(),
+                name = "Grocery Shopping",
+                accountId = "1",
+                transactionType = TransactionType.OUTFLOW
+            ),
+            Transaction(
+                categoryId = "2",
+                amount = BigDecimal(500.00),
+                createdAt = LocalDate.now().minusDays(1),
+                updatedAt = LocalDate.now().minusDays(1),
+                name = "Salary",
+                accountId = "1",
+                transactionType = TransactionType.INFLOW
+            )
+        )
     )
 }

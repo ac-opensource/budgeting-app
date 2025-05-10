@@ -85,26 +85,31 @@ fun BottomBar(navController: NavController) {
             }
         }
 
-        Card(
-            modifier = Modifier.size(80.dp),
-            shape = CircleShape,
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Black,
-                contentColor = Color.White
-            ),
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+        Row {
+            Card(
+                modifier = Modifier.size(80.dp),
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black,
+                    contentColor = Color.White
+                ),
             ) {
-                Icon(
-                    modifier = Modifier.size(40.dp),
-                    painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "New Transaction",
-                    tint = Color.White
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        modifier = Modifier.size(40.dp),
+                        painter = painterResource(id = R.drawable.ic_add),
+                        contentDescription = "New Transaction",
+                        tint = Color.White
+                    )
+                }
             }
+
+            Spacer(Modifier.size(16.dp))
         }
+
     }
 }
 
