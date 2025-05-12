@@ -18,7 +18,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
     """)
     fun getAllTransactions(): Flow<List<TransactionEntity>>
 
@@ -30,7 +30,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         WHERE t.transactionType = :transactionType
     """)
     fun getTransactionsByType(transactionType: String): Flow<List<TransactionEntity>>
@@ -43,7 +43,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         WHERE t.transactionType = :transactionType AND t.accountId = :accountId
     """)
     fun getTransactionsByTypeAndAccountId(transactionType: String, accountId: String): Flow<List<TransactionEntity>>
@@ -56,8 +56,8 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
-        WHERE t.transactionType = :transactionType AND t.categoryId = :categoryId
+        INNER JOIN categories c ON t.category_id = c.id
+        WHERE t.transactionType = :transactionType AND t.category_id = :categoryId
     """)
     fun getTransactionsByTypeAndCategoryId(transactionType: String, categoryId: String): Flow<List<TransactionEntity>>
 
@@ -69,8 +69,8 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
-        WHERE t.transactionType = :transactionType AND t.accountId = :accountId AND t.categoryId = :categoryId
+        INNER JOIN categories c ON t.category_id = c.id
+        WHERE t.transactionType = :transactionType AND t.accountId = :accountId AND t.category_id = :categoryId
     """)
     fun getTransactionsByTypeAndAccountIdAndCategoryId(transactionType: String, accountId: String, categoryId: String): Flow<List<TransactionEntity>>
 
@@ -82,7 +82,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         WHERE t.transactionType = :transactionType AND t.createdAt BETWEEN :startDate AND :endDate
     """)
     fun getTransactionsByTypeAndDateRange(transactionType: String, startDate: String, endDate: String): Flow<List<TransactionEntity>>
@@ -95,7 +95,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         WHERE t.transactionType = :transactionType AND t.accountId = :accountId AND t.createdAt BETWEEN :startDate AND :endDate
     """)
     fun getTransactionsByTypeAndAccountIdAndDateRange(transactionType: String, accountId: String, startDate: String, endDate: String): Flow<List<TransactionEntity>>
@@ -108,7 +108,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         WHERE t.id = :id
     """)
     fun getTransactionById(id: String): Flow<TransactionEntity>
@@ -121,7 +121,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         WHERE t.accountId = :accountId
     """)
     fun getTransactionsByAccountId(accountId: String): Flow<List<TransactionEntity>>
@@ -134,8 +134,8 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
-        WHERE t.categoryId = :categoryId
+        INNER JOIN categories c ON t.category_id = c.id
+        WHERE t.category_id = :categoryId
     """)
     fun getTransactionsByCategoryId(categoryId: String): Flow<List<TransactionEntity>>
 
@@ -147,7 +147,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         WHERE t.createdAt BETWEEN :startDate AND :endDate
     """)
     fun getTransactionsByDateRange(startDate: String, endDate: String): Flow<List<TransactionEntity>>
@@ -160,7 +160,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         WHERE t.createdAt BETWEEN :startDate AND :endDate AND t.accountId = :accountId
     """)
     fun getTransactionsByDateRangeAndAccountId(startDate: String, endDate: String, accountId: String): Flow<List<TransactionEntity>>
@@ -173,7 +173,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         WHERE t.note LIKE '%' || :query || '%'
         ORDER BY t.createdAt DESC
     """)
@@ -187,7 +187,7 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
+        INNER JOIN categories c ON t.category_id = c.id
         ORDER BY t.createdAt DESC
         LIMIT :limit OFFSET :offset
     """)
@@ -201,8 +201,8 @@ interface TransactionDao {
                c.isArchived AS category_isArchived, 
                c.weight AS category_weight
         FROM transactions t
-        INNER JOIN categories c ON t.categoryId = c.id
-        WHERE t.categoryId = :categoryId
+        INNER JOIN categories c ON t.category_id = c.id
+        WHERE t.category_id = :categoryId
         ORDER BY t.createdAt DESC
         LIMIT :limit OFFSET :offset
     """)
@@ -213,10 +213,10 @@ interface TransactionDao {
     ): Flow<List<TransactionEntity>>
 
     @Query("""
-        SELECT categoryId, SUM(amount) as total 
+        SELECT category_id, SUM(amount) as total 
         FROM transactions 
         WHERE transactionType = :type 
-        GROUP BY categoryId
+        GROUP BY category_id
     """)
     fun getTotalAmountByCategory(type: String): Flow<List<CategoryTotalSummary>>
 

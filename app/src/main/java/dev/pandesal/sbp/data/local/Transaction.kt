@@ -13,7 +13,6 @@ data class TransactionEntity(
     @PrimaryKey val id: String,
     val name: String,
     val note: String? = null,
-    val categoryId: String? = null,
     @Embedded(prefix = "category_")
     val category: CategoryEntity? = null,
     val amount: BigDecimal,
@@ -37,7 +36,6 @@ fun TransactionEntity.toDomainModel(): Transaction {
         id = id,
         name = name,
         note = note,
-        categoryId = categoryId,
         category = category?.toDomainModel(),
         amount = amount,
         createdAt = LocalDate.parse(createdAt),
@@ -61,7 +59,6 @@ fun Transaction.toEntity(): TransactionEntity {
         id = id,
         name = name,
         note = note,
-        categoryId = categoryId,
         category = category?.toEntity(),
         amount = amount,
         createdAt = createdAt.toString(),

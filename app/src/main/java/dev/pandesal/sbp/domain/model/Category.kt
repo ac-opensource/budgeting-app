@@ -1,6 +1,7 @@
 package dev.pandesal.sbp.domain.model
 
 import android.os.Parcelable
+import androidx.room.ColumnInfo
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import java.math.BigDecimal
@@ -44,6 +45,7 @@ data class MonthlyBudget(
 
 @Parcelize
 data class CategoryTotalSummary(
+    @ColumnInfo(name = "category_id")
     val categoryId: Int,
     val total: BigDecimal
 ): Parcelable
