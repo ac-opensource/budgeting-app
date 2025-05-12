@@ -44,7 +44,7 @@ fun BottomBar(navController: NavController) {
             modifier = Modifier.padding(16.dp),
             shape = MaterialTheme.shapes.extraLarge,
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceBright),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
@@ -57,6 +57,7 @@ fun BottomBar(navController: NavController) {
                         icon = it.icon,
                         isSelected = currentDestination == it.destination,
                         onClick = {
+                            navController.navigateUp()
                             navController.navigate(it.destination) {
                                 popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                                 launchSingleTop = true
@@ -87,7 +88,10 @@ fun BottomBar(navController: NavController) {
 
         Row {
             Card(
-                modifier = Modifier.size(80.dp),
+                modifier = Modifier.size(80.dp)
+                    .clickable {
+                        navController.navigate(NavigationDestination.NewTransaction)
+                    },
                 shape = CircleShape,
                 colors = CardDefaults.cardColors(
                     containerColor = Color.Black,

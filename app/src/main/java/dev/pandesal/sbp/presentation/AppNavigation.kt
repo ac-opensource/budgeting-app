@@ -10,6 +10,7 @@ import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
+import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -51,6 +52,10 @@ fun AppNavigation(navController: NavHostController) {
             }
             composable<NavigationDestination.Transactions> {
                 TransactionsScreen()
+            }
+
+            composable<NavigationDestination.NewTransaction> {
+                NewTransactionScreen()
             }
 
         }
