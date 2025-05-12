@@ -18,14 +18,14 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF4CAF50), // Green
-    secondary = Color(0xFF546E7A), // BlueGray
-    tertiary = Color(0xFFFFC107), // Amber
-    background = Color(0xFFAAF0D1), // Mint Green
-    surface = Color(0xFFFFFFFF),
+    primary = Color(0xFF67597A), // Chinese Violet
+    secondary = Color(0xFF544E61), // English Violet
+    tertiary = Color(0xFF6E8894), // Slate Gray
+    background = Color(0xFF85BAA1), // Cambridge Blue
+    surface = Color(0xFFCEEDDB), // Honeydew
     onPrimary = Color.White,
     onSecondary = Color.White,
-    onTertiary = Color.Black,
+    onTertiary = Color.White,
     onBackground = Color(0xFF212121),
     onSurface = Color(0xFF212121),
 )

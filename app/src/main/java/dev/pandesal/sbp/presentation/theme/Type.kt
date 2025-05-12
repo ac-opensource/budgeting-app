@@ -1,34 +1,48 @@
 package dev.pandesal.sbp.presentation.theme
 
+import dev.pandesal.sbp.R
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+object AppFont {
+    val ManRope = FontFamily(
+        Font(R.font.manrope),
+        Font(R.font.manrope_light, style = FontStyle.Italic),
+        Font(R.font.manrope_medium, FontWeight.Medium),
+        Font(R.font.manrope_light, FontWeight.Medium, style = FontStyle.Italic),
+        Font(R.font.manrope_bold, FontWeight.Bold),
+        Font(R.font.manrope_extrabold, FontWeight.ExtraBold),
+        Font(R.font.manrope_semibold, FontWeight.SemiBold),
+        Font(R.font.manrope_light, FontWeight.Light),
+        Font(R.font.manrope_semibold, FontWeight.Bold, style = FontStyle.Italic)
+    )
+}
+
+
+private val defaultTypography = Typography()
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+    displayLarge = defaultTypography.displayLarge.copy(fontFamily = AppFont.ManRope),
+    displayMedium = defaultTypography.displayMedium.copy(fontFamily = AppFont.ManRope),
+    displaySmall = defaultTypography.displaySmall.copy(fontFamily = AppFont.ManRope),
+
+    headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = AppFont.ManRope),
+    headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = AppFont.ManRope),
+    headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = AppFont.ManRope),
+
+    titleLarge = defaultTypography.titleLarge.copy(fontFamily = AppFont.ManRope),
+    titleMedium = defaultTypography.titleMedium.copy(fontFamily = AppFont.ManRope),
+    titleSmall = defaultTypography.titleSmall.copy(fontFamily = AppFont.ManRope),
+
+    bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = AppFont.ManRope),
+    bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = AppFont.ManRope),
+    bodySmall = defaultTypography.bodySmall.copy(fontFamily = AppFont.ManRope),
+
+    labelLarge = defaultTypography.labelLarge.copy(fontFamily = AppFont.ManRope),
+    labelMedium = defaultTypography.labelMedium.copy(fontFamily = AppFont.ManRope),
+    labelSmall = defaultTypography.labelSmall.copy(fontFamily = AppFont.ManRope)
 )
