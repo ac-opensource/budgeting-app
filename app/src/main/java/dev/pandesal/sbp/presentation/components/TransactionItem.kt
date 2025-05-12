@@ -1,5 +1,6 @@
 package dev.pandesal.sbp.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,19 +17,44 @@ import java.math.BigDecimal
 
 @Composable
 fun TransactionItem(tx: Transaction) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(vertical = 2.dp)
     ) {
-        Column {
-            Text(tx.name)
-            Text(tx.createdAt.toString(), style = MaterialTheme.typography.bodySmall)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = tx.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                if (tx.category != null) {
+                    Text(
+                        text = tx.category.name,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                shape = MaterialTheme.shapes.small
+                            )
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Text(
+                text = (if (tx.amount > BigDecimal.ZERO) "+₱" else "-₱") + "%,.2f".format(tx.amount.abs()),
+                color = if (tx.amount > BigDecimal.ZERO) Color(0xFF2E7D32) else Color(0xFFC62828),
+                style = MaterialTheme.typography.titleMedium
+            )
         }
-        Text(
-            text = (if (tx.amount > BigDecimal.ZERO) "+$" else "-$") + "%,.2f".format(tx.amount.abs()),
-            color = if (tx.amount > BigDecimal.ZERO) Color.Green else Color.Red
-        )
     }
 }
+
