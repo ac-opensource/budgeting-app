@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -47,7 +50,19 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+
+                val backgroundDiagonalGradient = Brush.linearGradient(
+                    colors = listOf(
+                        Color.White,
+                        Color(0xFFCEEDDB),  // Honeydew (surface)
+                        Color(0xFF85BAA1), // Cambridge Blue (background)
+                    ),
+                )
+
                 Scaffold(
+                    modifier = Modifier
+                        .background(backgroundDiagonalGradient),
+                    containerColor = Color.Transparent,
                     floatingActionButton = {
                         AnimatedVisibility(
                             visible = fabVisible,
