@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -115,7 +116,8 @@ private fun CategoriesContent(
             itemsIndexed(groupList, key = { _, item -> item.id }) { index, item ->
                 ReorderableItem(reorderableLazyGroupsColumnState, item.id) {
                     val interactionSource = remember { MutableInteractionSource() }
-                    val childCategories = categoriesWithBudget.filter { it.category.categoryGroupId == item.id }
+                    val childCategories =
+                        categoriesWithBudget.filter { it.category.categoryGroupId == item.id }
 
                     Card(
                         onClick = {},
@@ -329,7 +331,10 @@ private fun ChildListContent(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Spacer(Modifier.size(16.dp))
-                            Text(item.category.name)
+                            Text(
+                                item.category.name,
+                                color = MaterialTheme.colorScheme.onTertiary
+                            )
 
                             Spacer(Modifier.weight(1f))
 
@@ -339,9 +344,14 @@ private fun ChildListContent(
                                     Text("₱${it.spent} / ₱${it.allocated}")
                                 }
                             } else {
-                                TextButton(onClick = {
-                                    onAddBudgetClick(item.category.id)
-                                }) {
+                                TextButton(
+                                    onClick = {
+                                        onAddBudgetClick(item.category.id)
+                                    },
+                                    colors = ButtonDefaults.textButtonColors(
+                                        contentColor = MaterialTheme.colorScheme.onTertiary
+                                    )
+                                ) {
                                     Text("Set Budget")
                                 }
                             }
