@@ -2,7 +2,9 @@ package dev.pandesal.sbp.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -12,9 +14,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Color(0xFFC9B4DC), // A lighter shade of Chinese Violet for contrast
+    secondary = Color(0xFFB5A8C8), // A lighter shade of English Violet
+    tertiary = Color(0xFFA3C5D2), // A lighter shade of Slate Gray
+    background = Color(0xFF1F2D2C), // A dark, desaturated color (based on Cambridge Blue)
+    surface = Color(0xFF2D3B3A), // A slightly lighter dark color for surfaces
+    onPrimary = Color.Black, // Dark text/icons on the lighter primary
+    onSecondary = Color.Black, // Dark text/icons on the lighter secondary
+    onTertiary = Color.Black, // Dark text/icons on the lighter tertiary
+    onBackground = Color(0xFFE0E0E0), // Light text/icons on the dark background
+    onSurface = Color(0xFFF0F0F0), // Light text/icons on the dark surface
+    onSurfaceVariant = Color(0xFFC0C0C0), // A slightly less bright light color for surface variants
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -27,9 +37,11 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = Color.White,
     onTertiary = Color.White,
     onBackground = Color(0xFF212121),
-    onSurface = Color(0xFF212121),
+    onSurface = Color(0xFF000000),
+    onSurfaceVariant = Color(0xFF212121),
 )
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun StopBeingPoorTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -47,9 +59,28 @@ fun StopBeingPoorTheme(
         else -> LightColorScheme
     }
 
+    val customTypography = Typography.copy(
+        displayLarge = Typography.displayLarge.copy(color = colorScheme.onBackground),
+        displayMedium = Typography.displayMedium.copy(color = colorScheme.onBackground),
+        displaySmall = Typography.displaySmall.copy(color = colorScheme.onBackground),
+        headlineLarge = Typography.headlineLarge.copy(color = colorScheme.onBackground),
+        headlineMedium = Typography.headlineMedium.copy(color = colorScheme.onBackground),
+        headlineSmall = Typography.headlineSmall.copy(color = colorScheme.onBackground),
+        titleLarge = Typography.titleLarge.copy(color = colorScheme.onSurface),
+        titleMedium = Typography.titleMedium.copy(color = colorScheme.onSurface),
+        titleSmall = Typography.titleSmall.copy(color = colorScheme.onSurface),
+        bodyLarge = Typography.bodyLarge.copy(color = colorScheme.onSurface),
+        bodyMedium = Typography.bodyMedium.copy(color = colorScheme.onSurface),
+        bodySmall = Typography.bodySmall.copy(color = colorScheme.onSurface),
+        labelLarge = Typography.labelLarge.copy(color = colorScheme.onSurface),
+        labelMedium = Typography.labelMedium.copy(color = colorScheme.onSurface),
+        labelSmall = Typography.labelSmall.copy(color = colorScheme.onSurface),
+    )
+
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = customTypography,
+        motionScheme = MotionScheme.expressive(),
         content = content
     )
 }

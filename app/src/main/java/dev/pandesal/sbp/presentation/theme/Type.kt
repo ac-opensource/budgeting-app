@@ -26,7 +26,8 @@ object AppFont {
 
 private val defaultTypography = Typography()
 val Typography = Typography(
-    displayLarge = defaultTypography.displayLarge.copy(fontFamily = AppFont.ManRope),
+    displayLarge = defaultTypography.displayLarge
+        .copy(fontFamily = AppFont.ManRope),
     displayMedium = defaultTypography.displayMedium.copy(fontFamily = AppFont.ManRope),
     displaySmall = defaultTypography.displaySmall.copy(fontFamily = AppFont.ManRope),
 
