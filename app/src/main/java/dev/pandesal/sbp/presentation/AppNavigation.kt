@@ -58,6 +58,16 @@ fun AppNavigation(navController: NavHostController) {
                 NewTransactionScreen()
             }
 
+            composable<NavigationDestination.Insights> {
+//                InsightsScreen()
+                HomeScreen()
+            }
+
+            composable<NavigationDestination.More> {
+//                MoreScreen()
+                HomeScreen()
+            }
+
         }
     }
 

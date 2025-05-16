@@ -1,0 +1,15 @@
+package dev.pandesal.sbp.presentation.transactions.newtransaction
+
+import dev.pandesal.sbp.domain.model.Category
+import dev.pandesal.sbp.domain.model.CategoryGroup
+import dev.pandesal.sbp.domain.model.Transaction
+
+sealed interface NewTransactionUiState {
+    data object Initial : NewTransactionUiState
+    data object Loading : NewTransactionUiState
+    data class Success(
+        val groupedCategories: Map<CategoryGroup, List<Category>>,
+        val transaction: Transaction
+    ) : NewTransactionUiState
+    data class Error(val errorMessage: String) : NewTransactionUiState
+}
