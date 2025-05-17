@@ -8,6 +8,10 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import dev.pandesal.sbp.data.dao.DatabaseDaos
+import dev.pandesal.sbp.data.dao.AccountDao
+import dev.pandesal.sbp.data.dao.CategoryDao
+import dev.pandesal.sbp.data.dao.TransactionDao
+import dev.pandesal.sbp.data.local.AccountEntity
 import kotlinx.serialization.json.Json
 import java.math.BigDecimal
 
@@ -16,12 +20,17 @@ import java.math.BigDecimal
         CategoryGroupEntity::class,
         CategoryEntity::class,
         MonthlyBudgetEntity::class,
-        TransactionEntity::class],
+        TransactionEntity::class,
+        AccountEntity::class],
     version = 1,
     exportSchema = false
 )
 @TypeConverters(BigDecimalConverter::class, ListStringConverter::class)
 abstract class SbpDatabase : RoomDatabase(), DatabaseDaos {
+
+    abstract override fun categoryDao(): CategoryDao
+    abstract override fun transactionDao(): TransactionDao
+    abstract override fun accountDao(): AccountDao
 
     companion object {
 

@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
+import dev.pandesal.sbp.presentation.accounts.AccountsScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
@@ -27,6 +28,8 @@ sealed class NavigationDestination() {
     data object Transactions : NavigationDestination()
     @Serializable
     data object NewTransaction : NavigationDestination()
+    @Serializable
+    data object Accounts : NavigationDestination()
     @Serializable
     data class TransactionDetails(val transaction: Transaction) : NavigationDestination()
 
@@ -49,6 +52,9 @@ fun AppNavigation(navController: NavHostController) {
             }
             composable<NavigationDestination.Categories> {
                 CategoriesScreen()
+            }
+            composable<NavigationDestination.Accounts> {
+                AccountsScreen()
             }
             composable<NavigationDestination.Transactions> {
                 TransactionsScreen()
