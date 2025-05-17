@@ -79,9 +79,10 @@ fun CategoryGroup.toEntity(): CategoryGroupEntity {
         icon = icon,
         weight = weight,
         isFavorite = isFavorite,
+        isArchived = isArchived,
+        isSystemSet = isSystemSet,
         description = description,
-
-        )
+    )
 }
 
 fun CategoryGroupEntity.toDomainModel(): CategoryGroup {
@@ -91,6 +92,8 @@ fun CategoryGroupEntity.toDomainModel(): CategoryGroup {
         icon = icon,
         weight = weight,
         isFavorite = isFavorite,
+        isArchived = isArchived,
+        isSystemSet = isSystemSet,
         description = description
     )
 }
@@ -103,6 +106,8 @@ fun Category.toEntity(): CategoryEntity {
         categoryGroupId = categoryGroupId,
         weight = weight,
         isFavorite = isFavorite,
+        isArchived = isArchived,
+        isSystemSet = isSystemSet,
         description = description,
         categoryType = categoryType.name
     )
@@ -116,6 +121,8 @@ fun CategoryEntity.toDomainModel(): Category {
         categoryGroupId = categoryGroupId,
         weight = weight,
         isFavorite = isFavorite,
+        isArchived = isArchived,
+        isSystemSet = isSystemSet,
         description = description,
         categoryType = TransactionType.valueOf(categoryType)
     )
