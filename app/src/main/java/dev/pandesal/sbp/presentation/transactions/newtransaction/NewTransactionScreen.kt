@@ -77,6 +77,7 @@ fun NewTransactionScreen(
         NewTransactionScreen(
             state.groupedCategories,
             state.transaction,
+            state.merchants,
             onSave = {
                 viewModel.saveTransaction {
 
@@ -98,6 +99,7 @@ fun NewTransactionScreen(
 private fun NewTransactionScreen(
     groupedCategories: Map<CategoryGroup, List<Category>>,
     transaction: Transaction,
+    merchants: List<String>,
     onSave: (Transaction) -> Unit,
     onCancel: () -> Unit,
     onUpdate: (Transaction) -> Unit
@@ -115,6 +117,7 @@ private fun NewTransactionScreen(
     val showDatePicker = remember { mutableStateOf(false) }
 
     var expanded by remember { mutableStateOf(false) }
+    var merchantExpanded by remember { mutableStateOf(false) }
 
     // Transaction Type Tabs
     val transactionTypes = listOf(TransactionType.INFLOW, TransactionType.OUTFLOW, TransactionType.TRANSFER)
@@ -334,8 +337,29 @@ private fun NewTransactionScreen(
                         Icon(
                             Icons.TwoTone.Favorite,
                             contentDescription = "Reorder",
-                            modifier = Modifier.padding(end = 8.dp).size(24.dp)
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .size(24.dp)
+                                .clickable { merchantExpanded = true }
                         )
+                    }
+                }
+                if (merchantExpanded) {
+                    ModalBottomSheet(onDismissRequest = { merchantExpanded = false }) {
+                        LazyColumn {
+                            items(merchants) { item ->
+                                Text(
+                                    text = item,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            onUpdate(transaction.copy(merchantName = item))
+                                            merchantExpanded = false
+                                        }
+                                        .padding(16.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }

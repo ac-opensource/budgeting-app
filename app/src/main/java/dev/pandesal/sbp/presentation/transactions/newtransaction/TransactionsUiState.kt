@@ -9,7 +9,8 @@ sealed interface NewTransactionUiState {
     data object Loading : NewTransactionUiState
     data class Success(
         val groupedCategories: Map<CategoryGroup, List<Category>>,
-        val transaction: Transaction
+        val transaction: Transaction,
+        val merchants: List<String>
     ) : NewTransactionUiState
     data class Error(val errorMessage: String) : NewTransactionUiState
 }
