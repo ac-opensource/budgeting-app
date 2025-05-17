@@ -2,9 +2,7 @@ package dev.pandesal.sbp.presentation.home
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +20,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloseFullscreen
-import androidx.compose.material.icons.filled.CropSquare
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,6 +66,7 @@ import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.FilterTab
+import dev.pandesal.sbp.presentation.components.NotificationsPopup
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
 import kotlinx.coroutines.launch
@@ -114,6 +112,7 @@ fun HomeScreen() {
                 transactionType = if (isInflow) TransactionType.INFLOW else TransactionType.OUTFLOW
             )
         },
+        notifications = listOf("Welcome back!"),
         onViewAllTransactions = {
             navController.navigate(NavigationDestination.Transactions)
         }
@@ -126,6 +125,7 @@ private fun HomeScreen(
     totalAmount: Double,
     categoryPercentages: List<Pair<String, Double>>,
     transactions: List<Transaction>,
+    notifications: List<String> = emptyList(),
     onViewAllTransactions: () -> Unit = {}
 ) {
     val topCategories = categoryPercentages
@@ -155,6 +155,7 @@ private fun HomeScreen(
     }
 
     val scope = rememberCoroutineScope()
+    var showNotifications by remember { mutableStateOf(false) }
 
     BottomSheetScaffold(
         containerColor = Color.Transparent,
@@ -255,10 +256,16 @@ private fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(Modifier.weight(1f))
-            Image(
-                painterResource(R.drawable.ic_notif),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
+            IconButton(onClick = { showNotifications = true }) {
+                Icon(
+                    painterResource(R.drawable.ic_notif),
+                    contentDescription = "Notifications"
+                )
+            }
+            NotificationsPopup(
+                notifications = notifications,
+                expanded = showNotifications,
+                onDismissRequest = { showNotifications = false }
             )
         }
 
@@ -416,7 +423,8 @@ fun HomeScreenPreview() {
                     accountId = "1",
                     transactionType = TransactionType.INFLOW
                 )
-            )
+            ),
+            notifications = listOf("Preview notification")
         )
     }
 
