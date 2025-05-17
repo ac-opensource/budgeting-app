@@ -6,6 +6,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.accounts.AccountsScreen
@@ -63,7 +64,7 @@ fun AppNavigation(navController: NavHostController) {
                 TransactionsScreen()
             }
 
-            composable<NavigationDestination.NewTransaction> {
+            dialog<NavigationDestination.NewTransaction> {
                 NewTransactionScreen()
             }
 

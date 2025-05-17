@@ -106,7 +106,9 @@ class MainActivity : ComponentActivity() {
                                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                                     onClick = {
                                         navController.navigate(NavigationDestination.NewTransaction) {
-                                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
                                             launchSingleTop = true
                                             restoreState = true
                                         }
@@ -119,17 +121,24 @@ class MainActivity : ComponentActivity() {
                             content = {
                                 IconButton(onClick = {
                                     navController.navigate(NavigationDestination.Home) {
-                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
                                         launchSingleTop = true
                                         restoreState = true
                                     }
                                 }) {
-                                    Icon(Icons.Filled.Home, contentDescription = "Localized description")
+                                    Icon(
+                                        Icons.Filled.Home,
+                                        contentDescription = "Localized description"
+                                    )
                                 }
                                 BadgedBox(
                                     badge = {
                                         Badge(
-                                            modifier = Modifier.size(16.dp).offset(y = 8.dp, x = (-8).dp),
+                                            modifier = Modifier
+                                                .size(16.dp)
+                                                .offset(y = 8.dp, x = (-8).dp),
                                         ) {
                                             Icon(
                                                 Icons.Filled.AttachMoney,
@@ -138,34 +147,50 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 ) {
-                                IconButton(onClick = {
-                                    navController.navigate(NavigationDestination.Categories) {
-                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
+                                    IconButton(onClick = {
+                                        navController.navigate(NavigationDestination.Categories) {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    }) {
+                                        Icon(
+                                            Icons.Filled.PieChart,
+                                            contentDescription = "Localized description"
+                                        )
                                     }
-                                }) {
-                                    Icon(Icons.Filled.PieChart, contentDescription = "Localized description")
+
                                 }
 
                                 IconButton(onClick = {
                                     navController.navigate(NavigationDestination.Accounts) {
-                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
                                         launchSingleTop = true
                                         restoreState = true
                                     }
                                 }) {
-                                    Icon(Icons.Filled.AccountBalanceWallet, contentDescription = "Localized description")
-                                }
+                                    Icon(
+                                        Icons.Filled.AccountBalanceWallet,
+                                        contentDescription = "Localized description"
+                                    )
                                 }
 
                                 IconButton(onClick = {
                                 }) {
-                                    Icon(Icons.Filled.BarChart, contentDescription = "Localized description")
+                                    Icon(
+                                        Icons.Filled.BarChart,
+                                        contentDescription = "Localized description"
+                                    )
                                 }
                                 IconButton(onClick = {
                                     navController.navigate(NavigationDestination.Settings) {
-                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
                                         launchSingleTop = true
                                         restoreState = true
                                     }
