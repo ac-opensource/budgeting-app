@@ -1,19 +1,24 @@
 package dev.pandesal.sbp.data.repository
 
 import dev.pandesal.sbp.data.dao.TransactionDao
+import dev.pandesal.sbp.data.dao.CategoryDao
 import dev.pandesal.sbp.data.local.toDomainModel
 import dev.pandesal.sbp.data.local.toEntity
+import dev.pandesal.sbp.data.local.MonthlyBudgetEntity
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 import javax.inject.Inject
 
 class TransactionRepository @Inject constructor(
-    private val dao: TransactionDao
+    private val dao: TransactionDao,
+    private val categoryDao: CategoryDao
 ) : TransactionRepositoryInterface {
 
     override fun getAllTransactions(): Flow<List<Transaction>> =
@@ -111,8 +116,40 @@ class TransactionRepository @Inject constructor(
         dao.getTotalAmountByCategory(type.name)
             .map { list -> list.map { it.categoryId to it.total } }
 
-    override suspend fun insert(transaction: Transaction) =
+    override suspend fun insert(transaction: Transaction) {
         dao.insert(transaction.toEntity())
+
+        val category = transaction.category ?: return
+        val month = YearMonth.from(transaction.createdAt)
+
+        val amount = when (transaction.transactionType) {
+            TransactionType.INFLOW -> transaction.amount.negate()
+            TransactionType.OUTFLOW -> transaction.amount
+            else -> BigDecimal.ZERO
+        }
+        if (amount == BigDecimal.ZERO) return
+
+        val current = categoryDao
+            .getMonthlyBudgetByCategoryIdAndYearMonth(category.id.toString(), month.toString())
+            .firstOrNull()
+
+        if (current != null) {
+            categoryDao.insert(current.copy(spent = current.spent + amount))
+        } else {
+            val previous = categoryDao.getMonthlyBudgetsByCategoryId(category.id.toString())
+                .firstOrNull()
+                ?.maxByOrNull { YearMonth.parse(it.yearMonth) }
+
+            val allocated = previous?.allocated ?: amount.negate()
+            val newBudget = MonthlyBudgetEntity(
+                categoryId = category.id,
+                yearMonth = month.toString(),
+                allocated = allocated,
+                spent = amount
+            )
+            categoryDao.insert(newBudget)
+        }
+    }
 
     override suspend fun delete(transaction: Transaction) =
         dao.delete(transaction.toEntity())
