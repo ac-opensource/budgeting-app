@@ -25,7 +25,7 @@ object DataModule {
 
     @Singleton
     @Provides
-    fun providesTipDatabase(
+    fun provideSbpDatabase(
         @ApplicationContext context: Context
     ): SbpDatabase {
         return SbpDatabase.getInstance(context)
