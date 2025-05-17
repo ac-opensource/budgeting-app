@@ -220,6 +220,18 @@ interface TransactionDao {
     """)
     fun getTotalAmountByCategory(type: String): Flow<List<CategoryTotalSummary>>
 
+    @Query(
+        """
+        SELECT DISTINCT merchantName
+        FROM transactions
+        WHERE category_id = :categoryId
+          AND merchantName IS NOT NULL
+          AND merchantName != ''
+        ORDER BY merchantName
+        """
+    )
+    fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>>
+
     @Upsert
     suspend fun insert(value: TransactionEntity)
 

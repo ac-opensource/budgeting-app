@@ -35,6 +35,9 @@ class NewTransactionsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<NewTransactionUiState>(NewTransactionUiState.Initial)
     val uiState: StateFlow<NewTransactionUiState> = _uiState.asStateFlow()
 
+    private val _merchants = MutableStateFlow<List<String>>(emptyList())
+    private var merchantJob: kotlinx.coroutines.Job? = null
+
     private val _transaction = MutableStateFlow(
         Transaction(
             name = "",
@@ -62,11 +65,26 @@ class NewTransactionsViewModel @Inject constructor(
                     groupedCategories = groups.associateWith { group ->
                         categories.filter { it.categoryGroupId == group.id }
                     },
-                    transaction = _transaction.value
+                    transaction = _transaction.value,
+                    merchants = _merchants.value
                 )
             }.collect { state ->
                 _uiState.value = state
             }
+        }
+    }
+
+    private fun loadMerchants(categoryId: String) {
+        merchantJob?.cancel()
+        merchantJob = viewModelScope.launch {
+            transactionUseCase.getMerchantsByCategoryId(categoryId)
+                .collect { merchants ->
+                    _merchants.value = merchants
+                    val current = _uiState.value
+                    if (current is NewTransactionUiState.Success) {
+                        _uiState.value = current.copy(merchants = merchants)
+                    }
+                }
         }
     }
 
@@ -79,10 +97,15 @@ class NewTransactionsViewModel @Inject constructor(
             }
         )
 
+        if (_transaction.value.category?.id != newTransaction.category?.id && newTransaction.category != null) {
+            loadMerchants(newTransaction.category.id.toString())
+        }
+
         _transaction.value = newTransaction
         _uiState.value = NewTransactionUiState.Success(
             groupedCategories = (_uiState.value as NewTransactionUiState.Success).groupedCategories,
-            transaction = newTransaction
+            transaction = newTransaction,
+            merchants = _merchants.value
         )
     }
 

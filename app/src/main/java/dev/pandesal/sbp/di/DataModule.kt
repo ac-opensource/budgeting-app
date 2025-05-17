@@ -8,11 +8,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.pandesal.sbp.data.dao.CategoryDao
 import dev.pandesal.sbp.data.dao.TransactionDao
+import dev.pandesal.sbp.data.dao.AccountDao
 import dev.pandesal.sbp.data.local.SbpDatabase
 import dev.pandesal.sbp.data.repository.CategoryRepository
 import dev.pandesal.sbp.data.repository.TransactionRepository
+import dev.pandesal.sbp.data.repository.AccountRepository
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
+import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -41,6 +44,12 @@ object DataModule {
 
     @Singleton
     @Provides
+    fun provideAccountDao(database: SbpDatabase): AccountDao {
+        return database.accountDao()
+    }
+
+    @Singleton
+    @Provides
     fun provideCategoryRepository(
         categoryDao: CategoryDao,
     ): CategoryRepositoryInterface {
@@ -53,6 +62,14 @@ object DataModule {
         transactionDao: TransactionDao
     ): TransactionRepositoryInterface {
         return TransactionRepository(transactionDao)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAccountRepository(
+        accountDao: AccountDao
+    ): AccountRepositoryInterface {
+        return AccountRepository(accountDao)
     }
 
 

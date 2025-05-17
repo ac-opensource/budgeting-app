@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -137,23 +138,39 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 ) {
-                                    IconButton(onClick = {
-                                        navController.navigate(NavigationDestination.Categories) {
-                                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }
-                                    }) {
-                                        Icon(Icons.Filled.PieChart, contentDescription = "Localized description")
+                                IconButton(onClick = {
+                                    navController.navigate(NavigationDestination.Categories) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
                                     }
+                                }) {
+                                    Icon(Icons.Filled.PieChart, contentDescription = "Localized description")
+                                }
+
+                                IconButton(onClick = {
+                                    navController.navigate(NavigationDestination.Accounts) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }) {
+                                    Icon(Icons.Filled.AccountBalanceWallet, contentDescription = "Localized description")
+                                }
                                 }
 
                                 IconButton(onClick = {
                                 }) {
                                     Icon(Icons.Filled.BarChart, contentDescription = "Localized description")
                                 }
-                                IconButton(onClick = { /* doSomething() */ }) {
-                                    Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
+                                IconButton(onClick = {
+                                    navController.navigate(NavigationDestination.Settings) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }) {
+                                    Icon(Icons.Filled.MoreVert, contentDescription = "Settings")
                                 }
                             },
                             scrollBehavior = exitAlwaysScrollBehavior
