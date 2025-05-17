@@ -11,6 +11,7 @@ import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
+import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -23,6 +24,8 @@ sealed class NavigationDestination() {
     data object Insights : NavigationDestination()
     @Serializable
     data object More : NavigationDestination()
+    @Serializable
+    data object Settings : NavigationDestination()
     @Serializable
     data object Transactions : NavigationDestination()
     @Serializable
@@ -66,6 +69,10 @@ fun AppNavigation(navController: NavHostController) {
             composable<NavigationDestination.More> {
 //                MoreScreen()
                 HomeScreen()
+            }
+
+            composable<NavigationDestination.Settings> {
+                SettingsScreen()
             }
 
         }
