@@ -59,6 +59,9 @@ class TransactionUseCase @Inject constructor(
     fun getTotalAmountByCategory(type: TransactionType): Flow<List<Pair<Int, BigDecimal>>> =
         repository.getTotalAmountByCategory(type)
 
+    fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>> =
+        repository.getMerchantsByCategoryId(categoryId)
+
     suspend fun insert(transaction: Transaction) =
         repository.insert(transaction)
 

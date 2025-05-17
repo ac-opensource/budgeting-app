@@ -116,6 +116,9 @@ class TransactionRepository @Inject constructor(
         dao.getTotalAmountByCategory(type.name)
             .map { list -> list.map { it.categoryId to it.total } }
 
+    override fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>> =
+        dao.getMerchantsByCategoryId(categoryId)
+
     override suspend fun insert(transaction: Transaction) {
         dao.insert(transaction.toEntity())
 
