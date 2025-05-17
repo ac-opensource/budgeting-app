@@ -152,8 +152,14 @@ class MainActivity : ComponentActivity() {
                                 }) {
                                     Icon(Icons.Filled.BarChart, contentDescription = "Localized description")
                                 }
-                                IconButton(onClick = { /* doSomething() */ }) {
-                                    Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
+                                IconButton(onClick = {
+                                    navController.navigate(NavigationDestination.Settings) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }) {
+                                    Icon(Icons.Filled.MoreVert, contentDescription = "Settings")
                                 }
                             },
                             scrollBehavior = exitAlwaysScrollBehavior
