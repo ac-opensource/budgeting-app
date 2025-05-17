@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -69,59 +70,50 @@ import dev.pandesal.sbp.presentation.components.FilterTab
 import dev.pandesal.sbp.presentation.components.NotificationsPopup
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
+import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
+import dev.pandesal.sbp.presentation.transactions.TransactionsViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.LocalDate
 
 
 @Composable
-fun HomeScreen() {
-
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
+    transactionsViewModel: TransactionsViewModel = hiltViewModel()
+) {
     val navController = LocalNavigationManager.current
+    val homeState = viewModel.uiState.collectAsState()
+    val transactionsState = transactionsViewModel.uiState.collectAsState()
 
-    val testCategories = listOf("Invest", "Healthcare", "Self Reward", "Food", "Transport")
+    if (homeState.value is HomeUiState.Success &&
+        transactionsState.value is TransactionsUiState.Success
+    ) {
+        val state = homeState.value as HomeUiState.Success
+        val txState = transactionsState.value as TransactionsUiState.Success
 
-    HomeScreen(
-        totalAmount = 12345.67,
-        categoryPercentages = listOf(
-            "Invest" to 50.0,
-            "Healthcare" to 20.0,
-            "Self Reward" to 15.0,
-            "Food" to 10.0,
-            "Transport" to 5.0
-        ),
-        transactions = List(100) { index ->
-            val randomCategoryName = testCategories.random()
-            val isInflow = (0..1).random() == 1
-            Transaction(
-                amount = if (isInflow) BigDecimal(100 + index * 10) else BigDecimal(-(100 + index * 10)),
-                createdAt = LocalDate.now().minusDays((index / 6).toLong()),
-                updatedAt = LocalDate.now().minusDays((index / 6).toLong()),
-                name = "Transaction #${index + 1}",
-                accountId = "1",
-                category = Category(
-                    id = 1,
-                    name = randomCategoryName,
-                    categoryGroupId = 1,
-                    isArchived = false,
-                    description = "",
-                    icon = "",
-                    categoryType = TransactionType.OUTFLOW,
-                    weight = 1
-                ),
-                transactionType = if (isInflow) TransactionType.INFLOW else TransactionType.OUTFLOW
-            )
-        },
-        notifications = listOf("Welcome back!"),
-        onViewAllTransactions = {
-            navController.navigate(NavigationDestination.Transactions)
+        val totalAmount = state.accounts.sumOf { it.balance }
+        val totalAllocated = state.favoriteBudgets.sumOf { it.allocated }
+        val categoryPercentages = state.favoriteBudgets.map { budget ->
+            val pct = if (totalAllocated != 0.0) (budget.allocated / totalAllocated) * 100.0 else 0.0
+            budget.name to pct
         }
-    )
+
+        HomeScreenContent(
+            totalAmount = totalAmount,
+            categoryPercentages = categoryPercentages,
+            transactions = txState.transactions,
+            onViewAllTransactions = {
+                navController.navigate(NavigationDestination.Transactions)
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun HomeScreen(
+private fun HomeScreenContent(
     totalAmount: Double,
     categoryPercentages: List<Pair<String, Double>>,
     transactions: List<Transaction>,
@@ -377,7 +369,7 @@ fun getCategoryColor(label: String): Color = when (label) {
 @Composable
 fun HomeScreenPreview() {
     StopBeingPoorTheme {
-        HomeScreen(
+        HomeScreenContent(
             totalAmount = 12345.67,
             categoryPercentages = listOf(
                 "Invest" to 30.0,
