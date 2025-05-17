@@ -92,9 +92,9 @@ fun CategoryGroupEntity.toDomainModel(): CategoryGroup {
         icon = icon,
         weight = weight,
         isFavorite = isFavorite,
-        description = description,
         isArchived = isArchived,
-        isSystemSet = isSystemSet
+        isSystemSet = isSystemSet,
+        description = description
     )
 }
 
@@ -106,6 +106,8 @@ fun Category.toEntity(): CategoryEntity {
         categoryGroupId = categoryGroupId,
         weight = weight,
         isFavorite = isFavorite,
+        isArchived = isArchived,
+        isSystemSet = isSystemSet,
         description = description,
         categoryType = categoryType.name,
         isArchived = isArchived,
@@ -121,6 +123,8 @@ fun CategoryEntity.toDomainModel(): Category {
         categoryGroupId = categoryGroupId,
         weight = weight,
         isFavorite = isFavorite,
+        isArchived = isArchived,
+        isSystemSet = isSystemSet,
         description = description,
         isArchived = isArchived,
         isSystemSet = isSystemSet,
