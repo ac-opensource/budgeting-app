@@ -110,8 +110,6 @@ fun Category.toEntity(): CategoryEntity {
         isSystemSet = isSystemSet,
         description = description,
         categoryType = categoryType.name,
-        isArchived = isArchived,
-        isSystemSet = isSystemSet,
     )
 }
 
@@ -126,8 +124,6 @@ fun CategoryEntity.toDomainModel(): Category {
         isArchived = isArchived,
         isSystemSet = isSystemSet,
         description = description,
-        isArchived = isArchived,
-        isSystemSet = isSystemSet,
         categoryType = TransactionType.valueOf(categoryType)
     )
 }
