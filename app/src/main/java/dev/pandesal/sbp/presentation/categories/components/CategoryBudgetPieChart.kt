@@ -43,7 +43,7 @@ fun CategoryBudgetPieChart(
                     modifier = Modifier
                         .size(140.dp)
                 ) {
-                    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxWidth()) {
+                    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
                         var startAngle = -90f
                         data.forEachIndexed { index, (_, percent) ->
                             val sweep = (percent / 100f) * 360f
