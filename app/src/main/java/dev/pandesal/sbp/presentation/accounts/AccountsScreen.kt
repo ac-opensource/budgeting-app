@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.AccountType
 import dev.pandesal.sbp.extensions.format
 import dev.pandesal.sbp.extensions.label
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,11 +75,20 @@ fun AccountsScreen(
 
 @Composable
 private fun AccountsContent(accounts: List<dev.pandesal.sbp.domain.model.Account>, modifier: Modifier = Modifier) {
+    val totalValue = accounts.fold(BigDecimal.ZERO) { acc, account -> acc + account.balance }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        item {
+            Text(
+                text = "Total: ₱${totalValue.format()}",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
         items(accounts, key = { it.id }) { account ->
             ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                 ListItem(
