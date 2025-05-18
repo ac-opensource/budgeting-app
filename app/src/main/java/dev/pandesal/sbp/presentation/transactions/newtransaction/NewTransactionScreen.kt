@@ -106,6 +106,9 @@ fun NewTransactionScreen(
             onUpdate = {
                 viewModel.updateTransaction(it)
             },
+            onRecurringTransactionClicked = {
+                navManager.navigate(NavigationDestination.NewRecurringTransaction)
+            }
         )
     }
 }
@@ -120,7 +123,8 @@ private fun NewTransactionScreen(
     merchants: List<String>,
     onSave: (Transaction) -> Unit,
     onCancel: () -> Unit,
-    onUpdate: (Transaction) -> Unit
+    onUpdate: (Transaction) -> Unit,
+    onRecurringTransactionClicked: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = transaction.createdAt.atStartOfDay(ZoneId.systemDefault())
@@ -581,7 +585,7 @@ private fun NewTransactionScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = {
-                            navManager.navigate(NavigationDestination.NewRecurringTransaction)
+                            onRecurringTransactionClicked()
                         }) {
                             Icon(Icons.TwoTone.DateRange, contentDescription = "Schedule")
                         }
