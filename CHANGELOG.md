@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 ### Added
+- Skeleton loaders for screens when UI state is `Initial`
 - Notification center with swipe to archive, read status and quick create transaction button
 - AGENTS instructions for AI contributions
 - Pie chart summary and bottom sheet layout for Categories screen

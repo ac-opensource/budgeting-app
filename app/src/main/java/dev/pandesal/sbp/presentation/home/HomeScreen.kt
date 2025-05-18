@@ -68,6 +68,8 @@ import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.FilterTab
+import dev.pandesal.sbp.presentation.components.NotificationsPopup
+import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
@@ -87,7 +89,11 @@ fun HomeScreen(
     val homeState = viewModel.uiState.collectAsState()
     val transactionsState = transactionsViewModel.uiState.collectAsState()
 
-    if (homeState.value is HomeUiState.Success &&
+    if (homeState.value is HomeUiState.Initial ||
+        transactionsState.value is TransactionsUiState.Initial
+    ) {
+        SkeletonLoader()
+    } else if (homeState.value is HomeUiState.Success &&
         transactionsState.value is TransactionsUiState.Success
     ) {
         val state = homeState.value as HomeUiState.Success

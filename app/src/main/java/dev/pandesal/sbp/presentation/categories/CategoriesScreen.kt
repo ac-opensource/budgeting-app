@@ -71,6 +71,7 @@ import dev.pandesal.sbp.extensions.rememberReorderHapticFeedback
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetSheet
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
+import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.categories.components.CategoryBudgetPieChart
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -402,7 +403,9 @@ fun CategoriesScreen(
     val uiState = viewModel.uiState.collectAsState()
     val haptic = rememberReorderHapticFeedback()
 
-    if (uiState.value is CategoriesUiState.Success) {
+    if (uiState.value is CategoriesUiState.Initial) {
+        SkeletonLoader()
+    } else if (uiState.value is CategoriesUiState.Success) {
         val state = uiState.value as CategoriesUiState.Success
 
         val scaffoldState = rememberBottomSheetScaffoldState()

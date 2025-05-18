@@ -18,12 +18,15 @@ import dev.pandesal.sbp.presentation.insights.components.CashflowLineChart
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import dev.pandesal.sbp.presentation.components.SkeletonLoader
 
 @Composable
 fun InsightsScreen(viewModel: InsightsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsState()
 
-    if (state is InsightsUiState.Success) {
+    if (state is InsightsUiState.Initial) {
+        SkeletonLoader()
+    } else if (state is InsightsUiState.Success) {
         val data = state as InsightsUiState.Success
         Column(
             modifier = Modifier
