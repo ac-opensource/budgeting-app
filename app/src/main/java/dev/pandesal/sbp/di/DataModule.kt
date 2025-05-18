@@ -9,14 +9,17 @@ import dagger.hilt.components.SingletonComponent
 import dev.pandesal.sbp.data.dao.CategoryDao
 import dev.pandesal.sbp.data.dao.TransactionDao
 import dev.pandesal.sbp.data.dao.AccountDao
+import dev.pandesal.sbp.data.dao.GoalDao
 import dev.pandesal.sbp.data.local.SbpDatabase
 import dev.pandesal.sbp.data.repository.CategoryRepository
 import dev.pandesal.sbp.data.repository.TransactionRepository
 import dev.pandesal.sbp.data.repository.AccountRepository
+import dev.pandesal.sbp.data.repository.GoalRepository
 import dev.pandesal.sbp.data.repository.SettingsRepository
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
+import dev.pandesal.sbp.domain.repository.GoalRepositoryInterface
 import dev.pandesal.sbp.domain.repository.SettingsRepositoryInterface
 import javax.inject.Singleton
 
@@ -42,6 +45,12 @@ object DataModule {
     @Provides
     fun provideTransactionDao(database: SbpDatabase): TransactionDao {
         return database.transactionDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideGoalDao(database: SbpDatabase): GoalDao {
+        return database.goalDao()
     }
 
     @Singleton
@@ -73,6 +82,14 @@ object DataModule {
         accountDao: AccountDao
     ): AccountRepositoryInterface {
         return AccountRepository(accountDao)
+    }
+
+    @Singleton
+    @Provides
+    fun provideGoalRepository(
+        goalDao: GoalDao
+    ): GoalRepositoryInterface {
+        return GoalRepository(goalDao)
     }
 
     @Singleton
