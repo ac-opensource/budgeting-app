@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -14,7 +15,7 @@ import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.Wallet
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ElevatedCard
@@ -52,19 +53,17 @@ fun AccountsScreen(
         )
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showNew = true }) {
-                Icon(Icons.Default.Add, contentDescription = null)
-            }
-        }
-    ) { padding ->
+    Scaffold { padding ->
         when (val state = uiState) {
             is AccountsUiState.Loading -> {
                 Text("Loading...", modifier = Modifier.padding(16.dp))
             }
             is AccountsUiState.Success -> {
-                AccountsContent(state.accounts, modifier = Modifier.padding(padding))
+                AccountsContent(
+                    accounts = state.accounts,
+                    onAddWallet = { showNew = true },
+                    modifier = Modifier.padding(padding)
+                )
             }
             is AccountsUiState.Error -> {
                 Text(state.message, color = MaterialTheme.colorScheme.error)
@@ -74,7 +73,11 @@ fun AccountsScreen(
 }
 
 @Composable
-private fun AccountsContent(accounts: List<dev.pandesal.sbp.domain.model.Account>, modifier: Modifier = Modifier) {
+private fun AccountsContent(
+    accounts: List<dev.pandesal.sbp.domain.model.Account>,
+    onAddWallet: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val totalValue = accounts.fold(BigDecimal.ZERO) { acc, account -> acc + account.balance }
 
     LazyColumn(
@@ -83,8 +86,18 @@ private fun AccountsContent(accounts: List<dev.pandesal.sbp.domain.model.Account
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(onClick = onAddWallet) { Text("Add Wallet") }
+            }
+        }
+        item {
             Text(
-                text = "Total: ₱${totalValue.format()}",
+                text = "Total: ₱${'$'}{totalValue.format()}",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
