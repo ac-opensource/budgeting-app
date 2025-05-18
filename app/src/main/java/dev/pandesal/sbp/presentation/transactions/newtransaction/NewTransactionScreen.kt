@@ -66,6 +66,7 @@ import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
+import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import java.math.BigDecimal
 import java.time.Instant
@@ -82,6 +83,7 @@ fun NewTransactionScreen(
         val state = uiState.value as NewTransactionUiState.Success
         NewTransactionScreen(
             state.groupedCategories,
+            state.accounts,
             state.transaction,
             state.merchants,
             onSave = {
@@ -104,6 +106,7 @@ fun NewTransactionScreen(
 @Composable
 private fun NewTransactionScreen(
     groupedCategories: Map<CategoryGroup, List<Category>>,
+    accounts: List<Account>,
     transaction: Transaction,
     merchants: List<String>,
     onSave: (Transaction) -> Unit,
@@ -124,6 +127,8 @@ private fun NewTransactionScreen(
 
     var expanded by remember { mutableStateOf(false) }
     var merchantExpanded by remember { mutableStateOf(false) }
+    var fromAccountExpanded by remember { mutableStateOf(false) }
+    var toAccountExpanded by remember { mutableStateOf(false) }
 
     // Transaction Type Tabs
     val transactionTypes = listOf(TransactionType.INFLOW, TransactionType.OUTFLOW, TransactionType.TRANSFER)
@@ -297,6 +302,7 @@ private fun NewTransactionScreen(
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .fillMaxWidth()
+                                .clickable { fromAccountExpanded = true }
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -304,7 +310,7 @@ private fun NewTransactionScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = transaction.category?.name ?: "Select Source Account",
+                                    text = transaction.from ?: "Select Source Account",
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(16.dp)
                                 )
@@ -316,6 +322,25 @@ private fun NewTransactionScreen(
                                         .padding(end = 8.dp)
                                         .size(24.dp)
                                 )
+                            }
+                        }
+                    }
+
+                    if (fromAccountExpanded) {
+                        ModalBottomSheet(onDismissRequest = { fromAccountExpanded = false }) {
+                            LazyColumn {
+                                items(accounts) { account ->
+                                    Text(
+                                        text = account.name,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                onUpdate(transaction.copy(from = account.name))
+                                                fromAccountExpanded = false
+                                            }
+                                            .padding(16.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -388,6 +413,7 @@ private fun NewTransactionScreen(
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .fillMaxWidth()
+                                .clickable { toAccountExpanded = true }
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -395,8 +421,7 @@ private fun NewTransactionScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = transaction.category?.name
-                                        ?: "Select Destination Account",
+                                    text = transaction.to ?: "Select Destination Account",
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(16.dp)
                                 )
@@ -408,6 +433,25 @@ private fun NewTransactionScreen(
                                         .padding(end = 8.dp)
                                         .size(24.dp)
                                 )
+                            }
+                        }
+                    }
+
+                    if (toAccountExpanded) {
+                        ModalBottomSheet(onDismissRequest = { toAccountExpanded = false }) {
+                            LazyColumn {
+                                items(accounts) { account ->
+                                    Text(
+                                        text = account.name,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                onUpdate(transaction.copy(to = account.name))
+                                                toAccountExpanded = false
+                                            }
+                                            .padding(16.dp)
+                                    )
+                                }
                             }
                         }
                     }
