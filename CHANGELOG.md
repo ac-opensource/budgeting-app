@@ -9,6 +9,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - Seeded an **Inflow** category group with default categories such as Salary and Allowance.
 - New transactions default to the **Salary** category when the transaction type is Inflow.
 
+## [0.2.5] - 2025-05-18
+### Changed
+- New category sheet now displays the selected category group name instead of its ID.
+
+## [0.2.4] - 2025-05-18
+### Added
+- Display total account value in Accounts screen
+
 ## [0.2.3] - 2025-05-18
 ### Fixed
 - Outflow transactions on the home screen are now shown with a red negative amount
