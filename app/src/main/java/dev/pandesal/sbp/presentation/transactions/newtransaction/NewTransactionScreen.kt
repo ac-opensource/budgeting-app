@@ -72,6 +72,7 @@ import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.presentation.LocalNavigationManager
+import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import java.math.BigDecimal
 import java.time.Instant
@@ -576,7 +577,14 @@ private fun NewTransactionScreen(
                     Row(
                         Modifier.padding(horizontal = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        IconButton(onClick = {
+                            navManager.navigate(NavigationDestination.NewRecurringTransaction)
+                        }) {
+                            Icon(Icons.TwoTone.DateRange, contentDescription = "Schedule")
+                        }
+
                         val modifiers = listOf(
                             Modifier.wrapContentSize(),
                             Modifier.wrapContentSize(),
