@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [0.6.0] - 2025-05-21
 ### Added
+- Edit mode toggle on Categories screen with edit and delete buttons per group and category.
+- Budgets can now be edited from the Categories screen.
 - Budgets now store their currency alongside allocation data.
 - Currency is now stored for each account in the database.
 
