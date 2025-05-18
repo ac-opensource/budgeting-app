@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
+import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import kotlinx.serialization.Serializable
@@ -59,8 +60,7 @@ fun AppNavigation(navController: NavHostController) {
             }
 
             composable<NavigationDestination.Insights> {
-//                InsightsScreen()
-                HomeScreen()
+                InsightsScreen()
             }
 
             composable<NavigationDestination.More> {
