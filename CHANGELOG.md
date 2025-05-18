@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - Amount field in new transaction screen now displays the cursor even when zero
   and treats the initial zero as a placeholder.
 
+### Added
+- Pie chart summary and bottom sheet layout for Categories screen
+
+
 ## [0.0.1] - 2025-05-18
 ### Added
 - Initial Changelog file
