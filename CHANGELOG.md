@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Changed
 - Moved "Add Category Group" button to the sheet handle area on Categories screen
 
+## [0.3.1] - 2025-05-20
+### Changed
+- Moved "Add Wallet" button to the top of the Accounts screen so bottom controls no longer overlap.
+
 ## [0.3.0] - 2025-05-19
 ### Added
 - Seeded an **Inflow** category group with default categories such as Salary and Allowance.
