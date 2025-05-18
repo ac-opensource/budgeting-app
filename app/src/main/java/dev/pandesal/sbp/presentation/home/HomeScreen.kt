@@ -70,6 +70,7 @@ import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.FilterTab
 import dev.pandesal.sbp.presentation.components.NotificationsPopup
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
+import dev.pandesal.sbp.notification.InAppNotificationCenter
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
 import dev.pandesal.sbp.presentation.transactions.TransactionsViewModel
@@ -87,6 +88,7 @@ fun HomeScreen(
     val navController = LocalNavigationManager.current
     val homeState = viewModel.uiState.collectAsState()
     val transactionsState = transactionsViewModel.uiState.collectAsState()
+    val notificationsState = InAppNotificationCenter.notifications.collectAsState()
 
     if (homeState.value is HomeUiState.Success &&
         transactionsState.value is TransactionsUiState.Success
@@ -105,6 +107,7 @@ fun HomeScreen(
             totalAmount = totalAmount,
             categoryPercentages = categoryPercentages,
             transactions = txState.transactions,
+            notifications = notificationsState.value,
             onViewAllTransactions = {
                 navController.navigate(NavigationDestination.Transactions)
             }
