@@ -148,7 +148,8 @@ class TransactionRepository @Inject constructor(
                 categoryId = category.id,
                 yearMonth = month.toString(),
                 allocated = allocated,
-                spent = amount
+                spent = amount,
+                currency = transaction.currency
             )
             categoryDao.insert(newBudget)
         }

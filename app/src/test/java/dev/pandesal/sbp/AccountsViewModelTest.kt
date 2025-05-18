@@ -24,7 +24,7 @@ class AccountsViewModelTest {
 
     @Test
     fun uiStateEmitsAccounts() = runTest {
-        val account = Account(name = "A", type = AccountType.CASH_WALLET)
+        val account = Account(name = "A", type = AccountType.CASH_WALLET, currency = "PHP")
         repository.accountsFlow.value = listOf(account)
 
         val vm = AccountsViewModel(useCase)
@@ -37,7 +37,7 @@ class AccountsViewModelTest {
     @Test
     fun addAccountInsertsAccount() = runTest {
         val vm = AccountsViewModel(useCase)
-        vm.addAccount("B", AccountType.BANK_ACCOUNT)
+        vm.addAccount("B", AccountType.BANK_ACCOUNT, "PHP")
         advanceUntilIdle()
         assertEquals(1, repository.insertedAccounts.size)
         assertEquals("B", repository.insertedAccounts[0].name)

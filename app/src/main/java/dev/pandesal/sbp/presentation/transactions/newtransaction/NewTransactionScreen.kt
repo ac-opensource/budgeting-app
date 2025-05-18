@@ -72,6 +72,7 @@ import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.presentation.LocalNavigationManager
+import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import java.math.BigDecimal
 import java.time.Instant
@@ -105,6 +106,9 @@ fun NewTransactionScreen(
             onUpdate = {
                 viewModel.updateTransaction(it)
             },
+            onRecurringTransactionClicked = {
+                navManager.navigate(NavigationDestination.NewRecurringTransaction)
+            }
         )
     }
 }
@@ -119,7 +123,8 @@ private fun NewTransactionScreen(
     merchants: List<String>,
     onSave: (Transaction) -> Unit,
     onCancel: () -> Unit,
-    onUpdate: (Transaction) -> Unit
+    onUpdate: (Transaction) -> Unit,
+    onRecurringTransactionClicked: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = transaction.createdAt.atStartOfDay(ZoneId.systemDefault())
@@ -222,6 +227,7 @@ private fun NewTransactionScreen(
                             onUpdate(transaction.copy(amount = newAmount))
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
                         textStyle = MaterialTheme.typography.headlineLarge.copy(
                             textAlign = TextAlign.Center,
                             fontSize = 48.sp,
@@ -576,7 +582,14 @@ private fun NewTransactionScreen(
                     Row(
                         Modifier.padding(horizontal = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        IconButton(onClick = {
+                            onRecurringTransactionClicked()
+                        }) {
+                            Icon(Icons.TwoTone.DateRange, contentDescription = "Schedule")
+                        }
+
                         val modifiers = listOf(
                             Modifier.wrapContentSize(),
                             Modifier.wrapContentSize(),

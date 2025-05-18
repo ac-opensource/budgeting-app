@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.CreditCard
@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,7 +38,7 @@ import dev.pandesal.sbp.extensions.format
 import dev.pandesal.sbp.extensions.label
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
-import java.math.BigDecimal
+import dev.pandesal.sbp.presentation.components.SquigglyDivider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +76,7 @@ private fun AccountsContent(
     onAddWallet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val totalValue = accounts.fold(BigDecimal.ZERO) { acc, account -> acc + account.balance }
+    val totalValue = accounts.sumOf { it.balance.toDouble() }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -87,16 +88,21 @@ private fun AccountsContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Text(
+                    text = "Total: ₱${totalValue.format()}",
+                    style = MaterialTheme.typography.titleMedium,
+                )
                 Button(onClick = onAddWallet) { Text("Add Wallet") }
             }
         }
         item {
-            Text(
-                text = "Total: ₱${'$'}{totalValue.format()}",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
+            SquigglyDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(16.dp)
             )
         }
         items(accounts, key = { it.id }) { account ->
