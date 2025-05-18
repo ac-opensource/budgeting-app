@@ -68,6 +68,7 @@ import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.presentation.LocalNavigationManager
+import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
@@ -79,7 +80,9 @@ fun NewTransactionScreen(
     val uiState = viewModel.uiState.collectAsState()
     val navManager = LocalNavigationManager.current
 
-    if (uiState.value is NewTransactionUiState.Success) {
+    if (uiState.value is NewTransactionUiState.Initial) {
+        SkeletonLoader()
+    } else if (uiState.value is NewTransactionUiState.Success) {
         val state = uiState.value as NewTransactionUiState.Success
         NewTransactionScreen(
             state.groupedCategories,

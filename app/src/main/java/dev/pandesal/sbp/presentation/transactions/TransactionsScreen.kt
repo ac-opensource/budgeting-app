@@ -34,6 +34,7 @@ import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.TransactionItem
+import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import java.time.LocalDate
 
 
@@ -44,7 +45,9 @@ fun TransactionsScreen(
     val uiState = viewModel.uiState.collectAsState()
     val navManager = LocalNavigationManager.current
 
-    if (uiState.value is TransactionsUiState.Success) {
+    if (uiState.value is TransactionsUiState.Initial) {
+        SkeletonLoader()
+    } else if (uiState.value is TransactionsUiState.Success) {
         val state = uiState.value as TransactionsUiState.Success
         TransactionsContent(
             state.transactions,

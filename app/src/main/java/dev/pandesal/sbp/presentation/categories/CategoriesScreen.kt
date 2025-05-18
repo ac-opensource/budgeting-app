@@ -54,6 +54,7 @@ import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetSheet
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
+import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.math.BigDecimal
@@ -384,7 +385,9 @@ fun CategoriesScreen(
     val navManager = LocalNavigationManager.current
     val haptic = rememberReorderHapticFeedback()
 
-    if (uiState.value is CategoriesUiState.Success) {
+    if (uiState.value is CategoriesUiState.Initial) {
+        SkeletonLoader()
+    } else if (uiState.value is CategoriesUiState.Success) {
         val state = uiState.value as CategoriesUiState.Success
         CategoriesContent(
             parentList = state.categoryGroups,
