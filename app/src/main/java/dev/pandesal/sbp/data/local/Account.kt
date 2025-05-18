@@ -11,7 +11,8 @@ data class AccountEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val type: String,
-    val balance: BigDecimal = BigDecimal.ZERO
+    val balance: BigDecimal = BigDecimal.ZERO,
+    val currency: String = "PHP"
 )
 
 fun AccountEntity.toDomainModel(): Account {
@@ -19,7 +20,8 @@ fun AccountEntity.toDomainModel(): Account {
         id = id,
         name = name,
         type = AccountType.valueOf(type),
-        balance = balance
+        balance = balance,
+        currency = currency
     )
 }
 
@@ -28,6 +30,7 @@ fun Account.toEntity(): AccountEntity {
         id = id,
         name = name,
         type = type.name,
-        balance = balance
+        balance = balance,
+        currency = currency
     )
 }

@@ -13,7 +13,8 @@ data class Account(
     val name: String,
     val type: AccountType,
     @Serializable(with = BigDecimalSerializer::class)
-    val balance: BigDecimal = BigDecimal.ZERO
+    val balance: BigDecimal = BigDecimal.ZERO,
+    val currency: String = "PHP"
 ) : Parcelable
 
 @Serializable
