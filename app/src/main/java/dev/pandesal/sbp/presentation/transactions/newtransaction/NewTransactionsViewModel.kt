@@ -6,10 +6,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
+import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
+import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import dev.pandesal.sbp.presentation.categories.CategoriesUiState
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
@@ -29,7 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class NewTransactionsViewModel @Inject constructor(
     private val transactionUseCase: TransactionUseCase,
-    private val categoryUseCase: CategoryUseCase
+    private val categoryUseCase: CategoryUseCase,
+    private val accountUseCase: AccountUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NewTransactionUiState>(NewTransactionUiState.Initial)
@@ -37,6 +40,7 @@ class NewTransactionsViewModel @Inject constructor(
 
     private val _merchants = MutableStateFlow<List<String>>(emptyList())
     private var merchantJob: kotlinx.coroutines.Job? = null
+
 
     private val _transaction = MutableStateFlow(
         Transaction(
@@ -50,23 +54,27 @@ class NewTransactionsViewModel @Inject constructor(
     )
 
     init {
-        loadCategories()
+        subscribeUiState()
     }
 
-    private fun loadCategories() {
+    private fun subscribeUiState() {
         _uiState.value = NewTransactionUiState.Loading
 
         viewModelScope.launch {
             combine(
-                categoryUseCase.getCategoryGroups(), // List<CategoryGroup>
-                categoryUseCase.getCategories() // List<Category>
-            ) { groups, categories ->
+                categoryUseCase.getCategoryGroups(),
+                categoryUseCase.getCategories(),
+                accountUseCase.getAccounts(),
+                _transaction,
+                _merchants
+            ) { groups, categories, accounts, transaction, merchants ->
                 NewTransactionUiState.Success(
                     groupedCategories = groups.associateWith { group ->
                         categories.filter { it.categoryGroupId == group.id }
                     },
-                    transaction = _transaction.value,
-                    merchants = _merchants.value
+                    accounts = accounts,
+                    transaction = transaction,
+                    merchants = merchants
                 )
             }.collect { state ->
                 _uiState.value = state
@@ -104,6 +112,7 @@ class NewTransactionsViewModel @Inject constructor(
         _transaction.value = newTransaction
         _uiState.value = NewTransactionUiState.Success(
             groupedCategories = (_uiState.value as NewTransactionUiState.Success).groupedCategories,
+            accounts = (_uiState.value as NewTransactionUiState.Success).accounts,
             transaction = newTransaction,
             merchants = _merchants.value
         )
