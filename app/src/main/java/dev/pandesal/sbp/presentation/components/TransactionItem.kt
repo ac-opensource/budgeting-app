@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.domain.model.Transaction
+import dev.pandesal.sbp.extensions.currencySymbol
+import dev.pandesal.sbp.extensions.format
 import java.math.BigDecimal
 
 @Composable
@@ -49,14 +51,15 @@ fun TransactionItem(tx: Transaction) {
                 }
             }
 
+            val symbol = tx.currency.currencySymbol()
             val (prefix, color) = when (tx.transactionType) {
-                dev.pandesal.sbp.domain.model.TransactionType.INFLOW -> "+₱" to Color(0xFF2E7D32)
-                dev.pandesal.sbp.domain.model.TransactionType.OUTFLOW -> "-₱" to Color(0xFFC62828)
+                dev.pandesal.sbp.domain.model.TransactionType.INFLOW -> "+$symbol" to Color(0xFF2E7D32)
+                dev.pandesal.sbp.domain.model.TransactionType.OUTFLOW -> "-$symbol" to Color(0xFFC62828)
                 else -> "" to MaterialTheme.colorScheme.onSurface
             }
 
             Text(
-                text = prefix + "%,.2f".format(tx.amount.abs()),
+                text = prefix + tx.amount.abs().format(),
                 color = color,
                 style = MaterialTheme.typography.titleMedium
             )

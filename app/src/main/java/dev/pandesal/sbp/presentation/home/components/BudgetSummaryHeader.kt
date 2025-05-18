@@ -10,9 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import dev.pandesal.sbp.extensions.format
+import dev.pandesal.sbp.extensions.currencySymbol
 
 @Composable
-fun BudgetSummaryHeader(unassigned: Double, assigned: Double) {
+fun BudgetSummaryHeader(unassigned: Double, assigned: Double, currency: String = "PHP") {
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -20,8 +21,9 @@ fun BudgetSummaryHeader(unassigned: Double, assigned: Double) {
     ) {
         Column {
             Text("Unassigned", style = MaterialTheme.typography.labelMedium)
+            val symbol = currency.currencySymbol()
             Text(
-                text = "₱${unassigned.format()}",
+                text = "$symbol${unassigned.format()}",
                 style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold)
             )
         }
