@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2025-05-18
+### Fixed
+- Outflow transactions on the home screen are now shown with a red negative amount
+
 ## [0.2.2] - 2025-05-18
+### Added
 - Unit tests for ViewModels
 
 ## [0.2.1] - 2025-05-19
@@ -31,6 +36,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   with options to edit or delete after long press while the rest of the screen
   is dimmed.
 
+### Fixed
+- Outflow transactions on the home screen are now shown with a red negative amount
 
 ## [0.0.1] - 2025-05-18
 ### Added
