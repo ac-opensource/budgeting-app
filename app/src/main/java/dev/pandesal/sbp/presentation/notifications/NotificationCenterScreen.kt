@@ -12,18 +12,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -57,18 +56,17 @@ fun NotificationCenterScreen() {
                 .padding(padding)
         ) {
             items(notifications, key = { it.id }) { notif ->
-                val dismissState = rememberDismissState(confirmValueChange = {
-                    if (it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart) {
+                val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
+                    if (it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart) {
                         InAppNotificationCenter.archive(notif.id)
                         true
                     } else {
                         false
                     }
                 })
-                SwipeToDismiss(
+                SwipeToDismissBox(
                     state = dismissState,
-                    background = {},
-                    directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart)
+                    backgroundContent = {},
                 ) {
                     NotificationItem(
                         notification = notif,

@@ -13,10 +13,10 @@ android {
     namespace = "dev.pandesal.sbp"
     compileSdk = 36
 
-    val versionMajor: Int by project
-    val versionMinor: Int by project
-    val versionPatch: Int by project
-    val computedVersionCode = versionMajor * 10000 + versionMinor * 100 + versionPatch
+    val versionMajor: String by project
+    val versionMinor: String by project
+    val versionPatch: String by project
+    val computedVersionCode = versionMajor.toInt() * 10000 + versionMinor.toInt() * 100 + versionPatch.toInt()
 
     defaultConfig {
         applicationId = "dev.pandesal.sbp"

@@ -110,8 +110,8 @@ fun HomeScreen(
             totalAmount = totalAmount,
             categoryPercentages = categoryPercentages,
             transactions = txState.transactions,
-            onViewAllTransactions = {
-                navController.navigate(NavigationDestination.Transactions)
+            onViewNotifications = {
+                navController.navigate(NavigationDestination.Notifications)
             }
         )
     }
@@ -123,7 +123,7 @@ private fun HomeScreenContent(
     totalAmount: Double,
     categoryPercentages: List<Pair<String, Double>>,
     transactions: List<Transaction>,
-    onViewAllTransactions: () -> Unit = {}
+    onViewNotifications: () -> Unit = {}
 ) {
     val topCategories = categoryPercentages
         .sortedByDescending { it.second }
@@ -259,7 +259,7 @@ private fun HomeScreenContent(
             Spacer(Modifier.weight(1f))
             Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
                 IconButton(onClick = {
-                    navController.navigate(NavigationDestination.Notifications)
+                    onViewNotifications()
                 }) {
                     Icon(
                         painterResource(R.drawable.ic_notif),

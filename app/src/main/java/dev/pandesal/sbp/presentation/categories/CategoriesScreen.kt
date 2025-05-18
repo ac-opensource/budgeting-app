@@ -73,6 +73,7 @@ import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.categories.components.CategoryBudgetPieChart
+import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.math.BigDecimal
@@ -437,8 +438,7 @@ fun CategoriesScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Surface(
                         modifier = Modifier
-                            .padding(top = 16.dp)
-                            .semantics { contentDescription = "drag handle" },
+                            .padding(top = 16.dp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         shape = MaterialTheme.shapes.extraLarge
                     ) {

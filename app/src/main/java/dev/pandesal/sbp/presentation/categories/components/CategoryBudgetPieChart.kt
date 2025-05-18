@@ -50,10 +50,10 @@ fun CategoryBudgetPieChart(
                             drawArc(
                                 color = getCategoryColor(index),
                                 startAngle = startAngle,
-                                sweepAngle = sweep,
+                                sweepAngle = sweep.toFloat(),
                                 useCenter = true
                             )
-                            startAngle += sweep
+                            startAngle += sweep.toFloat()
                         }
                     }
                 }
