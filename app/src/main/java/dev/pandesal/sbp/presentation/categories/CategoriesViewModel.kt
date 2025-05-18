@@ -122,5 +122,29 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
+    fun updateCategoryGroup(group: CategoryGroup, name: String) {
+        viewModelScope.launch {
+            useCase.insertCategoryGroup(group.copy(name = name))
+        }
+    }
+
+    fun deleteCategoryGroup(group: CategoryGroup) {
+        viewModelScope.launch {
+            useCase.deleteCategoryGroup(group)
+        }
+    }
+
+    fun updateCategory(category: Category, name: String) {
+        viewModelScope.launch {
+            useCase.insertCategory(category.copy(name = name))
+        }
+    }
+
+    fun deleteCategory(category: Category) {
+        viewModelScope.launch {
+            useCase.deleteCategory(category)
+        }
+    }
+
 
 }
