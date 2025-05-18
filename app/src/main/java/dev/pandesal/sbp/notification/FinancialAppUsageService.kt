@@ -36,7 +36,10 @@ class FinancialAppUsageService : Service() {
             } catch (_: Exception) {
                 pkg
             }
-            InAppNotificationCenter.postNotification("Did you transact with $appName?")
+            InAppNotificationCenter.postNotification(
+                message = "Did you transact with $appName?",
+                canCreateTransaction = true
+            )
         }
     }
 

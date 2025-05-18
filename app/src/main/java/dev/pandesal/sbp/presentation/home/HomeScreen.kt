@@ -71,7 +71,6 @@ import dev.pandesal.sbp.presentation.components.FilterTab
 import dev.pandesal.sbp.presentation.components.NotificationsPopup
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
-import dev.pandesal.sbp.notification.InAppNotificationCenter
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
 import dev.pandesal.sbp.presentation.transactions.TransactionsViewModel
@@ -89,7 +88,6 @@ fun HomeScreen(
     val navController = LocalNavigationManager.current
     val homeState = viewModel.uiState.collectAsState()
     val transactionsState = transactionsViewModel.uiState.collectAsState()
-    val notificationsState = InAppNotificationCenter.notifications.collectAsState()
 
     if (homeState.value is HomeUiState.Initial ||
         transactionsState.value is TransactionsUiState.Initial
@@ -112,7 +110,6 @@ fun HomeScreen(
             totalAmount = totalAmount,
             categoryPercentages = categoryPercentages,
             transactions = txState.transactions,
-            notifications = notificationsState.value,
             onViewAllTransactions = {
                 navController.navigate(NavigationDestination.Transactions)
             }
@@ -126,7 +123,6 @@ private fun HomeScreenContent(
     totalAmount: Double,
     categoryPercentages: List<Pair<String, Double>>,
     transactions: List<Transaction>,
-    notifications: List<String> = emptyList(),
     onViewAllTransactions: () -> Unit = {}
 ) {
     val topCategories = categoryPercentages
@@ -161,7 +157,6 @@ private fun HomeScreenContent(
     }
 
     val scope = rememberCoroutineScope()
-    var showNotifications by remember { mutableStateOf(false) }
 
     BottomSheetScaffold(
         containerColor = Color.Transparent,
@@ -263,17 +258,14 @@ private fun HomeScreenContent(
         ) {
             Spacer(Modifier.weight(1f))
             Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
-                IconButton(onClick = { showNotifications = true }) {
+                IconButton(onClick = {
+                    navController.navigate(NavigationDestination.Notifications)
+                }) {
                     Icon(
                         painterResource(R.drawable.ic_notif),
                         contentDescription = "Notifications"
                     )
                 }
-                NotificationsPopup(
-                    notifications = notifications,
-                    expanded = showNotifications,
-                    onDismissRequest = { showNotifications = false }
-                )
             }
         }
 
@@ -433,7 +425,6 @@ fun HomeScreenPreview() {
                     transactionType = TransactionType.INFLOW
                 )
             ),
-            notifications = listOf("Preview notification")
         )
     }
 

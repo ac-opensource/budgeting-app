@@ -1,40 +1,55 @@
 package dev.pandesal.sbp.presentation.categories
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloseFullscreen
+import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,25 +58,28 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.hilt.navigation.compose.hiltViewModel
-import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.CategoryWithBudget
-import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.extensions.ReorderHapticFeedbackType
 import dev.pandesal.sbp.extensions.rememberReorderHapticFeedback
-import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetSheet
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
+import dev.pandesal.sbp.presentation.categories.components.CategoryBudgetPieChart
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CategoriesContent(
+private fun CategoriesListContent(
     parentList: List<CategoryGroup>,
     categoriesWithBudget: List<CategoryWithBudget>,
     onAddCategoryGroup: (name: String) -> Unit,
@@ -378,37 +396,131 @@ private fun ChildListContent(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun CategoriesScreen(
     viewModel: CategoriesViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState()
-    val navManager = LocalNavigationManager.current
     val haptic = rememberReorderHapticFeedback()
 
     if (uiState.value is CategoriesUiState.Initial) {
         SkeletonLoader()
     } else if (uiState.value is CategoriesUiState.Success) {
         val state = uiState.value as CategoriesUiState.Success
-        CategoriesContent(
-            parentList = state.categoryGroups,
-            categoriesWithBudget = state.categoriesWithBudget,
-            onAddCategoryGroup = { name ->
-                viewModel.createCategoryGroup(name)
+
+        val scaffoldState = rememberBottomSheetScaffoldState()
+        val scope = rememberCoroutineScope()
+        var isIconExpanded by remember { mutableStateOf(scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) }
+        val sheetHeightPx = remember { mutableFloatStateOf(0f) }
+        val density = LocalDensity.current
+        val screenHeightPx = with(density) { LocalConfiguration.current.screenHeightDp.dp.toPx() }
+        val systemBarInsets = WindowInsets.systemBars.asPaddingValues(LocalDensity.current)
+        val navigationBarHeight = systemBarInsets.calculateBottomPadding()
+
+        LaunchedEffect(scaffoldState.bottomSheetState.targetValue) {
+            isIconExpanded = scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
+        }
+
+        val budgets = state.categoriesWithBudget.mapNotNull { it.budget?.allocated?.toDouble()?.let { amt -> it.category.name to amt } }
+        val totalAllocated = budgets.sumOf { it.second }
+        val percentages = if (totalAllocated != 0.0) budgets.map { it.first to (it.second / totalAllocated) * 100 } else emptyList()
+
+        BottomSheetScaffold(
+            containerColor = Color.Transparent,
+            scaffoldState = scaffoldState,
+            sheetPeekHeight = with(density) {
+                val heightWithPadding = sheetHeightPx.floatValue.toDp() - navigationBarHeight - 24.dp
+                if (heightWithPadding > 0.dp) heightWithPadding else 400.dp
             },
-            onAddCategory = { name, groupId ->
-                viewModel.createCategory(name, groupId)
+            sheetShadowElevation = 16.dp,
+            sheetDragHandle = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Surface(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .semantics { contentDescription = "drag handle" },
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        shape = MaterialTheme.shapes.extraLarge
+                    ) {
+                        Box(Modifier.size(width = 32.dp, height = 4.dp))
+                    }
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Categories", style = MaterialTheme.typography.titleMedium)
+                        Spacer(Modifier.weight(1f))
+                        IconButton(
+                            onClick = {
+                                isIconExpanded = !isIconExpanded
+                                scope.launch {
+                                    if (scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) {
+                                        scaffoldState.bottomSheetState.partialExpand()
+                                    } else {
+                                        scaffoldState.bottomSheetState.expand()
+                                    }
+                                }
+                            }
+                        ) {
+                            Crossfade(
+                                targetState = isIconExpanded,
+                                animationSpec = tween(200),
+                                label = "icon crossfade"
+                            ) { targetIsExpanded ->
+                                if (targetIsExpanded) {
+                                    Icon(Icons.Default.CloseFullscreen, contentDescription = null)
+                                } else {
+                                    Icon(Icons.Default.Fullscreen, contentDescription = null)
+                                }
+                            }
+                        }
+                    }
+                }
             },
-            onAddBudget = { amount, categoryId ->
-                viewModel.setBudgetForCategory(categoryId, amount)
-            },
-            reorderGroup = { from, to ->
-                haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
-                viewModel.reorderGroup(from, to)
-            },
-            reorderCategory = { groupId, from, to ->
-                haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
-                viewModel.reorderCategory(from, to, groupId)
+            sheetContent = {
+                CategoriesListContent(
+                    parentList = state.categoryGroups,
+                    categoriesWithBudget = state.categoriesWithBudget,
+                    onAddCategoryGroup = { name -> viewModel.createCategoryGroup(name) },
+                    onAddCategory = { name, groupId -> viewModel.createCategory(name, groupId) },
+                    onAddBudget = { amount, categoryId -> viewModel.setBudgetForCategory(categoryId, amount) },
+                    reorderGroup = { from, to ->
+                        haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
+                        viewModel.reorderGroup(from, to)
+                    },
+                    reorderCategory = { groupId, from, to ->
+                        haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
+                        viewModel.reorderCategory(from, to, groupId)
+                    }
+                )
             }
-        )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                if (percentages.isNotEmpty()) {
+                    CategoryBudgetPieChart(percentages)
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Create categories and budgets to see breakdown")
+                    }
+                }
+                HorizontalDivider(
+                    color = Color.Transparent,
+                    modifier = Modifier.onGloballyPositioned { coordinates ->
+                        val positionY = coordinates.positionInWindow().y
+                        val calculatedPeekHeight = screenHeightPx - positionY
+                        sheetHeightPx.floatValue = calculatedPeekHeight
+                    }
+                )
+            }
+        }
     }
 }
