@@ -139,7 +139,8 @@ private fun NewTransactionScreen(
     var toAccountExpanded by remember { mutableStateOf(false) }
 
     // Transaction Type Tabs
-    val transactionTypes = listOf(TransactionType.INFLOW, TransactionType.OUTFLOW, TransactionType.TRANSFER)
+    val transactionTypes =
+        listOf(TransactionType.INFLOW, TransactionType.OUTFLOW, TransactionType.TRANSFER)
     var selectedIndex by remember(transaction.transactionType) {
         mutableIntStateOf(transactionTypes.indexOf(transaction.transactionType))
     }
@@ -151,11 +152,11 @@ private fun NewTransactionScreen(
 
     LaunchedEffect(Unit) {
         showClose = true
-        delay(250)
+        delay(300)
         showAmount = true
-        delay(250)
+        delay(300)
         showInputs = true
-        delay(250)
+        delay(300)
         showButtons = true
     }
 
@@ -171,12 +172,12 @@ private fun NewTransactionScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         AnimatedVisibility(
+            modifier = Modifier.align(Alignment.End),
             visible = showClose,
             enter = fadeIn(animationSpec = tween(300)) +
-                slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
+                    slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
         ) {
             ElevatedCard(
-                modifier = Modifier.align(Alignment.End),
                 shape = RoundedCornerShape(50),
                 elevation = CardDefaults.elevatedCardElevation(
                     defaultElevation = 16.dp
@@ -197,7 +198,7 @@ private fun NewTransactionScreen(
         AnimatedVisibility(
             visible = showAmount,
             enter = fadeIn(animationSpec = tween(300)) +
-                slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
+                    slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
         ) {
             ElevatedCard(
                 shape = RoundedCornerShape(50),
@@ -224,9 +225,12 @@ private fun NewTransactionScreen(
                         ),
                         modifier = Modifier.fillMaxWidth(),
                         decorationBox = { innerTextField ->
-                            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
                                 Text(
-                                    text = if (amountText.isEmpty()) "0" else amountText,
+                                    text = amountText.ifEmpty { "0" },
                                     style = MaterialTheme.typography.headlineLarge.copy(
                                         textAlign = TextAlign.Center,
                                         fontSize = 48.sp,
@@ -248,7 +252,7 @@ private fun NewTransactionScreen(
         AnimatedVisibility(
             visible = showInputs,
             enter = fadeIn(animationSpec = tween(300)) +
-                slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
+                    slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
         ) {
             ElevatedCard(
                 shape = RoundedCornerShape(10),
@@ -259,279 +263,283 @@ private fun NewTransactionScreen(
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
-                // Category
-                Column(modifier = Modifier.padding(top = 16.dp)) {
-                    Text("Category", style = MaterialTheme.typography.bodyMedium)
-                    ElevatedCard(
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .fillMaxWidth()
-                            .clickable { expanded = true }
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
+                    // Category
+                    Column(modifier = Modifier.padding(top = 16.dp)) {
+                        Text("Category", style = MaterialTheme.typography.bodyMedium)
+                        ElevatedCard(
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .fillMaxWidth()
+                                .clickable { expanded = true }
                         ) {
-                            Text(
-                                text = transaction.category?.name ?: "Select Category",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(16.dp)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = transaction.category?.name ?: "Select Category",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(16.dp)
+                                )
 
-                            Icon(
-                                Icons.TwoTone.ArrowDropDown,
-                                contentDescription = "Reorder",
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
+                                Icon(
+                                    Icons.TwoTone.ArrowDropDown,
+                                    contentDescription = "Reorder",
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                            }
                         }
-                    }
 
-                    if (expanded) {
-                        ModalBottomSheet(onDismissRequest = { expanded = false }) {
-                            LazyColumn {
-                                items(flatList) { item ->
-                                    when (item) {
-                                        is CategoryGroup -> {
-                                            Text(
-                                                text = item.name,
-                                                style = MaterialTheme.typography.titleSmall,
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                                            )
-                                        }
-
-                                        is Category -> {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Text(
-                                                    text = "-",
-                                                    style = MaterialTheme.typography.headlineLarge,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    modifier = Modifier
-                                                        .clickable {
-                                                            onUpdate(transaction.copy(category = item))
-                                                            expanded = false
-                                                        }
-                                                        .padding(start = 16.dp)
-                                                )
-
+                        if (expanded) {
+                            ModalBottomSheet(onDismissRequest = { expanded = false }) {
+                                LazyColumn {
+                                    items(flatList) { item ->
+                                        when (item) {
+                                            is CategoryGroup -> {
                                                 Text(
                                                     text = item.name,
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    style = MaterialTheme.typography.titleSmall,
                                                     modifier = Modifier
-                                                        .weight(1f)
-                                                        .clickable {
-                                                            onUpdate(transaction.copy(category = item))
-                                                            expanded = false
-                                                        }
+                                                        .fillMaxWidth()
                                                         .padding(
-                                                            horizontal = 8.dp,
-                                                            vertical = 12.dp
+                                                            horizontal = 16.dp,
+                                                            vertical = 8.dp
                                                         )
                                                 )
                                             }
 
+                                            is Category -> {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = "-",
+                                                        style = MaterialTheme.typography.headlineLarge,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        modifier = Modifier
+                                                            .clickable {
+                                                                onUpdate(transaction.copy(category = item))
+                                                                expanded = false
+                                                            }
+                                                            .padding(start = 16.dp)
+                                                    )
+
+                                                    Text(
+                                                        text = item.name,
+                                                        style = MaterialTheme.typography.labelMedium,
+                                                        color = MaterialTheme.colorScheme.onSurface,
+                                                        modifier = Modifier
+                                                            .weight(1f)
+                                                            .clickable {
+                                                                onUpdate(transaction.copy(category = item))
+                                                                expanded = false
+                                                            }
+                                                            .padding(
+                                                                horizontal = 8.dp,
+                                                                vertical = 12.dp
+                                                            )
+                                                    )
+                                                }
+
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                AnimatedVisibility(
-                    visible = transactionTypes[selectedIndex] == TransactionType.OUTFLOW || transactionTypes[selectedIndex] == TransactionType.TRANSFER
-                ) {
+                    AnimatedVisibility(
+                        visible = transactionTypes[selectedIndex] == TransactionType.OUTFLOW || transactionTypes[selectedIndex] == TransactionType.TRANSFER
+                    ) {
+                        Column(modifier = Modifier.padding(top = 16.dp)) {
+                            Text("From Account", style = MaterialTheme.typography.bodyMedium)
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable { fromAccountExpanded = true }
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = transaction.from ?: "Select Source Account",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+
+                                    Icon(
+                                        Icons.TwoTone.Wallet,
+                                        contentDescription = "Reorder",
+                                        modifier = Modifier
+                                            .padding(end = 8.dp)
+                                            .size(24.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        if (fromAccountExpanded) {
+                            ModalBottomSheet(onDismissRequest = { fromAccountExpanded = false }) {
+                                LazyColumn {
+                                    items(accounts) { account ->
+                                        Text(
+                                            text = account.name,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    onUpdate(transaction.copy(from = account.name))
+                                                    fromAccountExpanded = false
+                                                }
+                                                .padding(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    AnimatedVisibility(
+                        visible = transactionTypes[selectedIndex] == TransactionType.OUTFLOW
+                    ) {
+                        // Merchant
+                        Column(modifier = Modifier.padding(top = 16.dp)) {
+                            Text("To / Merchant", style = MaterialTheme.typography.bodyMedium)
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    BasicTextField(
+                                        value = transaction.merchantName.orEmpty(),
+                                        onValueChange = { onUpdate(transaction.copy(merchantName = it)) },
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .weight(1f)
+                                            .padding(8.dp),
+                                    )
+
+                                    Icon(
+                                        Icons.TwoTone.Favorite,
+                                        contentDescription = "Reorder",
+                                        modifier = Modifier
+                                            .padding(end = 8.dp)
+                                            .size(24.dp)
+                                            .clickable { merchantExpanded = true }
+                                    )
+                                }
+                            }
+                        }
+
+                        if (merchantExpanded) {
+                            ModalBottomSheet(onDismissRequest = { merchantExpanded = false }) {
+                                LazyColumn {
+                                    items(merchants) { item ->
+                                        Text(
+                                            text = item,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    onUpdate(transaction.copy(merchantName = item))
+                                                    merchantExpanded = false
+                                                }
+                                                .padding(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visible = transactionTypes[selectedIndex] == TransactionType.INFLOW || transactionTypes[selectedIndex] == TransactionType.TRANSFER
+                    ) {
+                        Column(modifier = Modifier.padding(top = 16.dp)) {
+                            Text("To Account", style = MaterialTheme.typography.bodyMedium)
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable { toAccountExpanded = true }
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = transaction.to ?: "Select Destination Account",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+
+                                    Icon(
+                                        Icons.TwoTone.Wallet,
+                                        contentDescription = "Reorder",
+                                        modifier = Modifier
+                                            .padding(end = 8.dp)
+                                            .size(24.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        if (toAccountExpanded) {
+                            ModalBottomSheet(onDismissRequest = { toAccountExpanded = false }) {
+                                LazyColumn {
+                                    items(accounts) { account ->
+                                        Text(
+                                            text = account.name,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    onUpdate(transaction.copy(to = account.name))
+                                                    toAccountExpanded = false
+                                                }
+                                                .padding(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    // Date
                     Column(modifier = Modifier.padding(top = 16.dp)) {
-                        Text("From Account", style = MaterialTheme.typography.bodyMedium)
+                        Text("Transaction Date", style = MaterialTheme.typography.bodyMedium)
                         ElevatedCard(
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .fillMaxWidth()
-                                .clickable { fromAccountExpanded = true }
-                        ) {
+                                .clickable { showDatePicker.value = true }) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = transaction.from ?: "Select Source Account",
+                                    text = transaction.createdAt.toString(),
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(16.dp)
                                 )
 
                                 Icon(
-                                    Icons.TwoTone.Wallet,
+                                    Icons.TwoTone.DateRange,
                                     contentDescription = "Reorder",
-                                    modifier = Modifier
-                                        .padding(end = 8.dp)
-                                        .size(24.dp)
+                                    modifier = Modifier.padding(end = 8.dp)
                                 )
                             }
-                        }
-                    }
-
-                    if (fromAccountExpanded) {
-                        ModalBottomSheet(onDismissRequest = { fromAccountExpanded = false }) {
-                            LazyColumn {
-                                items(accounts) { account ->
-                                    Text(
-                                        text = account.name,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                onUpdate(transaction.copy(from = account.name))
-                                                fromAccountExpanded = false
-                                            }
-                                            .padding(16.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                AnimatedVisibility(
-                    visible = transactionTypes[selectedIndex] == TransactionType.OUTFLOW
-                ) {
-                    // Merchant
-                    Column(modifier = Modifier.padding(top = 16.dp)) {
-                        Text("To / Merchant", style = MaterialTheme.typography.bodyMedium)
-                        ElevatedCard(
-                            modifier = Modifier
-                                .padding(top = 4.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                BasicTextField(
-                                    value = transaction.merchantName.orEmpty(),
-                                    onValueChange = { onUpdate(transaction.copy(merchantName = it)) },
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .weight(1f)
-                                        .padding(8.dp),
-                                )
-
-                                Icon(
-                                    Icons.TwoTone.Favorite,
-                                    contentDescription = "Reorder",
-                                    modifier = Modifier
-                                        .padding(end = 8.dp)
-                                        .size(24.dp)
-                                        .clickable { merchantExpanded = true }
-                                )
-                            }
-                        }
-                    }
-
-                    if (merchantExpanded) {
-                        ModalBottomSheet(onDismissRequest = { merchantExpanded = false }) {
-                            LazyColumn {
-                                items(merchants) { item ->
-                                    Text(
-                                        text = item,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                onUpdate(transaction.copy(merchantName = item))
-                                                merchantExpanded = false
-                                            }
-                                            .padding(16.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                AnimatedVisibility(
-                    visible = transactionTypes[selectedIndex] == TransactionType.INFLOW || transactionTypes[selectedIndex] == TransactionType.TRANSFER
-                ) {
-                    Column(modifier = Modifier.padding(top = 16.dp)) {
-                        Text("To Account", style = MaterialTheme.typography.bodyMedium)
-                        ElevatedCard(
-                            modifier = Modifier
-                                .padding(top = 4.dp)
-                                .fillMaxWidth()
-                                .clickable { toAccountExpanded = true }
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = transaction.to ?: "Select Destination Account",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(16.dp)
-                                )
-
-                                Icon(
-                                    Icons.TwoTone.Wallet,
-                                    contentDescription = "Reorder",
-                                    modifier = Modifier
-                                        .padding(end = 8.dp)
-                                        .size(24.dp)
-                                )
-                            }
-                        }
-                    }
-
-                    if (toAccountExpanded) {
-                        ModalBottomSheet(onDismissRequest = { toAccountExpanded = false }) {
-                            LazyColumn {
-                                items(accounts) { account ->
-                                    Text(
-                                        text = account.name,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                onUpdate(transaction.copy(to = account.name))
-                                                toAccountExpanded = false
-                                            }
-                                            .padding(16.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                // Date
-                Column(modifier = Modifier.padding(top = 16.dp)) {
-                    Text("Transaction Date", style = MaterialTheme.typography.bodyMedium)
-                    ElevatedCard(
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .fillMaxWidth()
-                            .clickable { showDatePicker.value = true }) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = transaction.createdAt.toString(),
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(16.dp)
-                            )
-
-                            Icon(
-                                Icons.TwoTone.DateRange,
-                                contentDescription = "Reorder",
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
                         }
                     }
                 }
@@ -539,13 +547,13 @@ private fun NewTransactionScreen(
         }
 
         AnimatedVisibility(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally),
             visible = showButtons,
             enter = fadeIn(animationSpec = tween(300)) +
-                slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
+                    slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
         ) {
             HorizontalFloatingToolbar(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally),
                 expanded = true,
                 floatingActionButton = {
                     FloatingToolbarDefaults.VibrantFloatingActionButton(
@@ -560,67 +568,68 @@ private fun NewTransactionScreen(
                 content = {
                     val options = listOf("Inflow", "Outflow", "Transfer")
 
-                Row(
-                    Modifier.padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
-                ) {
-                    val modifiers = listOf(
-                        Modifier.wrapContentSize(),
-                        Modifier.wrapContentSize(),
-                        Modifier.wrapContentSize()
-                    )
+                    Row(
+                        Modifier.padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                    ) {
+                        val modifiers = listOf(
+                            Modifier.wrapContentSize(),
+                            Modifier.wrapContentSize(),
+                            Modifier.wrapContentSize()
+                        )
 
-                    options.forEachIndexed { index, label ->
-                        ToggleButton(
-                            checked = selectedIndex == index,
-                            onCheckedChange = {
-                                selectedIndex = index
-                                onUpdate(transaction.copy(transactionType = transactionTypes[index]))
+                        options.forEachIndexed { index, label ->
+                            ToggleButton(
+                                checked = selectedIndex == index,
+                                onCheckedChange = {
+                                    selectedIndex = index
+                                    onUpdate(transaction.copy(transactionType = transactionTypes[index]))
 
-                            },
-                            modifier = modifiers[index],
-                            shapes =
-                                when (index) {
-                                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                    options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                                }
-                        ) {
-                            Text(
-                                label,
-                                color = if (selectedIndex == index) Color.White else Color.Black,
-                                style = MaterialTheme.typography.labelSmall
-                            )
+                                },
+                                modifier = modifiers[index],
+                                shapes =
+                                    when (index) {
+                                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                        options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                    }
+                            ) {
+                                Text(
+                                    label,
+                                    color = if (selectedIndex == index) Color.White else Color.Black,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
                         }
                     }
                 }
-            }
+            )
         }
 
-    }
-
-    if (showDatePicker.value) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker.value = false },
-            confirmButton = {
-                Button(onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        val newDate = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
-                            .toLocalDate()
-                        onUpdate(transaction.copy(createdAt = newDate))
+        if (showDatePicker.value) {
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker.value = false },
+                confirmButton = {
+                    Button(onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val newDate =
+                                Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+                            onUpdate(transaction.copy(createdAt = newDate))
+                        }
+                        showDatePicker.value = false
+                    }) {
+                        Text("OK")
                     }
-                    showDatePicker.value = false
-                }) {
-                    Text("OK")
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { showDatePicker.value = false }) {
+                        Text("Cancel")
+                    }
                 }
-            },
-            dismissButton = {
-                OutlinedButton(onClick = { showDatePicker.value = false }) {
-                    Text("Cancel")
-                }
+            ) {
+                DatePicker(state = datePickerState)
             }
-        ) {
-            DatePicker(state = datePickerState)
         }
     }
 }
