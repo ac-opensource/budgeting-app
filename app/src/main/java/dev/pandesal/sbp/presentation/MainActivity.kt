@@ -116,7 +116,6 @@ class MainActivity : ComponentActivity() {
                                             launchSingleTop = true
                                             restoreState = true
                                         }
-                                        navController.navigate(NavigationDestination.NewTransaction)
                                     },
                                 ) {
                                     Icon(Icons.Filled.Add, "Localized description")
