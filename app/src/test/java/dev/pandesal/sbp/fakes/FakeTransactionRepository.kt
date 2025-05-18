@@ -12,6 +12,8 @@ import java.time.LocalDate
 class FakeTransactionRepository : TransactionRepositoryInterface {
     val transactionsFlow = MutableStateFlow<List<Transaction>>(emptyList())
     val pagedFlow = MutableStateFlow<List<Transaction>>(emptyList())
+    val searchFlow = MutableStateFlow<List<Transaction>>(emptyList())
+    val searchQueries = mutableListOf<String>()
     val merchantsFlow = MutableStateFlow<List<String>>(emptyList())
     val insertedTransactions = mutableListOf<Transaction>()
 
@@ -27,7 +29,10 @@ class FakeTransactionRepository : TransactionRepositoryInterface {
     override fun getTransactionsByCategoryId(categoryId: String): Flow<List<Transaction>> = flowOf(emptyList())
     override fun getTransactionsByDateRange(startDate: LocalDate, endDate: LocalDate): Flow<List<Transaction>> = flowOf(emptyList())
     override fun getTransactionsByDateRangeAndAccountId(startDate: LocalDate, endDate: LocalDate, accountId: String): Flow<List<Transaction>> = flowOf(emptyList())
-    override fun searchTransactions(query: String): Flow<List<Transaction>> = flowOf(emptyList())
+    override fun searchTransactions(query: String): Flow<List<Transaction>> {
+        searchQueries.add(query)
+        return searchFlow
+    }
     override fun getPagedTransactions(limit: Int, offset: Int): Flow<List<Transaction>> = pagedFlow
     override fun getPagedTransactionsByCategory(categoryId: String, limit: Int, offset: Int): Flow<List<Transaction>> = flowOf(emptyList())
     override fun getTotalAmountByCategory(type: TransactionType): Flow<List<Pair<Int, BigDecimal>>> = flowOf(emptyList())

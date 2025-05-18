@@ -33,4 +33,17 @@ class TransactionsViewModelTest {
         val state = vm.uiState.value as TransactionsUiState.Success
         assertEquals(listOf(tx), state.transactions)
     }
+
+    @Test
+    fun searchUsesRepository() = runTest {
+        val tx = Transaction(name="note", amount=BigDecimal.ONE, createdAt=LocalDate.now(),
+            updatedAt=LocalDate.now(), accountId="", transactionType = TransactionType.OUTFLOW)
+        repository.searchFlow.value = listOf(tx)
+        val vm = TransactionsViewModel(useCase)
+        vm.search("note")
+        advanceUntilIdle()
+        val state = vm.uiState.value as TransactionsUiState.Success
+        assertEquals(listOf(tx), state.transactions)
+        assertEquals(listOf("note"), repository.searchQueries)
+    }
 }

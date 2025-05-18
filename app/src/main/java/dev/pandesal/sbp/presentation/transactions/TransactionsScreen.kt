@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -52,7 +53,8 @@ fun TransactionsScreen(
         TransactionsContent(
             state.transactions,
             onNewTransactionClick = { navManager.navigate(NavigationDestination.NewTransaction) },
-            onTransactionClick = { navManager.navigate(NavigationDestination.TransactionDetails) }
+            onTransactionClick = { navManager.navigate(NavigationDestination.TransactionDetails) },
+            onSearch = viewModel::search
         )
     }
 }
@@ -63,7 +65,8 @@ fun TransactionsScreen(
 fun TransactionsContent(
     transactions: List<Transaction>,
     onNewTransactionClick: () -> Unit,
-    onTransactionClick: (transaction: Transaction) -> Unit
+    onTransactionClick: (transaction: Transaction) -> Unit,
+    onSearch: (String) -> Unit
 ) {
     var showNewCategoryGroup by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -85,6 +88,18 @@ fun TransactionsContent(
             .fillMaxHeight()
             .padding(horizontal = 16.dp)
     ) {
+        var query by remember { mutableStateOf("") }
+        OutlinedTextField(
+            value = query,
+            onValueChange = {
+                query = it
+                onSearch(it)
+            },
+            label = { Text("Search") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
 
         val groupedTransactions = transactions.groupBy {
             when (it.createdAt) {
