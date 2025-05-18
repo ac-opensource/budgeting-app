@@ -38,7 +38,7 @@ class NewTransactionsViewModelTest {
     fun uiStateEmitsSuccess() = runTest {
         val group = CategoryGroup(id=1, name="G", description="", icon="")
         val category = Category(id=1, name="C", description="", icon="", categoryGroupId=1, categoryType=TransactionType.OUTFLOW, weight=0)
-        accountRepo.accountsFlow.value = listOf(Account(name="A", type=AccountType.CASH_WALLET))
+        accountRepo.accountsFlow.value = listOf(Account(name="A", type=AccountType.CASH_WALLET, currency = "PHP"))
         categoryRepo.groupsFlow.value = listOf(group)
         categoryRepo.categoriesFlow.value = listOf(category)
         transactionRepo.merchantsFlow.value = listOf("Shop")

@@ -44,7 +44,8 @@ data class MonthlyBudgetEntity(
     val categoryId: Int,
     val yearMonth: String,
     val allocated: BigDecimal,
-    val spent: BigDecimal
+    val spent: BigDecimal,
+    val currency: String = "PHP"
 )
 
 data class CategoryWithBudgetRaw(
@@ -53,7 +54,8 @@ data class CategoryWithBudgetRaw(
     @ColumnInfo(name = "mb_id") val budgetId: Int?,
     @ColumnInfo(name = "yearMonth") val yearMonth: String?,
     @ColumnInfo(name = "allocated") val allocated: BigDecimal?,
-    @ColumnInfo(name = "spent") val spent: BigDecimal?
+    @ColumnInfo(name = "spent") val spent: BigDecimal?,
+    @ColumnInfo(name = "mb_currency") val currency: String?
 ) {
     fun toDomain(): CategoryWithBudget {
         return CategoryWithBudget(
@@ -64,7 +66,8 @@ data class CategoryWithBudgetRaw(
                     categoryId = category.id,
                     month = YearMonth.parse(yearMonth),
                     allocated = allocated,
-                    spent = spent
+                    spent = spent,
+                    currency = currency ?: "PHP"
                 )
             } else null
         )
@@ -135,6 +138,7 @@ fun MonthlyBudget.toEntity(): MonthlyBudgetEntity {
         yearMonth = month.toString(),
         allocated = allocated,
         spent = spent,
+        currency = currency,
     )
 }
 
@@ -145,6 +149,7 @@ fun MonthlyBudgetEntity.toDomainModel(): MonthlyBudget {
         month = YearMonth.parse(yearMonth),
         allocated = allocated,
         spent = spent,
+        currency = currency,
     )
 }
 

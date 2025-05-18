@@ -29,9 +29,9 @@ class AccountsViewModel @Inject constructor(
         }
     }
 
-    fun addAccount(name: String, type: AccountType) {
+    fun addAccount(name: String, type: AccountType, currency: String = "PHP") {
         viewModelScope.launch {
-            val account = Account(name = name, type = type)
+            val account = Account(name = name, type = type, currency = currency)
             useCase.insertAccount(account)
         }
     }

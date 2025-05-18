@@ -38,7 +38,7 @@ class InsightsViewModelTest {
 
     @Test
     fun uiStateEmitsSuccess() = runTest {
-        accountRepo.accountsFlow.value = listOf(Account(name = "A", type = AccountType.CASH_WALLET))
+        accountRepo.accountsFlow.value = listOf(Account(name = "A", type = AccountType.CASH_WALLET, currency = "PHP"))
         categoryRepo.monthlyBudgetsFlow.value = listOf(
             MonthlyBudget(1,1,YearMonth.now(),BigDecimal.ONE,BigDecimal.ZERO)
         )

@@ -48,7 +48,7 @@ fun NewAccountScreen(
     val navigationManager = LocalNavigationManager.current
 
     NewAccountScreen(
-        onSubmit = { name, type -> viewModel.addAccount(name, type) },
+        onSubmit = { name, type, currency -> viewModel.addAccount(name, type, currency) },
         onCancel = { },
         onDismissRequest = {
             navigationManager.navigateUp()
@@ -60,12 +60,13 @@ fun NewAccountScreen(
 @Composable
 private fun NewAccountScreen(
     sheetState: SheetState = rememberModalBottomSheetState(),
-    onSubmit: (name: String, type: AccountType) -> Unit,
+    onSubmit: (name: String, type: AccountType, currency: String) -> Unit,
     onCancel: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf(AccountType.CASH_WALLET) }
+    var currency by remember { mutableStateOf("PHP") }
 
     Column(
         modifier = Modifier
@@ -107,6 +108,13 @@ private fun NewAccountScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                OutlinedTextField(
+                    value = currency,
+                    onValueChange = { currency = it },
+                    label = { Text("Currency") },
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                )
+
                 Row(
                     modifier = Modifier
                         .padding(top = 16.dp)
@@ -144,7 +152,7 @@ private fun NewAccountScreen(
             floatingActionButton = {
                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                     onClick = {
-                        onSubmit(name, selectedType)
+                        onSubmit(name, selectedType, currency)
                         onDismissRequest()
                     }
                 ) {
