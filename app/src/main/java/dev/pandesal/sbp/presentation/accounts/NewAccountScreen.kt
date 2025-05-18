@@ -3,26 +3,41 @@ package dev.pandesal.sbp.presentation.accounts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.HorizontalFloatingToolbar
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.domain.model.AccountType
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NewAccountScreen(
     sheetState: SheetState = rememberModalBottomSheetState(),
@@ -39,38 +54,90 @@ fun NewAccountScreen(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.Bottom
         ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Account Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            // Simple type selection via buttons
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                AccountType.values().forEach { type ->
-                    Button(onClick = { selectedType = type }) {
-                        val label = type.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercaseChar() }
-                        Text(label)
+            Spacer(modifier = Modifier.weight(1f))
+
+            ElevatedCard(
+                modifier = Modifier.align(Alignment.End),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(50),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+            ) {
+                IconButton(
+                    modifier = Modifier
+                        .height(24.dp)
+                        .padding(4.dp),
+                    onClick = {
+                        onCancel()
+                        onDismissRequest()
+                    }
+                ) {
+                    Icon(Icons.Filled.Close, contentDescription = null)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ElevatedCard(
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(10),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Account Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                    ) {
+                        val allTypes = AccountType.values()
+                        allTypes.forEachIndexed { index, type ->
+                            ToggleButton(
+                                checked = selectedType == type,
+                                onCheckedChange = { selectedType = type },
+                                modifier = Modifier.weight(1f),
+                                shapes = when (index) {
+                                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                    allTypes.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                }
+                            ) {
+                                val label = type.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercaseChar() }
+                                Text(
+                                    label,
+                                    color = if (selectedType == type) Color.White else Color.Black
+                                )
+                            }
+                        }
                     }
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Button(
-                    onClick = {
-                        onSubmit(name, selectedType)
-                        onDismissRequest()
-                    },
-                    enabled = name.isNotBlank()
-                ) { Text("Save") }
-                OutlinedButton(onClick = {
-                    onCancel()
-                    onDismissRequest()
-                }) { Text("Cancel") }
-            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            HorizontalFloatingToolbar(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                expanded = true,
+                floatingActionButton = {
+                    FloatingToolbarDefaults.VibrantFloatingActionButton(
+                        onClick = {
+                            onSubmit(name, selectedType)
+                            onDismissRequest()
+                        }
+                    ) {
+                        Icon(Icons.Default.Check, contentDescription = null)
+                    }
+                },
+                content = {}
+            )
         }
     }
 }
