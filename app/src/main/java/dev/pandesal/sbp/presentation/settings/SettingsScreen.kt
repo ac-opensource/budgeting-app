@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.ExperimentalMaterial3Api
 
 @Composable
 fun SettingsScreen(
@@ -50,6 +51,7 @@ private data class SettingItem(
 
 private enum class SettingType { SWITCH, TEXT }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsContent(
     settings: dev.pandesal.sbp.domain.model.Settings,
@@ -69,6 +71,8 @@ private fun SettingsContent(
         SettingItem("Enable notifications", SettingType.SWITCH),
         SettingItem("Currency", SettingType.TEXT)
     )
+
+    val context = LocalContext.current
 
     LazyColumn(
         modifier = Modifier.padding(16.dp),
@@ -94,7 +98,7 @@ private fun SettingsContent(
                         notificationsEnabled = it
                         if (it) {
                             val permission = Manifest.permission.POST_NOTIFICATIONS
-                            val context = LocalContext.current
+                            val context = context
                             if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
                                 onNotificationsChange(true)
                             } else {

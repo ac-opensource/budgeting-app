@@ -41,7 +41,7 @@ class MappingTests {
             description = "desc",
             icon = "icon",
             categoryGroupId = 2,
-            categoryType = TransactionType.EXPENSE,
+            categoryType = TransactionType.OUTFLOW,
             weight = 1,
             isSystemSet = true,
             isFavorite = true,
