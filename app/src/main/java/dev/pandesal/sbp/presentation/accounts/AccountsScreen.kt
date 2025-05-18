@@ -1,7 +1,6 @@
 package dev.pandesal.sbp.presentation.accounts
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +9,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.AccountBalance
+import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.Wallet
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,8 +28,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pandesal.sbp.domain.model.AccountType
+import dev.pandesal.sbp.extensions.format
+import dev.pandesal.sbp.extensions.label
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,12 +79,27 @@ private fun AccountsContent(accounts: List<dev.pandesal.sbp.domain.model.Account
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(accounts) { account ->
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(account.name, style = MaterialTheme.typography.titleMedium)
-                Text(account.type.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercaseChar() },
-                    style = MaterialTheme.typography.bodySmall)
+        items(accounts, key = { it.id }) { account ->
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                ListItem(
+                    headlineContent = { Text(account.name) },
+                    supportingContent = { Text(account.type.label(), style = MaterialTheme.typography.bodySmall) },
+                    leadingContent = { Icon(getAccountIcon(account.type), contentDescription = null) },
+                    trailingContent = {
+                        Text(
+                            "₱${account.balance.format()}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                )
             }
         }
     }
+}
+
+private fun getAccountIcon(type: AccountType): ImageVector = when (type) {
+    AccountType.CASH_WALLET -> Icons.Outlined.Wallet
+    AccountType.MOBILE_DIGITAL_WALLET -> Icons.Outlined.AccountBalanceWallet
+    AccountType.BANK_ACCOUNT -> Icons.Outlined.AccountBalance
+    AccountType.CREDIT_CARD -> Icons.Outlined.CreditCard
 }
