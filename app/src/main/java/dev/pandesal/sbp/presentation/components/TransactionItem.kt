@@ -49,9 +49,15 @@ fun TransactionItem(tx: Transaction) {
                 }
             }
 
+            val (prefix, color) = when (tx.transactionType) {
+                dev.pandesal.sbp.domain.model.TransactionType.INFLOW -> "+₱" to Color(0xFF2E7D32)
+                dev.pandesal.sbp.domain.model.TransactionType.OUTFLOW -> "-₱" to Color(0xFFC62828)
+                else -> "" to MaterialTheme.colorScheme.onSurface
+            }
+
             Text(
-                text = (if (tx.amount > BigDecimal.ZERO) "+₱" else "-₱") + "%,.2f".format(tx.amount.abs()),
-                color = if (tx.amount > BigDecimal.ZERO) Color(0xFF2E7D32) else Color(0xFFC62828),
+                text = prefix + "%,.2f".format(tx.amount.abs()),
+                color = color,
                 style = MaterialTheme.typography.titleMedium
             )
         }
