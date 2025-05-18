@@ -112,12 +112,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Fixed
 - Outflow transactions on the home screen are now shown with a red negative amount
 
-
-## [0.9.0] - 2025-05-21
-### Added
-- Option to set an initial balance when adding an account.
-- Currency selection now uses a dropdown like in Settings.
-
 ## [0.0.1] - 2025-05-18
 ### Added
 - Initial Changelog file

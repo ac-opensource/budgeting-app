@@ -55,8 +55,8 @@ fun NewAccountScreen(
     val navigationManager = LocalNavigationManager.current
 
     NewAccountScreen(
-        onSubmit = { name, type, balance, currency ->
-            viewModel.addAccount(name, type, balance, currency)
+        onSubmit = { name, type, balance, currency, contractValue, monthlyPayment ->
+            viewModel.addAccount(name, type, currency, contractValue, monthlyPayment)
         },
         onCancel = { },
         onDismissRequest = {
@@ -69,13 +69,15 @@ fun NewAccountScreen(
 @Composable
 private fun NewAccountScreen(
     sheetState: SheetState = rememberModalBottomSheetState(),
-    onSubmit: (name: String, type: AccountType, balance: BigDecimal, currency: String) -> Unit,
+    onSubmit: (name: String, type: AccountType, balance: BigDecimal, currency: String, contractValue: String?, monthlyPayment: String?) -> Unit,
     onCancel: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf(AccountType.CASH_WALLET) }
     var currency by remember { mutableStateOf("PHP") }
+    var contractValue by remember { mutableStateOf("") }
+    var monthlyPayment by remember { mutableStateOf("") }
     var balance by remember { mutableStateOf(BigDecimal.ZERO) }
     var showCurrencySheet by remember { mutableStateOf(false) }
 
@@ -141,6 +143,21 @@ private fun NewAccountScreen(
                     readOnly = true
                 )
 
+                if (selectedType == AccountType.LOAN) {
+                    OutlinedTextField(
+                        value = contractValue,
+                        onValueChange = { contractValue = it },
+                        label = { Text("Total Contract Value") },
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                    )
+                    OutlinedTextField(
+                        value = monthlyPayment,
+                        onValueChange = { monthlyPayment = it },
+                        label = { Text("Monthly Payment") },
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                    )
+                }
+
                 Row(
                     modifier = Modifier
                         .padding(top = 16.dp)
@@ -199,7 +216,7 @@ private fun NewAccountScreen(
             floatingActionButton = {
                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                     onClick = {
-                        onSubmit(name, selectedType, balance, currency)
+                        onSubmit(name, selectedType, balance, currency, contractValue.ifBlank { null }, monthlyPayment.ifBlank { null })
                         onDismissRequest()
                     }
                 ) {

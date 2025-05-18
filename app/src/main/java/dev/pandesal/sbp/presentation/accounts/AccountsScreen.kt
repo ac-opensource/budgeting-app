@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.AttachMoney
 import androidx.compose.material.icons.outlined.Wallet
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Button
@@ -128,4 +129,5 @@ private fun getAccountIcon(type: AccountType): ImageVector = when (type) {
     AccountType.MOBILE_DIGITAL_WALLET -> Icons.Outlined.AccountBalanceWallet
     AccountType.BANK_ACCOUNT -> Icons.Outlined.AccountBalance
     AccountType.CREDIT_CARD -> Icons.Outlined.CreditCard
+    AccountType.LOAN -> Icons.Outlined.AttachMoney
 }
