@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 fun NewCategoryScreen(
     sheetState: SheetState = rememberModalBottomSheetState(),
     groupId: Int,
+    groupName: String,
     initialName: String = "",
     onSubmit: (name: String, groupId: Int) -> Unit,
     onCancel: () -> Unit,
@@ -43,7 +44,7 @@ fun NewCategoryScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(text = "Add Category to Group ID: $groupId")
+            Text(text = "Add Category to Group: $groupName")
 
             OutlinedTextField(
                 value = name,

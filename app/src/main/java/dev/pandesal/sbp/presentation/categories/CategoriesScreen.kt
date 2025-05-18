@@ -26,7 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -97,11 +96,11 @@ private fun CategoriesListContent(
     onEditCategory: (Category, String) -> Unit,
     onDeleteCategory: (Category) -> Unit,
 ) {
-    var showNewCategoryGroup by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var showNewCategorySheet by remember { mutableStateOf(false) }
     var selectedGroupId by remember { mutableStateOf<Int?>(null) }
+    var selectedGroupName by remember { mutableStateOf<String?>(null) }
     var selectedCategoryId by remember { mutableStateOf<Int?>(null) }
     val newCategorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -130,16 +129,6 @@ private fun CategoriesListContent(
     var editCategory by remember { mutableStateOf<Category?>(null) }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Button(onClick = { showNewCategoryGroup = true }) {
-                Text("Add Category Group")
-            }
-        }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyGroupsState,
@@ -220,6 +209,7 @@ private fun CategoriesListContent(
                                 Spacer(Modifier.weight(1f))
                                 TextButton(onClick = {
                                     selectedGroupId = item.id
+                                    selectedGroupName = item.name
                                     showNewCategorySheet = true
                                 }) {
                                     Text("Add Category")
@@ -245,34 +235,27 @@ private fun CategoriesListContent(
             }
         }
 
-        if (showNewCategoryGroup) {
-            NewCategoryGroupScreen(
-                sheetState = sheetState,
-                onSubmit = {
-                    onAddCategoryGroup(it)
-                    showNewCategoryGroup = false
-                },
-                onCancel = { showNewCategoryGroup = false },
-                onDismissRequest = { showNewCategoryGroup = false }
-            )
-        }
 
         if (showNewCategorySheet && selectedGroupId != null) {
             NewCategoryScreen(
                 sheetState = newCategorySheetState,
                 groupId = selectedGroupId!!,
+                groupName = selectedGroupName ?: "",
                 onSubmit = { name, groupId ->
                     onAddCategory(name, groupId)
                     showNewCategorySheet = false
                     selectedGroupId = null
+                    selectedGroupName = null
                 },
                 onCancel = {
                     showNewCategorySheet = false
                     selectedGroupId = null
+                    selectedGroupName = null
                 },
                 onDismissRequest = {
                     showNewCategorySheet = false
                     selectedGroupId = null
+                    selectedGroupName = null
                 }
             )
         }
@@ -347,6 +330,7 @@ private fun CategoriesListContent(
             NewCategoryScreen(
                 sheetState = newCategorySheetState,
                 groupId = editCategory!!.categoryGroupId,
+                groupName = groupList.firstOrNull { it.id == editCategory!!.categoryGroupId }?.name ?: "",
                 initialName = editCategory!!.name,
                 onSubmit = { name, _ ->
                     onEditCategory(editCategory!!, name)
@@ -487,6 +471,7 @@ private fun ChildListContent(
                 }
             }
         }
+
     }
 }
 
@@ -511,6 +496,9 @@ fun CategoriesScreen(
         val screenHeightPx = with(density) { LocalConfiguration.current.screenHeightDp.dp.toPx() }
         val systemBarInsets = WindowInsets.systemBars.asPaddingValues(LocalDensity.current)
         val navigationBarHeight = systemBarInsets.calculateBottomPadding()
+
+        var showNewCategoryGroup by remember { mutableStateOf(false) }
+        val newGroupSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
         LaunchedEffect(scaffoldState.bottomSheetState.targetValue) {
             isIconExpanded = scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
@@ -544,6 +532,9 @@ fun CategoriesScreen(
                     ) {
                         Text("Categories", style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.weight(1f))
+                        TextButton(onClick = { showNewCategoryGroup = true }) {
+                            Text("Add Category Group")
+                        }
                         IconButton(
                             onClick = {
                                 isIconExpanded = !isIconExpanded
@@ -619,6 +610,18 @@ fun CategoriesScreen(
                     }
                 )
             }
+        }
+
+        if (showNewCategoryGroup) {
+            NewCategoryGroupScreen(
+                sheetState = newGroupSheetState,
+                onSubmit = {
+                    viewModel.createCategoryGroup(it)
+                    showNewCategoryGroup = false
+                },
+                onCancel = { showNewCategoryGroup = false },
+                onDismissRequest = { showNewCategoryGroup = false }
+            )
         }
     }
 }
