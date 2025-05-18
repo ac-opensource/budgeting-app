@@ -135,7 +135,9 @@ private fun NewTransactionScreen(
 
     // Transaction Type Tabs
     val transactionTypes = listOf(TransactionType.INFLOW, TransactionType.OUTFLOW, TransactionType.TRANSFER)
-    val selectedIndex = transactionTypes.indexOf(transaction.transactionType)
+    var selectedIndex by remember(transaction.transactionType) {
+        mutableIntStateOf(transactionTypes.indexOf(transaction.transactionType))
+    }
 
     Column(
         modifier = Modifier
@@ -515,7 +517,6 @@ private fun NewTransactionScreen(
             },
             content = {
                 val options = listOf("Inflow", "Outflow", "Transfer")
-                var selectedIndex by remember { mutableIntStateOf(0) }
 
                 Row(
                     Modifier.padding(horizontal = 8.dp),
