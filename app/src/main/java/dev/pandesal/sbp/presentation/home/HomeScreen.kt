@@ -139,6 +139,11 @@ private fun HomeScreenContent(
     val transactionTypes =
         listOf(TransactionType.INFLOW, TransactionType.OUTFLOW, TransactionType.TRANSFER)
     val selectedIndex = remember { mutableIntStateOf(0) }
+    val filteredTransactions = when (selectedIndex.intValue) {
+        1 -> transactions.filter { it.transactionType == TransactionType.INFLOW }
+        2 -> transactions.filter { it.transactionType == TransactionType.OUTFLOW }
+        else -> transactions
+    }
     var isIconExpanded by remember { mutableStateOf(scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) }
     val systemBarInsets = WindowInsets.systemBars.asPaddingValues(LocalDensity.current)
     val navigationBarHeight = systemBarInsets.calculateBottomPadding()
@@ -164,7 +169,7 @@ private fun HomeScreenContent(
         sheetShadowElevation = 16.dp,
         sheetContent = {
             TransactionsContent(
-                transactions = transactions,
+                transactions = filteredTransactions,
                 onNewTransactionClick = {
 
                 },
