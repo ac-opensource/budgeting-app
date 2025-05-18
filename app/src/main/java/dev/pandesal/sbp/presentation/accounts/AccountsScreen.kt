@@ -92,7 +92,7 @@ private fun AccountsContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Total: ₱${'$'}{totalValue.format()}",
+                    text = "Total: ₱${totalValue.format()}",
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Button(onClick = onAddWallet) { Text("Add Wallet") }

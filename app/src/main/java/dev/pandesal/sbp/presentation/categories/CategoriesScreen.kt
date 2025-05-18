@@ -434,7 +434,7 @@ private fun ChildListContent(
                             } else {
                                 if (item.budget != null) {
                                     item.budget.let {
-                                        Text("₱${'$'}{it.spent} / ₱${'$'}{it.allocated}")
+                                        Text("₱${it.spent} / ₱${it.allocated}")
                                     }
                                 } else {
                                     TextButton(
