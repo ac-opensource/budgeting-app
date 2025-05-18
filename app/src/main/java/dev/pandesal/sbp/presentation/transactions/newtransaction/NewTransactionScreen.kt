@@ -127,9 +127,14 @@ private fun NewTransactionScreen(
     )
 
     val flatList: List<Any> =
-        groupedCategories.filter { it.value.isNotEmpty() }.flatMap { (group, categories) ->
-            listOf(group) + categories
-        }
+        groupedCategories
+            .mapValues { entry ->
+                entry.value.filter { it.categoryType == transaction.transactionType }
+            }
+            .filter { it.value.isNotEmpty() }
+            .flatMap { (group, categories) ->
+                listOf(group) + categories
+            }
 
     val showDatePicker = remember { mutableStateOf(false) }
 

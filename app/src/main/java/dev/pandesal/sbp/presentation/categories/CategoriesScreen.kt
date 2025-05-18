@@ -499,6 +499,30 @@ fun CategoriesScreen(
 
         var showNewCategoryGroup by remember { mutableStateOf(false) }
         val newGroupSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        var showTemplateDialog by remember { mutableStateOf(state.showTemplatePrompt) }
+
+        if (showTemplateDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showTemplateDialog = false
+                    viewModel.dismissTemplatePrompt()
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.seedDefaultTemplate()
+                        showTemplateDialog = false
+                    }) { Text("Yes") }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showTemplateDialog = false
+                        viewModel.dismissTemplatePrompt()
+                    }) { Text("No") }
+                },
+                title = { Text("Load Default Categories?") },
+                text = { Text("Would you like to add default outflow categories?") }
+            )
+        }
 
         LaunchedEffect(scaffoldState.bottomSheetState.targetValue) {
             isIconExpanded = scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
