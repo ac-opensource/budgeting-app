@@ -2,6 +2,7 @@ package dev.pandesal.sbp.data.local
 
 import android.content.Context
 import androidx.compose.ui.input.key.type
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -47,6 +48,32 @@ abstract class SbpDatabase : RoomDatabase(), DatabaseDaos {
                         SbpDatabase::class.java,
                         "sbp_database"
                     )
+                        .addCallback(object : RoomDatabase.Callback() {
+                            override fun onCreate(db: SupportSQLiteDatabase) {
+                                super.onCreate(db)
+                                db.execSQL(
+                                    "INSERT INTO category_groups (id, name, description, icon, weight, isFavorite, isArchived, isSystemSet) VALUES (1, 'Inflow', '', '', 0, 0, 0, 1)"
+                                )
+                                db.execSQL(
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (1, 'Salary', '', '', 1, 'INFLOW', 0, 0, 0, 1)"
+                                )
+                                db.execSQL(
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (2, 'Allowance', '', '', 1, 'INFLOW', 0, 0, 0, 1)"
+                                )
+                                db.execSQL(
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (3, 'Sales / Business Income', '', '', 1, 'INFLOW', 0, 0, 0, 1)"
+                                )
+                                db.execSQL(
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (4, 'Capital Gains', '', '', 1, 'INFLOW', 0, 0, 0, 1)"
+                                )
+                                db.execSQL(
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (5, 'Refund', '', '', 1, 'INFLOW', 0, 0, 0, 1)"
+                                )
+                                db.execSQL(
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (6, 'Gift', '', '', 1, 'INFLOW', 0, 0, 0, 1)"
+                                )
+                            }
+                        })
                         .fallbackToDestructiveMigration()
                         .build()
                     INSTANCE = instance

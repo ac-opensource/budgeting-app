@@ -97,13 +97,26 @@ class NewTransactionsViewModel @Inject constructor(
     }
 
     fun updateTransaction(newTransaction: Transaction) {
-        val newTransaction = newTransaction.copy(
+        var newTransaction = newTransaction.copy(
             name = if ((_transaction.value.category != newTransaction.category || newTransaction.name.trim().isEmpty()) && newTransaction.category != null) {
                 newTransaction.category.name + " " + "Payment"
             } else {
                 newTransaction.name
             }
         )
+
+        if (_transaction.value.transactionType != newTransaction.transactionType &&
+            newTransaction.transactionType == TransactionType.INFLOW
+        ) {
+            val current = _uiState.value
+            if (current is NewTransactionUiState.Success) {
+                val salary = current.groupedCategories.values.flatten()
+                    .firstOrNull { it.name.equals("Salary", ignoreCase = true) }
+                if (salary != null) {
+                    newTransaction = newTransaction.copy(category = salary)
+                }
+            }
+        }
 
         if (_transaction.value.category?.id != newTransaction.category?.id && newTransaction.category != null) {
             loadMerchants(newTransaction.category.id.toString())
