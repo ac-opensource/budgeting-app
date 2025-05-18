@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
   and treats the initial zero as a placeholder.
 
 ### Added
+- AGENTS instructions for AI contributions
 - Pie chart summary and bottom sheet layout for Categories screen
 
 
