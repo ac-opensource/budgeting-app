@@ -289,7 +289,7 @@ private fun HomeScreenContent(
                 horizontalArrangement = Arrangement.spacedBy(1.dp)
             ) {
 
-                displayCategories.forEach { (label, percent) ->
+                displayCategories.forEachIndexed { index, (label, percent) ->
                     LinearWavyProgressIndicator(
                         progress = {
                             1f
@@ -301,7 +301,7 @@ private fun HomeScreenContent(
                             1f
                         },
                         stroke = thickStroke,
-                        color = getCategoryColor(label),
+                        color = getCategoryColor(index),
                         trackColor = Color.LightGray,
                         wavelength = 12.dp,
                         waveSpeed = (0.1).dp
@@ -311,14 +311,14 @@ private fun HomeScreenContent(
 //                            .weight(percent.toFloat())
 //                            .clip(RoundedCornerShape(8.dp))
 //                            .fillMaxHeight()
-//                            .background(getCategoryColor(label))
+//                            .background(getCategoryColor(index))
 //                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            displayCategories.forEach { (label, percent) ->
+            displayCategories.forEachIndexed { index, (label, percent) ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -328,7 +328,7 @@ private fun HomeScreenContent(
                         modifier = Modifier
                             .size(16.dp)
                             .clip(RoundedCornerShape(50))
-                            .background(getCategoryColor(label))
+                            .background(getCategoryColor(index))
                     )
                     Text(label, style = MaterialTheme.typography.labelLarge)
                     HorizontalDivider(
@@ -355,15 +355,16 @@ private fun HomeScreenContent(
 }
 
 
-fun getCategoryColor(label: String): Color = when (label) {
-    "Invest" -> Color(0xFF4B3B60) // Deep muted violet – pairs well with Honeydew
-    "Healthcare" -> Color(0xFF6E8894) // Slate gray – theme color, keeps things consistent
-    "Self Reward" -> Color(0xFFAD6A6C) // Dusty rose – mellow but visible
-    "Food" -> Color(0xFF5E8D74) // Darker Cambridge green
-    "Others" -> Color(0xFF837060) // Warm taupe – grounded, neutral contrast
-    "" -> Color(0xFFAAAAAA) // Medium gray for generic fallback
-    else -> Color(0xFF999999) // Soft gray fallback
-}
+private val categoryColors = listOf(
+    Color(0xFF4B3B60), // Deep muted violet – pairs well with Honeydew
+    Color(0xFF6E8894), // Slate gray – theme color, keeps things consistent
+    Color(0xFFAD6A6C), // Dusty rose – mellow but visible
+    Color(0xFF5E8D74), // Darker Cambridge green
+    Color(0xFF837060)  // Warm taupe – grounded, neutral contrast
+)
+
+fun getCategoryColor(index: Int): Color =
+    categoryColors.getOrElse(index) { Color(0xFF999999) } // Soft gray fallback
 
 @Preview
 @Composable
