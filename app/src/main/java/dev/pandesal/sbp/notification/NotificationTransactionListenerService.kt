@@ -11,6 +11,7 @@ import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
 import dev.pandesal.sbp.R
 import dev.pandesal.sbp.presentation.MainActivity
+import dev.pandesal.sbp.notification.InAppNotificationCenter
 
 class NotificationTransactionListenerService : NotificationListenerService() {
 
@@ -57,5 +58,10 @@ class NotificationTransactionListenerService : NotificationListenerService() {
             .setAutoCancel(true)
             .build()
         manager.notify(System.currentTimeMillis().toInt(), notify)
+
+        InAppNotificationCenter.postNotification(
+            message = message,
+            canCreateTransaction = true
+        )
     }
 }
