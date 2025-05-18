@@ -28,15 +28,16 @@ interface CategoryDao {
     fun getCategoriesByCategoryGroupId(categoryGroupId: String): Flow<List<CategoryEntity>>
 
     @Query("""
-        SELECT 
+        SELECT
             c.*, 
-            mb.id AS mb_id, 
-            mb.yearMonth, 
-            mb.allocated, 
-            mb.spent
+            mb.id AS mb_id,
+            mb.yearMonth,
+            mb.allocated,
+            mb.spent,
+            mb.currency AS mb_currency
         FROM categories c
-        LEFT JOIN monthly_budgets mb 
-            ON mb.categoryId = c.id 
+        LEFT JOIN monthly_budgets mb
+            ON mb.categoryId = c.id
             AND mb.yearMonth = (
                 SELECT MAX(yearMonth) FROM monthly_budgets WHERE categoryId = c.id
             )
