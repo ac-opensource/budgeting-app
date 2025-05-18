@@ -6,9 +6,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.NetWorthUseCase
+import dev.pandesal.sbp.domain.usecase.ZeroBasedBudgetUseCase
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +22,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val categoryUseCase: CategoryUseCase,
     private val accountUseCase: AccountUseCase,
-    private val netWorthUseCase: NetWorthUseCase
+    private val netWorthUseCase: NetWorthUseCase,
+    private val zeroBasedBudgetUseCase: ZeroBasedBudgetUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Initial)
@@ -29,25 +32,25 @@ class HomeViewModel @Inject constructor(
     init {
         _uiState.value = HomeUiState.Loading
 
-        val dummyBudgets = listOf(
-            BudgetCategoryUiModel("Groceries", 5000.0, 3200.0),
-            BudgetCategoryUiModel("Utilities", 3000.0, 1200.0),
-            BudgetCategoryUiModel("Transport", 2000.0, 1800.0),
-            BudgetCategoryUiModel("Dining Out", 1500.0, 800.0),
-        )
-
         viewModelScope.launch {
             combine(
+                categoryUseCase.getCategoriesWithLatestBudget(),
                 accountUseCase.getAccounts(),
-                netWorthUseCase.getCurrentNetWorth()
-            ) { accounts, netWorth ->
-                accounts.map { it.toUiModel() } to netWorth.map { it.toUiModel() }
-            }.collect { (accounts, netWorth) ->
-                _uiState.value = HomeUiState.Success(
-                    favoriteBudgets = dummyBudgets,
-                    accounts = accounts,
-                    netWorthData = netWorth
+                netWorthUseCase.getCurrentNetWorth(),
+                zeroBasedBudgetUseCase.getBudgetSummary()
+            ) { categories, accounts, netWorth, summary ->
+                val budgets = categories.map { it.toBudgetUiModel() }
+                val accountsUi = accounts.map { it.toUiModel() }
+                val netWorthUi = netWorth.map { it.toUiModel() }
+                val summaryUi = summary.toUiModel()
+                HomeUiState.Success(
+                    favoriteBudgets = budgets,
+                    accounts = accountsUi,
+                    netWorthData = netWorthUi,
+                    budgetSummary = summaryUi
                 )
+            }.collect { state ->
+                _uiState.value = state
             }
         }
     }
@@ -72,3 +75,12 @@ private fun dev.pandesal.sbp.domain.model.Account.toUiModel(): AccountSummaryUiM
 
 private fun dev.pandesal.sbp.domain.model.NetWorthRecord.toUiModel(): NetWorthUiModel =
     NetWorthUiModel(label, assets, liabilities)
+
+private fun dev.pandesal.sbp.domain.model.CategoryWithBudget.toBudgetUiModel(): BudgetCategoryUiModel {
+    val allocated = budget?.allocated?.toDouble() ?: 0.0
+    val spent = budget?.spent?.toDouble() ?: 0.0
+    return BudgetCategoryUiModel(category.name, allocated, spent)
+}
+
+private fun dev.pandesal.sbp.domain.model.BudgetSummary.toUiModel(): BudgetSummaryUiModel =
+    BudgetSummaryUiModel(assigned, unassigned)
