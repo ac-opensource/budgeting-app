@@ -42,6 +42,8 @@ fun BudgetVsOutflowChart(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            val primaryColor = MaterialTheme.colorScheme.primary
+            val errorColor = MaterialTheme.colorScheme.error
             Text("Budget vs Outflow", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Text("This Month", style = MaterialTheme.typography.bodySmall)
@@ -61,7 +63,7 @@ fun BudgetVsOutflowChart(
                         val outflowHeight = chartHeight * (entry.outflow / maxY).toFloat()
                         val xOffset = spacing + index * groupWidth
                         drawRect(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = primaryColor,
                             topLeft = androidx.compose.ui.geometry.Offset(
                                 xOffset,
                                 size.height - budgetHeight
@@ -69,7 +71,7 @@ fun BudgetVsOutflowChart(
                             size = androidx.compose.ui.geometry.Size(barWidth.toPx(), budgetHeight)
                         )
                         drawRect(
-                            color = MaterialTheme.colorScheme.error,
+                            color = errorColor,
                             topLeft = androidx.compose.ui.geometry.Offset(
                                 xOffset + barWidth.toPx() + 4.dp.toPx(),
                                 size.height - outflowHeight

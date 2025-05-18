@@ -44,6 +44,8 @@ fun CashflowLineChart(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            val primaryColor = MaterialTheme.colorScheme.primary
+            val errorColor = MaterialTheme.colorScheme.error
             Text("Cashflow", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Text("Inflow vs Outflow", style = MaterialTheme.typography.bodySmall)
@@ -75,12 +77,12 @@ fun CashflowLineChart(
                     }
                     drawPath(
                         path = inflowPath,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = primaryColor,
                         style = Stroke(width = strokeWidth.toPx())
                     )
                     drawPath(
                         path = outflowPath,
-                        color = MaterialTheme.colorScheme.error,
+                        color = errorColor,
                         style = Stroke(width = strokeWidth.toPx())
                     )
                 }

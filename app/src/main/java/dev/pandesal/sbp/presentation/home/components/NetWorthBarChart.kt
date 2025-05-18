@@ -41,6 +41,8 @@ fun NetWorthBarChart(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            val primaryColor = MaterialTheme.colorScheme.primary
+            val errorColor = MaterialTheme.colorScheme.error
             Text("Net Worth", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Text("Assets vs Liabilities", style = MaterialTheme.typography.bodySmall)
@@ -60,7 +62,7 @@ fun NetWorthBarChart(
                         val liabilitiesHeight = chartHeight * (entry.liabilities / maxY).toFloat()
                         val xOffset = spacing + index * groupWidth
                         drawRect(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = primaryColor,
                             topLeft = androidx.compose.ui.geometry.Offset(
                                 xOffset,
                                 size.height - assetsHeight
@@ -68,7 +70,7 @@ fun NetWorthBarChart(
                             size = androidx.compose.ui.geometry.Size(barWidth.toPx(), assetsHeight)
                         )
                         drawRect(
-                            color = MaterialTheme.colorScheme.error,
+                            color = errorColor,
                             topLeft = androidx.compose.ui.geometry.Offset(
                                 xOffset + barWidth.toPx() + 4.dp.toPx(),
                                 size.height - liabilitiesHeight
