@@ -76,6 +76,8 @@ dependencies {
 
     implementation(libs.androidx.hilt.navigation.compose)
 
+    implementation(libs.androidx.datastore.preferences)
+
     implementation(libs.coil.compose)
     implementation(libs.lottie.compose)
     implementation(libs.reorderable)

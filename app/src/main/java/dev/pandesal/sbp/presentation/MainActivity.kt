@@ -35,6 +35,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -58,7 +60,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val exitAlwaysScrollBehavior =
                 FloatingToolbarDefaults.exitAlwaysScrollBehavior(exitDirection = Bottom)
-            StopBeingPoorTheme {
+            val settingsViewModel: dev.pandesal.sbp.presentation.settings.SettingsViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+            val settings by settingsViewModel.settings.collectAsState()
+            StopBeingPoorTheme(darkTheme = settings.darkMode) {
                 val navController = rememberNavController()
                 var fabVisible by remember { mutableStateOf(true) }
                 var expanded by rememberSaveable { mutableStateOf(true) }
