@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -39,9 +41,6 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -95,6 +94,7 @@ private fun CategoriesListContent(
     onDeleteGroup: (CategoryGroup) -> Unit,
     onEditCategory: (Category, String) -> Unit,
     onDeleteCategory: (Category) -> Unit,
+    editMode: Boolean,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -123,9 +123,7 @@ private fun CategoriesListContent(
     var showSetBudgetSheet by remember { mutableStateOf(false) }
     var budgetTargetAmount by remember { mutableStateOf(BigDecimal.ZERO) }
 
-    var groupAction by remember { mutableStateOf<CategoryGroup?>(null) }
     var editGroup by remember { mutableStateOf<CategoryGroup?>(null) }
-    var categoryAction by remember { mutableStateOf<Category?>(null) }
     var editCategory by remember { mutableStateOf<Category?>(null) }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -140,20 +138,7 @@ private fun CategoriesListContent(
                     val interactionSource = remember { MutableInteractionSource() }
                     val childCategories =
                         categoriesWithBudget.filter { it.category.categoryGroupId == item.id }
-                    val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
-                        if (it == SwipeToDismissBoxValue.StartToEnd) {
-                            editGroup = item
-                        } else if (it == SwipeToDismissBoxValue.EndToStart) {
-                            groupAction = item
-                        }
-                        false
-                    })
-
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        backgroundContent = {},
-                    ) {
-                        Card(
+                    Card(
                             onClick = {},
                             modifier = Modifier
                                 .wrapContentHeight()
@@ -207,6 +192,14 @@ private fun CategoriesListContent(
                                 )
 
                                 Spacer(Modifier.weight(1f))
+                                if (editMode) {
+                                    IconButton(onClick = { editGroup = item }) {
+                                        Icon(Icons.Filled.Edit, contentDescription = "Edit Group")
+                                    }
+                                    IconButton(onClick = { onDeleteGroup(item) }) {
+                                        Icon(Icons.Filled.Delete, contentDescription = "Delete Group")
+                                    }
+                                }
                                 TextButton(onClick = {
                                     selectedGroupId = item.id
                                     selectedGroupName = item.name
@@ -227,7 +220,8 @@ private fun CategoriesListContent(
                                     reorderCategory(item.id, from, to)
                                 },
                                 onEditCategory = { editCategory = it },
-                                onDeleteCategory = { categoryAction = it }
+                                onDeleteCategory = { onDeleteCategory(it) },
+                                editMode = editMode
                             )
                         }
                     }
@@ -277,41 +271,6 @@ private fun CategoriesListContent(
             )
         }
 
-        if (groupAction != null) {
-            AlertDialog(
-                onDismissRequest = { groupAction = null },
-                confirmButton = {
-                    TextButton(onClick = {
-                        editGroup = groupAction
-                        groupAction = null
-                    }) { Text("Edit") }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
-                        onDeleteGroup(groupAction!!)
-                        groupAction = null
-                    }) { Text("Delete") }
-                }
-            )
-        }
-
-        if (categoryAction != null) {
-            AlertDialog(
-                onDismissRequest = { categoryAction = null },
-                confirmButton = {
-                    TextButton(onClick = {
-                        editCategory = categoryAction
-                        categoryAction = null
-                    }) { Text("Edit") }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
-                        onDeleteCategory(categoryAction!!)
-                        categoryAction = null
-                    }) { Text("Delete") }
-                }
-            )
-        }
 
         if (editGroup != null) {
             NewCategoryGroupScreen(
@@ -349,7 +308,8 @@ private fun ChildListContent(
     onAddBudgetClick: (categoryId: Int) -> Unit,
     reorderCategory: (from: Int, to: Int) -> Unit,
     onEditCategory: (Category) -> Unit,
-    onDeleteCategory: (Category) -> Unit
+    onDeleteCategory: (Category) -> Unit,
+    editMode: Boolean
 ) {
     var childList by remember { mutableStateOf(childCategories) }
 
@@ -377,25 +337,12 @@ private fun ChildListContent(
             itemsIndexed(childList, key = { _, item -> item.category.id }) { index, item ->
                 ReorderableItem(reorderableLazyCategoriesColumnState, item.category.id) {
                     val interactionSource = remember { MutableInteractionSource() }
-                    val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
-                        if (it == SwipeToDismissBoxValue.StartToEnd) {
-                            onEditCategory(item.category)
-                        } else if (it == SwipeToDismissBoxValue.EndToStart) {
-                            onDeleteCategory(item.category)
-                        }
-                        false
-                    })
-
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        backgroundContent = {},
-                    ) {
-                        Card(
-                            onClick = {},
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary),
-                            shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier
-                                .height(60.dp)
+                    Card(
+                        onClick = {},
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .height(60.dp)
                                 .draggableHandle(
                                     onDragStarted = {},
                                     onDragStopped = {},
@@ -446,21 +393,42 @@ private fun ChildListContent(
 
                                 Spacer(Modifier.weight(1f))
 
-
-                                if (item.budget != null) {
-                                    item.budget.let {
-                                        Text("₱${it.spent} / ₱${it.allocated}")
+                                if (editMode) {
+                                    if (item.budget != null) {
+                                        IconButton(onClick = {
+                                            budgetTargetAmount = item.budget.allocated
+                                            selectedCategoryId = item.category.id
+                                            showSetBudgetSheet = true
+                                        }) {
+                                            Icon(Icons.Filled.Edit, contentDescription = "Edit Budget")
+                                        }
+                                    } else {
+                                        IconButton(onClick = { onAddBudgetClick(item.category.id) }) {
+                                            Icon(Icons.Filled.Edit, contentDescription = "Set Budget")
+                                        }
+                                    }
+                                    IconButton(onClick = { onEditCategory(item.category) }) {
+                                        Icon(Icons.Filled.Edit, contentDescription = "Edit Category")
+                                    }
+                                    IconButton(onClick = { onDeleteCategory(item.category) }) {
+                                        Icon(Icons.Filled.Delete, contentDescription = "Delete Category")
                                     }
                                 } else {
-                                    TextButton(
-                                        onClick = {
-                                            onAddBudgetClick(item.category.id)
-                                        },
-                                        colors = ButtonDefaults.textButtonColors(
-                                            contentColor = MaterialTheme.colorScheme.onTertiary
-                                        )
-                                    ) {
-                                        Text("Set Budget")
+                                    if (item.budget != null) {
+                                        item.budget.let {
+                                            Text("₱${'$'}{it.spent} / ₱${'$'}{it.allocated}")
+                                        }
+                                    } else {
+                                        TextButton(
+                                            onClick = {
+                                                onAddBudgetClick(item.category.id)
+                                            },
+                                            colors = ButtonDefaults.textButtonColors(
+                                                contentColor = MaterialTheme.colorScheme.onTertiary
+                                            )
+                                        ) {
+                                            Text("Set Budget")
+                                        }
                                     }
                                 }
 
@@ -500,6 +468,7 @@ fun CategoriesScreen(
         var showNewCategoryGroup by remember { mutableStateOf(false) }
         val newGroupSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var showTemplateDialog by remember { mutableStateOf(state.showTemplatePrompt) }
+        var editMode by remember { mutableStateOf(false) }
 
         if (showTemplateDialog) {
             AlertDialog(
@@ -556,6 +525,9 @@ fun CategoriesScreen(
                     ) {
                         Text("Categories", style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.weight(1f))
+                        TextButton(onClick = { editMode = !editMode }) {
+                            Text(if (editMode) "Done" else "Edit")
+                        }
                         TextButton(onClick = { showNewCategoryGroup = true }) {
                             Text("Add Category Group")
                         }
@@ -605,6 +577,8 @@ fun CategoriesScreen(
                     onDeleteGroup = { viewModel.deleteCategoryGroup(it) },
                     onEditCategory = { category, name -> viewModel.updateCategory(category, name) },
                     onDeleteCategory = { viewModel.deleteCategory(it) }
+                    ,
+                    editMode = editMode
                 )
             }
         ) {
