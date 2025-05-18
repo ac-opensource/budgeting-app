@@ -7,6 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ## [Unreleased]
 ### Added
 - Notification center with swipe to archive, read status and quick create transaction button
+- AGENTS instructions for AI contributions
+- Pie chart summary and bottom sheet layout for Categories screen
+
+### Changed
+- Amount field in new transaction screen now displays the cursor even when zero
+  and treats the initial zero as a placeholder.
+
 
 ## [0.0.1] - 2025-05-18
 ### Added

@@ -170,29 +170,37 @@ private fun NewTransactionScreen(
             ),
         ) {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                val amountText =
+                    if (transaction.amount == BigDecimal.ZERO) "" else transaction.amount.toPlainString()
+
                 BasicTextField(
-                    value = transaction.amount.toPlainString(),
-                    onValueChange = {
-                        val newAmount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                    value = amountText,
+                    onValueChange = { input ->
+                        val newAmount = input.toBigDecimalOrNull() ?: BigDecimal.ZERO
                         onUpdate(transaction.copy(amount = newAmount))
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    textStyle = MaterialTheme.typography.headlineMedium.copy(
+                    textStyle = MaterialTheme.typography.headlineLarge.copy(
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onBackground
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Transparent
                     ),
                     modifier = Modifier.fillMaxWidth(),
-                    decorationBox = {
-                        Text(
-                            text = transaction.amount.toPlainString(),
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                textAlign = TextAlign.Center,
-                                fontSize = 48.sp,
-                                fontWeight = FontWeight.Medium
-                            ),
-                            maxLines = 1,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                    decorationBox = { innerTextField ->
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = if (amountText.isEmpty()) "0" else amountText,
+                                style = MaterialTheme.typography.headlineLarge.copy(
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 48.sp,
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                maxLines = 1,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            innerTextField()
+                        }
                     }
                 )
             }
