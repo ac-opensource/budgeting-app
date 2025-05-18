@@ -25,11 +25,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun NewCategoryGroupScreen(
     sheetState: SheetState = rememberModalBottomSheetState(),
+    initialName: String = "",
     onSubmit: (String) -> Unit,
     onCancel: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(initialName) }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
