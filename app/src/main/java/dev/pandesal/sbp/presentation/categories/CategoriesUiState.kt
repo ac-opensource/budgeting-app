@@ -13,6 +13,7 @@ sealed interface CategoriesUiState {
     data class Success(
         val categoryGroups: List<CategoryGroup>,
         val categoriesWithBudget: List<CategoryWithBudget>,
+        val showTemplatePrompt: Boolean,
     ) : CategoriesUiState
     data class Error(val errorMessage: String) : CategoriesUiState
 }

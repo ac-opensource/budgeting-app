@@ -38,7 +38,12 @@ class CategoriesViewModel @Inject constructor(
                 useCase.getCategoryGroups(),
                 useCase.getCategoriesWithLatestBudget()
             ) { groups, categories ->
-                CategoriesUiState.Success(groups, categories)
+                val filtered = categories.filter { it.category.categoryType != TransactionType.INFLOW }
+                CategoriesUiState.Success(
+                    categoryGroups = groups,
+                    categoriesWithBudget = filtered,
+                    showTemplatePrompt = groups.none { !it.isSystemSet }
+                )
             }.collect { state ->
                 _uiState.value = state
             }
@@ -143,6 +148,20 @@ class CategoriesViewModel @Inject constructor(
     fun deleteCategory(category: Category) {
         viewModelScope.launch {
             useCase.deleteCategory(category)
+        }
+    }
+
+    fun seedDefaultTemplate() {
+        viewModelScope.launch {
+            useCase.seedDefaultOutflow()
+            dismissTemplatePrompt()
+        }
+    }
+
+    fun dismissTemplatePrompt() {
+        val current = _uiState.value
+        if (current is CategoriesUiState.Success) {
+            _uiState.value = current.copy(showTemplatePrompt = false)
         }
     }
 
