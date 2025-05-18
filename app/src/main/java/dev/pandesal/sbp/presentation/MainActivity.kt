@@ -180,6 +180,11 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 IconButton(onClick = {
+                                    navController.navigate(NavigationDestination.Insights) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 }) {
                                     Icon(
                                         Icons.Filled.BarChart,

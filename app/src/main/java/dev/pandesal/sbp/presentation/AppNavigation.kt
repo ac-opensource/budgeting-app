@@ -11,6 +11,7 @@ import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.accounts.AccountsScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
+import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
@@ -69,8 +70,7 @@ fun AppNavigation(navController: NavHostController) {
             }
 
             composable<NavigationDestination.Insights> {
-//                InsightsScreen()
-                HomeScreen()
+                InsightsScreen()
             }
 
             composable<NavigationDestination.More> {
