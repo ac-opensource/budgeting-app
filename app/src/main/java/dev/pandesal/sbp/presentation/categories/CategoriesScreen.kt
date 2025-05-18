@@ -139,166 +139,174 @@ private fun CategoriesListContent(
                     val childCategories =
                         categoriesWithBudget.filter { it.category.categoryGroupId == item.id }
                     Card(
-                            onClick = {},
-                            modifier = Modifier
-                                .wrapContentHeight()
-                                .draggableHandle(
-                                    onDragStarted = {},
-                                    onDragStopped = {},
-                                    interactionSource = interactionSource,
-                                )
-                                .semantics {
-                                    customActions = listOf(
-                                        CustomAccessibilityAction(
-                                            label = "Move Up",
-                                            action = {
-                                                if (index > 0) {
-                                                    groupList = groupList.toMutableList().apply {
-                                                        add(index - 1, removeAt(index))
-                                                    }
-                                                    true
-                                                } else {
-                                                    false
-                                                }
-                                            }
-                                        ),
-                                        CustomAccessibilityAction(
-                                            label = "Move Down",
-                                            action = {
-                                                if (index < groupList.size - 1) {
-                                                    groupList = groupList.toMutableList().apply {
-                                                        add(index + 1, removeAt(index))
-                                                    }
-                                                    true
-                                                } else {
-                                                    false
-                                                }
-                                            }
-                                        ),
-                                    )
-                                },
-                            interactionSource = interactionSource,
-                        ) {
-                            Row(
-                                Modifier.fillMaxSize(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Spacer(Modifier.size(16.dp))
-
-                                Text(
-                                    item.name,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-
-                                Spacer(Modifier.weight(1f))
-                                if (editMode) {
-                                    IconButton(onClick = { editGroup = item }) {
-                                        Icon(Icons.Filled.Edit, contentDescription = "Edit Group")
-                                    }
-                                    IconButton(onClick = { onDeleteGroup(item) }) {
-                                        Icon(Icons.Filled.Delete, contentDescription = "Delete Group")
-                                    }
-                                }
-                                TextButton(onClick = {
-                                    selectedGroupId = item.id
-                                    selectedGroupName = item.name
-                                    showNewCategorySheet = true
-                                }) {
-                                    Text("Add Category")
-                                }
-                                Spacer(Modifier.size(16.dp))
-                            }
-
-                            ChildListContent(
-                                childCategories = childCategories,
-                                onAddBudgetClick = {
-                                    selectedCategoryId = it
-                                    showSetBudgetSheet = true
-                                },
-                                reorderCategory = { from, to ->
-                                    reorderCategory(item.id, from, to)
-                                },
-                                onEditCategory = { editCategory = it },
-                                onDeleteCategory = { onDeleteCategory(it) },
-                                editMode = editMode
+                        onClick = {},
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .draggableHandle(
+                                onDragStarted = {},
+                                onDragStopped = {},
+                                interactionSource = interactionSource,
                             )
+                            .semantics {
+                                customActions = listOf(
+                                    CustomAccessibilityAction(
+                                        label = "Move Up",
+                                        action = {
+                                            if (index > 0) {
+                                                groupList = groupList.toMutableList().apply {
+                                                    add(index - 1, removeAt(index))
+                                                }
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        }
+                                    ),
+                                    CustomAccessibilityAction(
+                                        label = "Move Down",
+                                        action = {
+                                            if (index < groupList.size - 1) {
+                                                groupList = groupList.toMutableList().apply {
+                                                    add(index + 1, removeAt(index))
+                                                }
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        }
+                                    ),
+                                )
+                            },
+                        interactionSource = interactionSource,
+                    ) {
+                        Row(
+                            Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Spacer(Modifier.size(16.dp))
+
+                            Text(
+                                item.name,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Spacer(Modifier.weight(1f))
+                            if (editMode) {
+                                IconButton(onClick = { editGroup = item }) {
+                                    Icon(Icons.Filled.Edit, contentDescription = "Edit Group")
+                                }
+                                IconButton(onClick = { onDeleteGroup(item) }) {
+                                    Icon(Icons.Filled.Delete, contentDescription = "Delete Group")
+                                }
+                            }
+                            TextButton(onClick = {
+                                selectedGroupId = item.id
+                                selectedGroupName = item.name
+                                showNewCategorySheet = true
+                            }) {
+                                Text("Add Category")
+                            }
+                            Spacer(Modifier.size(16.dp))
                         }
+
+                        ChildListContent(
+                            childCategories = childCategories,
+                            onAddBudgetClick = {
+                                selectedCategoryId = it
+                                showSetBudgetSheet = true
+                            },
+                            reorderCategory = { from, to ->
+                                reorderCategory(item.id, from, to)
+                            },
+                            onEditCategory = { editCategory = it },
+                            onDeleteCategory = { onDeleteCategory(it) },
+                            onEditBudget = {
+                                    budgetTargetAmountParam,
+                                    selectedCategoryIdParam,
+                                    showSetBudgetSheetParam ->
+                                budgetTargetAmount = budgetTargetAmountParam
+                                selectedCategoryId = selectedCategoryIdParam
+                                showSetBudgetSheet = true
+                            },
+                            editMode = editMode
+                        )
                     }
                 }
             }
         }
+    }
 
 
-        if (showNewCategorySheet && selectedGroupId != null) {
-            NewCategoryScreen(
-                sheetState = newCategorySheetState,
-                groupId = selectedGroupId!!,
-                groupName = selectedGroupName ?: "",
-                onSubmit = { name, groupId ->
-                    onAddCategory(name, groupId)
-                    showNewCategorySheet = false
-                    selectedGroupId = null
-                    selectedGroupName = null
-                },
-                onCancel = {
-                    showNewCategorySheet = false
-                    selectedGroupId = null
-                    selectedGroupName = null
-                },
-                onDismissRequest = {
-                    showNewCategorySheet = false
-                    selectedGroupId = null
-                    selectedGroupName = null
-                }
-            )
-        }
+    if (showNewCategorySheet && selectedGroupId != null) {
+        NewCategoryScreen(
+            sheetState = newCategorySheetState,
+            groupId = selectedGroupId!!,
+            groupName = selectedGroupName ?: "",
+            onSubmit = { name, groupId ->
+                onAddCategory(name, groupId)
+                showNewCategorySheet = false
+                selectedGroupId = null
+                selectedGroupName = null
+            },
+            onCancel = {
+                showNewCategorySheet = false
+                selectedGroupId = null
+                selectedGroupName = null
+            },
+            onDismissRequest = {
+                showNewCategorySheet = false
+                selectedGroupId = null
+                selectedGroupName = null
+            }
+        )
+    }
 
-        if (showSetBudgetSheet) {
-            SetBudgetSheet(
-                initialAmount = budgetTargetAmount,
-                onSubmit = { amount ->
-                    onAddBudget(amount, selectedCategoryId!!)
-                    budgetTargetAmount = amount
-                    showSetBudgetSheet = false
-                },
-                onCancel = {
-                    showSetBudgetSheet = false
-                },
-                onDismissRequest = {
-                    showSetBudgetSheet = false
-                }
-            )
-        }
+    if (showSetBudgetSheet) {
+        SetBudgetSheet(
+            initialAmount = budgetTargetAmount,
+            onSubmit = { amount ->
+                onAddBudget(amount, selectedCategoryId!!)
+                budgetTargetAmount = amount
+                showSetBudgetSheet = false
+            },
+            onCancel = {
+                showSetBudgetSheet = false
+            },
+            onDismissRequest = {
+                showSetBudgetSheet = false
+            }
+        )
+    }
 
 
-        if (editGroup != null) {
-            NewCategoryGroupScreen(
-                sheetState = sheetState,
-                initialName = editGroup!!.name,
-                onSubmit = { name ->
-                    onEditGroup(editGroup!!, name)
-                    editGroup = null
-                },
-                onCancel = { editGroup = null },
-                onDismissRequest = { editGroup = null }
-            )
-        }
+    if (editGroup != null) {
+        NewCategoryGroupScreen(
+            sheetState = sheetState,
+            initialName = editGroup!!.name,
+            onSubmit = { name ->
+                onEditGroup(editGroup!!, name)
+                editGroup = null
+            },
+            onCancel = { editGroup = null },
+            onDismissRequest = { editGroup = null }
+        )
+    }
 
-        if (editCategory != null) {
-            NewCategoryScreen(
-                sheetState = newCategorySheetState,
-                groupId = editCategory!!.categoryGroupId,
-                groupName = groupList.firstOrNull { it.id == editCategory!!.categoryGroupId }?.name ?: "",
-                initialName = editCategory!!.name,
-                onSubmit = { name, _ ->
-                    onEditCategory(editCategory!!, name)
-                    editCategory = null
-                },
-                onCancel = { editCategory = null },
-                onDismissRequest = { editCategory = null }
-            )
-        }
+    if (editCategory != null) {
+        NewCategoryScreen(
+            sheetState = newCategorySheetState,
+            groupId = editCategory!!.categoryGroupId,
+            groupName = groupList.firstOrNull { it.id == editCategory!!.categoryGroupId }?.name
+                ?: "",
+            initialName = editCategory!!.name,
+            onSubmit = { name, _ ->
+                onEditCategory(editCategory!!, name)
+                editCategory = null
+            },
+            onCancel = { editCategory = null },
+            onDismissRequest = { editCategory = null }
+        )
     }
 }
 
@@ -308,6 +316,11 @@ private fun ChildListContent(
     onAddBudgetClick: (categoryId: Int) -> Unit,
     reorderCategory: (from: Int, to: Int) -> Unit,
     onEditCategory: (Category) -> Unit,
+    onEditBudget: (
+        budgetTargetAmount: BigDecimal,
+        selectedCategoryId: Int,
+        showSetBudgetSheet: Boolean
+    ) -> Unit,
     onDeleteCategory: (Category) -> Unit,
     editMode: Boolean
 ) {
@@ -343,104 +356,108 @@ private fun ChildListContent(
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .height(60.dp)
-                                .draggableHandle(
-                                    onDragStarted = {},
-                                    onDragStopped = {},
-                                    interactionSource = interactionSource,
+                            .draggableHandle(
+                                onDragStarted = {},
+                                onDragStopped = {},
+                                interactionSource = interactionSource,
+                            )
+                            .semantics {
+                                customActions = listOf(
+                                    CustomAccessibilityAction(
+                                        label = "Move Up",
+                                        action = {
+                                            if (index > 0) {
+                                                childList = childList.toMutableList().apply {
+                                                    add(index - 1, removeAt(index))
+                                                }
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        }
+                                    ),
+                                    CustomAccessibilityAction(
+                                        label = "Move Down",
+                                        action = {
+                                            if (index < childList.size - 1) {
+                                                childList = childList.toMutableList().apply {
+                                                    add(index + 1, removeAt(index))
+                                                }
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        }
+                                    ),
                                 )
-                                .semantics {
-                                    customActions = listOf(
-                                        CustomAccessibilityAction(
-                                            label = "Move Up",
-                                            action = {
-                                                if (index > 0) {
-                                                    childList = childList.toMutableList().apply {
-                                                        add(index - 1, removeAt(index))
-                                                    }
-                                                    true
-                                                } else {
-                                                    false
-                                                }
-                                            }
-                                        ),
-                                        CustomAccessibilityAction(
-                                            label = "Move Down",
-                                            action = {
-                                                if (index < childList.size - 1) {
-                                                    childList = childList.toMutableList().apply {
-                                                        add(index + 1, removeAt(index))
-                                                    }
-                                                    true
-                                                } else {
-                                                    false
-                                                }
-                                            }
-                                        ),
-                                    )
-                                },
-                            interactionSource = interactionSource,
+                            },
+                        interactionSource = interactionSource,
+                    ) {
+                        Row(
+                            Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Row(
-                                Modifier.fillMaxSize(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Spacer(Modifier.size(16.dp))
-                                Text(
-                                    item.category.name,
-                                    color = MaterialTheme.colorScheme.onTertiary
-                                )
+                            Spacer(Modifier.size(16.dp))
+                            Text(
+                                item.category.name,
+                                color = MaterialTheme.colorScheme.onTertiary
+                            )
 
-                                Spacer(Modifier.weight(1f))
+                            Spacer(Modifier.weight(1f))
 
-                                if (editMode) {
-                                    if (item.budget != null) {
-                                        IconButton(onClick = {
-                                            budgetTargetAmount = item.budget.allocated
-                                            selectedCategoryId = item.category.id
-                                            showSetBudgetSheet = true
-                                        }) {
-                                            Icon(Icons.Filled.Edit, contentDescription = "Edit Budget")
-                                        }
-                                    } else {
-                                        IconButton(onClick = { onAddBudgetClick(item.category.id) }) {
-                                            Icon(Icons.Filled.Edit, contentDescription = "Set Budget")
-                                        }
-                                    }
-                                    IconButton(onClick = { onEditCategory(item.category) }) {
-                                        Icon(Icons.Filled.Edit, contentDescription = "Edit Category")
-                                    }
-                                    IconButton(onClick = { onDeleteCategory(item.category) }) {
-                                        Icon(Icons.Filled.Delete, contentDescription = "Delete Category")
+                            if (editMode) {
+                                if (item.budget != null) {
+                                    IconButton(onClick = {
+                                        onEditBudget(
+                                            item.budget.allocated,
+                                            item.category.id,
+                                            true
+                                        )
+                                    }) {
+                                        Icon(Icons.Filled.Edit, contentDescription = "Edit Budget")
                                     }
                                 } else {
-                                    if (item.budget != null) {
-                                        item.budget.let {
-                                            Text("₱${'$'}{it.spent} / ₱${'$'}{it.allocated}")
-                                        }
-                                    } else {
-                                        TextButton(
-                                            onClick = {
-                                                onAddBudgetClick(item.category.id)
-                                            },
-                                            colors = ButtonDefaults.textButtonColors(
-                                                contentColor = MaterialTheme.colorScheme.onTertiary
-                                            )
-                                        ) {
-                                            Text("Set Budget")
-                                        }
+                                    IconButton(onClick = { onAddBudgetClick(item.category.id) }) {
+                                        Icon(Icons.Filled.Edit, contentDescription = "Set Budget")
                                     }
                                 }
-
-                                Spacer(Modifier.size(16.dp))
+                                IconButton(onClick = { onEditCategory(item.category) }) {
+                                    Icon(Icons.Filled.Edit, contentDescription = "Edit Category")
+                                }
+                                IconButton(onClick = { onDeleteCategory(item.category) }) {
+                                    Icon(
+                                        Icons.Filled.Delete,
+                                        contentDescription = "Delete Category"
+                                    )
+                                }
+                            } else {
+                                if (item.budget != null) {
+                                    item.budget.let {
+                                        Text("₱${'$'}{it.spent} / ₱${'$'}{it.allocated}")
+                                    }
+                                } else {
+                                    TextButton(
+                                        onClick = {
+                                            onAddBudgetClick(item.category.id)
+                                        },
+                                        colors = ButtonDefaults.textButtonColors(
+                                            contentColor = MaterialTheme.colorScheme.onTertiary
+                                        )
+                                    ) {
+                                        Text("Set Budget")
+                                    }
+                                }
                             }
+
+                            Spacer(Modifier.size(16.dp))
                         }
                     }
                 }
             }
         }
-
     }
+
 }
 
 @Composable
@@ -497,15 +514,19 @@ fun CategoriesScreen(
             isIconExpanded = scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
         }
 
-        val budgets = state.categoriesWithBudget.mapNotNull { it.budget?.allocated?.toDouble()?.let { amt -> it.category.name to amt } }
+        val budgets = state.categoriesWithBudget.mapNotNull {
+            it.budget?.allocated?.toDouble()?.let { amt -> it.category.name to amt }
+        }
         val totalAllocated = budgets.sumOf { it.second }
-        val percentages = if (totalAllocated != 0.0) budgets.map { it.first to (it.second / totalAllocated) * 100 } else emptyList()
+        val percentages =
+            if (totalAllocated != 0.0) budgets.map { it.first to (it.second / totalAllocated) * 100 } else emptyList()
 
         BottomSheetScaffold(
             containerColor = Color.Transparent,
             scaffoldState = scaffoldState,
             sheetPeekHeight = with(density) {
-                val heightWithPadding = sheetHeightPx.floatValue.toDp() - navigationBarHeight - 24.dp
+                val heightWithPadding =
+                    sheetHeightPx.floatValue.toDp() - navigationBarHeight - 24.dp
                 if (heightWithPadding > 0.dp) heightWithPadding else 400.dp
             },
             sheetShadowElevation = 16.dp,
@@ -564,7 +585,12 @@ fun CategoriesScreen(
                     categoriesWithBudget = state.categoriesWithBudget,
                     onAddCategoryGroup = { name -> viewModel.createCategoryGroup(name) },
                     onAddCategory = { name, groupId -> viewModel.createCategory(name, groupId) },
-                    onAddBudget = { amount, categoryId -> viewModel.setBudgetForCategory(categoryId, amount) },
+                    onAddBudget = { amount, categoryId ->
+                        viewModel.setBudgetForCategory(
+                            categoryId,
+                            amount
+                        )
+                    },
                     reorderGroup = { from, to ->
                         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
                         viewModel.reorderGroup(from, to)
@@ -576,8 +602,7 @@ fun CategoriesScreen(
                     onEditGroup = { group, name -> viewModel.updateCategoryGroup(group, name) },
                     onDeleteGroup = { viewModel.deleteCategoryGroup(it) },
                     onEditCategory = { category, name -> viewModel.updateCategory(category, name) },
-                    onDeleteCategory = { viewModel.deleteCategory(it) }
-                    ,
+                    onDeleteCategory = { viewModel.deleteCategory(it) },
                     editMode = editMode
                 )
             }
