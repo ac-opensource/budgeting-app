@@ -35,9 +35,7 @@ class CategoryUseCase @Inject constructor(
 
     // Categories
     fun getCategories(): Flow<List<Category>> =
-        repository.getCategories().map { list ->
-            list.filter { it.categoryType != TransactionType.INFLOW }
-        }
+        repository.getCategories()
 
     fun getCategoriesWithLatestBudget(): Flow<List<CategoryWithBudget>> =
         repository.getCategoriesWithLatestBudget().map { list ->
