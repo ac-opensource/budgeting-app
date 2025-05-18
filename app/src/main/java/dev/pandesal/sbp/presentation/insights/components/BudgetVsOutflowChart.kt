@@ -16,17 +16,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 
-data class BudgetOutflowEntry(val label: String, val budget: Double, val outflow: Double)
-
 @Composable
 fun BudgetVsOutflowChart(
-    entries: List<BudgetOutflowEntry>,
+    entries: List<BudgetOutflowUiModel>,
     modifier: Modifier = Modifier,
     barWidth: Dp = 16.dp
 ) {

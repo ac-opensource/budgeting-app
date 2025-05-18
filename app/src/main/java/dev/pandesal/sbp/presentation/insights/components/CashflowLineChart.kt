@@ -15,6 +15,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,11 +25,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 
-data class CashflowEntry(val label: String, val inflow: Double, val outflow: Double)
-
 @Composable
 fun CashflowLineChart(
-    entries: List<CashflowEntry>,
+    entries: List<CashflowUiModel>,
     modifier: Modifier = Modifier,
     strokeWidth: Dp = 2.dp
 ) {
