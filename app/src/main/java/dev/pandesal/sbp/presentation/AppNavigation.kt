@@ -16,6 +16,7 @@ import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
+import dev.pandesal.sbp.presentation.transactions.newtransaction.NewRecurringTransactionScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
 import kotlinx.serialization.Serializable
@@ -42,6 +43,8 @@ sealed class NavigationDestination() {
     data object Accounts : NavigationDestination()
     @Serializable
     data object NewAccount : NavigationDestination()
+    @Serializable
+    data object NewRecurringTransaction : NavigationDestination()
     @Serializable
     data class TransactionDetails(val transaction: Transaction) : NavigationDestination()
 
@@ -83,6 +86,12 @@ fun AppNavigation(navController: NavHostController) {
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
                 NewTransactionScreen()
+            }
+
+            dialog<NavigationDestination.NewRecurringTransaction>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                NewRecurringTransactionScreen()
             }
 
             composable<NavigationDestination.Notifications> {
