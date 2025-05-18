@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
-## [1.0.0] - 2025-05-18
+## [0.0.1] - 2025-05-18
 ### Added
 - Account selector for new transactions. 'From' and 'To' fields now open a list of accounts.
 - Users can still input merchant names directly in the transaction screen.
