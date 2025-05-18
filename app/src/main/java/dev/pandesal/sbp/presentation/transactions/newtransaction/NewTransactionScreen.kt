@@ -1,6 +1,9 @@
 package dev.pandesal.sbp.presentation.transactions.newtransaction
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +51,7 @@ import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +76,7 @@ import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
+import kotlinx.coroutines.delay
 
 @Composable
 fun NewTransactionScreen(
@@ -139,6 +144,21 @@ private fun NewTransactionScreen(
         mutableIntStateOf(transactionTypes.indexOf(transaction.transactionType))
     }
 
+    var showClose by remember { mutableStateOf(false) }
+    var showAmount by remember { mutableStateOf(false) }
+    var showInputs by remember { mutableStateOf(false) }
+    var showButtons by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        showClose = true
+        delay(250)
+        showAmount = true
+        delay(250)
+        showInputs = true
+        delay(250)
+        showButtons = true
+    }
+
     Column(
         modifier = Modifier
             .background(Color.Transparent)
@@ -150,78 +170,95 @@ private fun NewTransactionScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        ElevatedCard(
-            modifier = Modifier.align(Alignment.End),
-            shape = RoundedCornerShape(50),
-            elevation = CardDefaults.elevatedCardElevation(
-                defaultElevation = 16.dp
-            ),
+        AnimatedVisibility(
+            visible = showClose,
+            enter = fadeIn(animationSpec = tween(300)) +
+                slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
         ) {
-            IconButton(
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(4.dp),
-                onClick = { onCancel() }) {
-                Icon(Icons.Filled.Close, "Localized description")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        ElevatedCard(
-            shape = RoundedCornerShape(50),
-            elevation = CardDefaults.elevatedCardElevation(
-                defaultElevation = 16.dp
-            ),
-        ) {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                val amountText =
-                    if (transaction.amount == BigDecimal.ZERO) "" else transaction.amount.toPlainString()
-
-                BasicTextField(
-                    value = amountText,
-                    onValueChange = { input ->
-                        val newAmount = input.toBigDecimalOrNull() ?: BigDecimal.ZERO
-                        onUpdate(transaction.copy(amount = newAmount))
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    textStyle = MaterialTheme.typography.headlineLarge.copy(
-                        textAlign = TextAlign.Center,
-                        fontSize = 48.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Transparent
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    decorationBox = { innerTextField ->
-                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            Text(
-                                text = if (amountText.isEmpty()) "0" else amountText,
-                                style = MaterialTheme.typography.headlineLarge.copy(
-                                    textAlign = TextAlign.Center,
-                                    fontSize = 48.sp,
-                                    fontWeight = FontWeight.Medium
-                                ),
-                                maxLines = 1,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            innerTextField()
-                        }
-                    }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        ElevatedCard(
-            shape = RoundedCornerShape(10),
-            elevation = CardDefaults.elevatedCardElevation(
-                defaultElevation = 16.dp
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+            ElevatedCard(
+                modifier = Modifier.align(Alignment.End),
+                shape = RoundedCornerShape(50),
+                elevation = CardDefaults.elevatedCardElevation(
+                    defaultElevation = 16.dp
+                ),
             ) {
+                IconButton(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .padding(4.dp),
+                    onClick = { onCancel() }) {
+                    Icon(Icons.Filled.Close, "Localized description")
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AnimatedVisibility(
+            visible = showAmount,
+            enter = fadeIn(animationSpec = tween(300)) +
+                slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
+        ) {
+            ElevatedCard(
+                shape = RoundedCornerShape(50),
+                elevation = CardDefaults.elevatedCardElevation(
+                    defaultElevation = 16.dp
+                ),
+            ) {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    val amountText =
+                        if (transaction.amount == BigDecimal.ZERO) "" else transaction.amount.toPlainString()
+
+                    BasicTextField(
+                        value = amountText,
+                        onValueChange = { input ->
+                            val newAmount = input.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                            onUpdate(transaction.copy(amount = newAmount))
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        textStyle = MaterialTheme.typography.headlineLarge.copy(
+                            textAlign = TextAlign.Center,
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Transparent
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        decorationBox = { innerTextField ->
+                            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = if (amountText.isEmpty()) "0" else amountText,
+                                    style = MaterialTheme.typography.headlineLarge.copy(
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 48.sp,
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    maxLines = 1,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                innerTextField()
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AnimatedVisibility(
+            visible = showInputs,
+            enter = fadeIn(animationSpec = tween(300)) +
+                slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
+        ) {
+            ElevatedCard(
+                shape = RoundedCornerShape(10),
+                elevation = CardDefaults.elevatedCardElevation(
+                    defaultElevation = 16.dp
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
                 // Category
                 Column(modifier = Modifier.padding(top = 16.dp)) {
                     Text("Category", style = MaterialTheme.typography.bodyMedium)
@@ -501,22 +538,27 @@ private fun NewTransactionScreen(
             }
         }
 
-        HorizontalFloatingToolbar(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally),
-            expanded = true,
-            floatingActionButton = {
-                FloatingToolbarDefaults.VibrantFloatingActionButton(
-                    onClick = {
-                        onSave(transaction)
-                    },
-                ) {
-                    Icon(Icons.Default.Check, "Localized description")
-                }
+        AnimatedVisibility(
+            visible = showButtons,
+            enter = fadeIn(animationSpec = tween(300)) +
+                slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
+        ) {
+            HorizontalFloatingToolbar(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally),
+                expanded = true,
+                floatingActionButton = {
+                    FloatingToolbarDefaults.VibrantFloatingActionButton(
+                        onClick = {
+                            onSave(transaction)
+                        },
+                    ) {
+                        Icon(Icons.Default.Check, "Localized description")
+                    }
 
-            },
-            content = {
-                val options = listOf("Inflow", "Outflow", "Transfer")
+                },
+                content = {
+                    val options = listOf("Inflow", "Outflow", "Transfer")
 
                 Row(
                     Modifier.padding(horizontal = 8.dp),
@@ -552,8 +594,8 @@ private fun NewTransactionScreen(
                         }
                     }
                 }
-            },
-        )
+            }
+        }
 
     }
 
