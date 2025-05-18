@@ -248,17 +248,19 @@ private fun HomeScreenContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(Modifier.weight(1f))
-            IconButton(onClick = { showNotifications = true }) {
-                Icon(
-                    painterResource(R.drawable.ic_notif),
-                    contentDescription = "Notifications"
+            Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                IconButton(onClick = { showNotifications = true }) {
+                    Icon(
+                        painterResource(R.drawable.ic_notif),
+                        contentDescription = "Notifications"
+                    )
+                }
+                NotificationsPopup(
+                    notifications = notifications,
+                    expanded = showNotifications,
+                    onDismissRequest = { showNotifications = false }
                 )
             }
-            NotificationsPopup(
-                notifications = notifications,
-                expanded = showNotifications,
-                onDismissRequest = { showNotifications = false }
-            )
         }
 
 
