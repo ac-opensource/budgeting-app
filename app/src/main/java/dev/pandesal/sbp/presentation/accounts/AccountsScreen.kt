@@ -35,6 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.AccountType
 import dev.pandesal.sbp.extensions.format
 import dev.pandesal.sbp.extensions.label
+import dev.pandesal.sbp.presentation.LocalNavigationManager
+import dev.pandesal.sbp.presentation.NavigationDestination
 import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,14 +46,7 @@ fun AccountsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showNew by remember { mutableStateOf(false) }
-
-    if (showNew) {
-        NewAccountScreen(
-            onSubmit = { name, type -> viewModel.addAccount(name, type) },
-            onCancel = { },
-            onDismissRequest = { showNew = false }
-        )
-    }
+    val navigationManager = LocalNavigationManager.current
 
     Scaffold { padding ->
         when (val state = uiState) {
@@ -61,7 +56,9 @@ fun AccountsScreen(
             is AccountsUiState.Success -> {
                 AccountsContent(
                     accounts = state.accounts,
-                    onAddWallet = { showNew = true },
+                    onAddWallet = {
+                        navigationManager.navigate(NavigationDestination.NewAccount)
+                    },
                     modifier = Modifier.padding(padding)
                 )
             }

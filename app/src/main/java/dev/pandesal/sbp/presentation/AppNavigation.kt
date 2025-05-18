@@ -11,6 +11,7 @@ import androidx.navigation.compose.dialog
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.accounts.AccountsScreen
+import dev.pandesal.sbp.presentation.accounts.NewAccountScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
@@ -40,6 +41,8 @@ sealed class NavigationDestination() {
     @Serializable
     data object Accounts : NavigationDestination()
     @Serializable
+    data object NewAccount : NavigationDestination()
+    @Serializable
     data class TransactionDetails(val transaction: Transaction) : NavigationDestination()
 
 }
@@ -65,6 +68,13 @@ fun AppNavigation(navController: NavHostController) {
             composable<NavigationDestination.Accounts> {
                 AccountsScreen()
             }
+
+            dialog<NavigationDestination.NewAccount>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                NewAccountScreen()
+            }
+
             composable<NavigationDestination.Transactions> {
                 TransactionsScreen()
             }
