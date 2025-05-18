@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.2.1] - 2025-05-19
+### Fixed
+- Default transaction type selection is now Outflow.
+- New transaction dialog now fills the entire screen width.
+
 ## [0.2.0] - 2025-05-18
 ### Changed
 - Category groups and categories now use swipe gestures: swipe right to edit and

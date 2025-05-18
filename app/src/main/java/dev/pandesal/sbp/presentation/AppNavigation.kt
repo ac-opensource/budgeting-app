@@ -5,6 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import dev.pandesal.sbp.domain.model.Transaction
@@ -68,7 +69,9 @@ fun AppNavigation(navController: NavHostController) {
                 TransactionsScreen()
             }
 
-            dialog<NavigationDestination.NewTransaction> {
+            dialog<NavigationDestination.NewTransaction>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
                 NewTransactionScreen()
             }
 
