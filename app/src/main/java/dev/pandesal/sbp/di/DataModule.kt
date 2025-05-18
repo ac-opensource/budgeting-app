@@ -13,9 +13,11 @@ import dev.pandesal.sbp.data.local.SbpDatabase
 import dev.pandesal.sbp.data.repository.CategoryRepository
 import dev.pandesal.sbp.data.repository.TransactionRepository
 import dev.pandesal.sbp.data.repository.AccountRepository
+import dev.pandesal.sbp.data.repository.SettingsRepository
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
+import dev.pandesal.sbp.domain.repository.SettingsRepositoryInterface
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -71,6 +73,14 @@ object DataModule {
         accountDao: AccountDao
     ): AccountRepositoryInterface {
         return AccountRepository(accountDao)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSettingsRepository(
+        @ApplicationContext context: Context
+    ): SettingsRepositoryInterface {
+        return SettingsRepository(context)
     }
 
 
