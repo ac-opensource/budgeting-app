@@ -222,6 +222,7 @@ private fun NewTransactionScreen(
                             onUpdate(transaction.copy(amount = newAmount))
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
                         textStyle = MaterialTheme.typography.headlineLarge.copy(
                             textAlign = TextAlign.Center,
                             fontSize = 48.sp,

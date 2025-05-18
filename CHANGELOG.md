@@ -5,22 +5,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.0] - 2025-05-22
-### Added
-- Budgets now store their currency alongside allocation data.
 
 ## [0.6.0] - 2025-05-21
 ### Added
+- Budgets now store their currency alongside allocation data.
 - Currency is now stored for each account in the database.
+
+## [0.5.1] - 2025-05-21
+### Fixed
+- Accounts total now calculates correctly.
+- Total amount text aligns with the add account button.
+- Inflow categories were filtered out and could not be selected on the New Transaction screen.
+- Vertically center the cursor in the new transaction screen when the amount is zero.
+
+### Changed
+- Added a squiggly divider for a more playful Accounts screen.
+
 ## [0.5.0] - 2025-05-20
 ### Added
 - Prompt to add default outflow categories when none exist.
 ### Changed
 - Inflow categories no longer appear in transaction or category lists and are ignored in budgets.
+
 ## [0.4.0] - 2025-05-19
 ### Changed
 - New transaction screen elements animate sequentially when opening.
-
 
 ## [0.3.2] - 2025-05-19
 ### Fixed
