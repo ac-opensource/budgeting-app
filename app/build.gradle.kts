@@ -13,12 +13,17 @@ android {
     namespace = "dev.pandesal.sbp"
     compileSdk = 36
 
+    val versionMajor: Int by project
+    val versionMinor: Int by project
+    val versionPatch: Int by project
+    val computedVersionCode = versionMajor * 10000 + versionMinor * 100 + versionPatch
+
     defaultConfig {
         applicationId = "dev.pandesal.sbp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = computedVersionCode
+        versionName = "$versionMajor.$versionMinor.$versionPatch"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
