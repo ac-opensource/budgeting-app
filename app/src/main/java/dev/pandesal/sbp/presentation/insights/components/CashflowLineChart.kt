@@ -1,6 +1,7 @@
 package dev.pandesal.sbp.presentation.insights.components
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,14 +16,13 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import kotlin.math.max
 
 @Composable
@@ -54,50 +54,56 @@ fun CashflowLineChart(
                     .fillMaxWidth()
                     .height(100.dp)
             ) {
-                androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
-                    val spacing = 16.dp.toPx()
-                    val maxY = entries.maxOf { max(it.inflow, it.outflow) }
-                    val chartHeight = size.height - spacing
-                    val stepX = (size.width - spacing * 2) / (entries.size - 1)
-
-                    val inflowPath = Path()
-                    val outflowPath = Path()
-                    entries.forEachIndexed { index, entry ->
-                        val x = spacing + stepX * index
-                        val inflowY = chartHeight * (1f - (entry.inflow / maxY).toFloat())
-                        val outflowY = chartHeight * (1f - (entry.outflow / maxY).toFloat())
-                        if (index == 0) {
-                            inflowPath.moveTo(x, inflowY)
-                            outflowPath.moveTo(x, outflowY)
-                        } else {
-                            inflowPath.lineTo(x, inflowY)
-                            outflowPath.lineTo(x, outflowY)
-                        }
+                if (entries.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("No data available")
                     }
-                    drawPath(
-                        path = inflowPath,
-                        color = primaryColor,
-                        style = Stroke(width = strokeWidth.toPx())
-                    )
-                    drawPath(
-                        path = outflowPath,
-                        color = errorColor,
-                        style = Stroke(width = strokeWidth.toPx())
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(top = 4.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceAround
-                ) {
-                    entries.forEach { entry ->
-                        Text(entry.label, style = MaterialTheme.typography.labelSmall)
+                } else {
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val spacing = 16.dp.toPx()
+                        val maxY = entries.maxOfOrNull { max(it.inflow, it.outflow) } ?: 0.0
+                        if (maxY == 0.0) return@Canvas
+                        val chartHeight = size.height - spacing
+                        val stepX = if (entries.size > 1) (size.width - spacing * 2) / (entries.size - 1) else 0f
+
+                        val inflowPath = Path()
+                        val outflowPath = Path()
+                        entries.forEachIndexed { index, entry ->
+                            val x = spacing + stepX * index
+                            val inflowY = chartHeight * (1f - (entry.inflow / maxY).toFloat())
+                            val outflowY = chartHeight * (1f - (entry.outflow / maxY).toFloat())
+                            if (index == 0) {
+                                inflowPath.moveTo(x, inflowY)
+                                outflowPath.moveTo(x, outflowY)
+                            } else {
+                                inflowPath.lineTo(x, inflowY)
+                                outflowPath.lineTo(x, outflowY)
+                            }
+                        }
+                        drawPath(
+                            path = inflowPath,
+                            color = primaryColor,
+                            style = Stroke(width = strokeWidth.toPx())
+                        )
+                        drawPath(
+                            path = outflowPath,
+                            color = errorColor,
+                            style = Stroke(width = strokeWidth.toPx())
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(top = 4.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        entries.forEach { entry ->
+                            Text(entry.label, style = MaterialTheme.typography.labelSmall)
+                        }
                     }
                 }
             }
         }
     }
 }
-

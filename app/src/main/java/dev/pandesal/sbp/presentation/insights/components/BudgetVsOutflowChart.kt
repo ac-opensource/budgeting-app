@@ -1,6 +1,9 @@
 package dev.pandesal.sbp.presentation.insights.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,18 +12,27 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import kotlin.math.max
 
 @Composable
@@ -43,6 +55,19 @@ fun BudgetVsOutflowChart(
         ) {
             val primaryColor = MaterialTheme.colorScheme.primary
             val errorColor = MaterialTheme.colorScheme.error
+            val dialogEntry = remember { mutableStateOf<BudgetOutflowUiModel?>(null) }
+
+            dialogEntry.value?.let { entry ->
+                AlertDialog(
+                    onDismissRequest = { dialogEntry.value = null },
+                    confirmButton = {
+                        TextButton(onClick = { dialogEntry.value = null }) { Text("OK") }
+                    },
+                    title = { Text(entry.label) },
+                    text = { Text("Budget: ${'$'}{entry.budget}\nOutflow: ${'$'}{entry.outflow}") }
+                )
+            }
+
             Text("Budget vs Outflow", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Text("This Month", style = MaterialTheme.typography.bodySmall)
@@ -52,46 +77,62 @@ fun BudgetVsOutflowChart(
                     .fillMaxWidth()
                     .height(100.dp)
             ) {
-                androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
-                    val spacing = barWidth.toPx()
-                    val maxY = entries.maxOf { max(it.budget, it.outflow) }
-                    val chartHeight = size.height - spacing
-                    val groupWidth = (size.width - spacing * 2) / entries.size
-                    entries.forEachIndexed { index, entry ->
-                        val budgetHeight = chartHeight * (entry.budget / maxY).toFloat()
-                        val outflowHeight = chartHeight * (entry.outflow / maxY).toFloat()
-                        val xOffset = spacing + index * groupWidth
-                        drawRect(
-                            color = primaryColor,
-                            topLeft = androidx.compose.ui.geometry.Offset(
-                                xOffset,
-                                size.height - budgetHeight
-                            ),
-                            size = androidx.compose.ui.geometry.Size(barWidth.toPx(), budgetHeight)
-                        )
-                        drawRect(
-                            color = errorColor,
-                            topLeft = androidx.compose.ui.geometry.Offset(
-                                xOffset + barWidth.toPx() + 4.dp.toPx(),
-                                size.height - outflowHeight
-                            ),
-                            size = androidx.compose.ui.geometry.Size(barWidth.toPx(), outflowHeight)
-                        )
+                if (entries.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("No data available")
                     }
-                }
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(top = 4.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceAround
-                ) {
-                    entries.forEach { entry ->
-                        Text(entry.label, style = MaterialTheme.typography.labelSmall)
+                } else {
+                    var groupWidth by remember { mutableStateOf(0f) }
+                    var spacingPx by remember { mutableStateOf(0f) }
+                    Canvas(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(entries) {
+                                detectTapGestures { offset ->
+                                    val index = ((offset.x - spacingPx) / groupWidth).toInt()
+                                    if (index in entries.indices) {
+                                        dialogEntry.value = entries[index]
+                                    }
+                                }
+                            }
+                    ) {
+                        val spacing = barWidth.toPx()
+                        spacingPx = spacing
+                        val maxY = entries.maxOfOrNull { max(it.budget, it.outflow) } ?: 0.0
+                        if (maxY == 0.0) return@Canvas
+                        val chartHeight = size.height - spacing
+                        groupWidth = (size.width - spacing * 2) / entries.size
+                        entries.forEachIndexed { index, entry ->
+                            val budgetHeight = chartHeight * (entry.budget / maxY).toFloat()
+                            val outflowHeight = chartHeight * (entry.outflow / maxY).toFloat()
+                            val xOffset = spacing + index * groupWidth
+                            drawRoundRect(
+                                color = primaryColor,
+                                topLeft = Offset(xOffset, size.height - budgetHeight),
+                                size = Size(barWidth.toPx(), budgetHeight),
+                                cornerRadius = CornerRadius(4.dp.toPx())
+                            )
+                            drawRoundRect(
+                                color = errorColor,
+                                topLeft = Offset(xOffset + barWidth.toPx() + 4.dp.toPx(), size.height - outflowHeight),
+                                size = Size(barWidth.toPx(), outflowHeight),
+                                cornerRadius = CornerRadius(4.dp.toPx())
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(top = 4.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        entries.forEach { entry ->
+                            Text(entry.label, style = MaterialTheme.typography.labelSmall)
+                        }
                     }
                 }
             }
         }
     }
 }
-
