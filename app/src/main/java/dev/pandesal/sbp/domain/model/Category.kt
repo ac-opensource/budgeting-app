@@ -40,7 +40,8 @@ data class MonthlyBudget(
     val categoryId: Int,
     val month: YearMonth,
     val allocated: BigDecimal,
-    val spent: BigDecimal
+    val spent: BigDecimal,
+    val currency: String = "PHP"
 ): Parcelable
 
 @Parcelize

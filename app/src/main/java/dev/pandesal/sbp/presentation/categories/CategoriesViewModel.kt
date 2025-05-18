@@ -1,6 +1,8 @@
 package dev.pandesal.sbp.presentation.categories
 
 import android.util.Log
+import androidx.collection.mutableIntListOf
+import androidx.collection.mutableIntSetOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,9 +42,9 @@ class CategoriesViewModel @Inject constructor(
             ) { groups, categories ->
                 val filtered = categories.filter { it.category.categoryType != TransactionType.INFLOW }
                 CategoriesUiState.Success(
-                    categoryGroups = groups,
+                    categoryGroups = groups.filter { it.name.lowercase() != "inflow" },
                     categoriesWithBudget = filtered,
-                    showTemplatePrompt = groups.none { !it.isSystemSet }
+                    showTemplatePrompt = categories.none { it.category.categoryType == TransactionType.OUTFLOW }
                 )
             }.collect { state ->
                 _uiState.value = state
