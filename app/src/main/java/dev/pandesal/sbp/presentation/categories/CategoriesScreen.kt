@@ -102,6 +102,7 @@ private fun CategoriesListContent(
 
     var showNewCategorySheet by remember { mutableStateOf(false) }
     var selectedGroupId by remember { mutableStateOf<Int?>(null) }
+    var selectedGroupName by remember { mutableStateOf<String?>(null) }
     var selectedCategoryId by remember { mutableStateOf<Int?>(null) }
     val newCategorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -220,6 +221,7 @@ private fun CategoriesListContent(
                                 Spacer(Modifier.weight(1f))
                                 TextButton(onClick = {
                                     selectedGroupId = item.id
+                                    selectedGroupName = item.name
                                     showNewCategorySheet = true
                                 }) {
                                     Text("Add Category")
@@ -261,18 +263,22 @@ private fun CategoriesListContent(
             NewCategoryScreen(
                 sheetState = newCategorySheetState,
                 groupId = selectedGroupId!!,
+                groupName = selectedGroupName ?: "",
                 onSubmit = { name, groupId ->
                     onAddCategory(name, groupId)
                     showNewCategorySheet = false
                     selectedGroupId = null
+                    selectedGroupName = null
                 },
                 onCancel = {
                     showNewCategorySheet = false
                     selectedGroupId = null
+                    selectedGroupName = null
                 },
                 onDismissRequest = {
                     showNewCategorySheet = false
                     selectedGroupId = null
+                    selectedGroupName = null
                 }
             )
         }
@@ -347,6 +353,7 @@ private fun CategoriesListContent(
             NewCategoryScreen(
                 sheetState = newCategorySheetState,
                 groupId = editCategory!!.categoryGroupId,
+                groupName = groupList.firstOrNull { it.id == editCategory!!.categoryGroupId }?.name ?: "",
                 initialName = editCategory!!.name,
                 onSubmit = { name, _ ->
                     onEditCategory(editCategory!!, name)
