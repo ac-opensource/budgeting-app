@@ -7,7 +7,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 object InAppNotificationCenter {
-    private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
+    private val _notifications = MutableStateFlow<List<Notification>>(
+        listOf(
+            Notification(
+                message = "Electric bill due tomorrow",
+                type = NotificationType.BILL_REMINDER
+            ),
+            Notification(
+                message = "Did you spend with GCash today?",
+                type = NotificationType.TRANSACTION_SUGGESTION,
+                canCreateTransaction = true
+            )
+        )
+    )
     val notifications: StateFlow<List<Notification>> = _notifications.asStateFlow()
 
     fun postNotification(

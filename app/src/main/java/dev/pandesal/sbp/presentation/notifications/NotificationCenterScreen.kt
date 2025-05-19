@@ -16,12 +16,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.notification.InAppNotificationCenter
 import dev.pandesal.sbp.domain.model.NotificationType
-import dev.pandesal.sbp.presentation.components.FilterTab
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,55 +53,65 @@ fun NotificationCenterScreen() {
         else -> notifications
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Notifications") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
-                    }
-                }
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { navController.navigateUp() }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = null)
+            }
+            Text(
+                text = "Notifications",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            FilterTab(
-                selectedIndex = selectedIndex.intValue,
-                tabs = tabTitles
-            ) { index ->
-                selectedIndex.intValue = index
-            }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(filteredNotifications, key = { it.id }) { notif ->
-                    val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
-                        if (it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart) {
-                            InAppNotificationCenter.archive(notif.id)
-                            true
-                        } else {
-                            false
-                        }
-                    })
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        backgroundContent = {},
-                    ) {
-                        NotificationItem(
-                            notification = notif,
-                            onMarkRead = { InAppNotificationCenter.markAsRead(notif.id) },
-                            onCreateTransaction = {
-                                InAppNotificationCenter.markAsRead(notif.id)
-                                navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction)
-                            }
-                        )
+        TabRow(
+            selectedTabIndex = selectedIndex.intValue,
+            containerColor = MaterialTheme.colorScheme.surface,
+            indicator = { tabPositions ->
+                TabRowDefaults.PrimaryIndicator(tabPositions[selectedIndex.intValue])
+            }
+        ) {
+            tabTitles.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedIndex.intValue == index,
+                    onClick = { selectedIndex.intValue = index },
+                    text = { Text(title) }
+                )
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(filteredNotifications, key = { it.id }) { notif ->
+                val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
+                    if (it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart) {
+                        InAppNotificationCenter.archive(notif.id)
+                        true
+                    } else {
+                        false
                     }
+                })
+                SwipeToDismissBox(
+                    state = dismissState,
+                    backgroundContent = {},
+                ) {
+                    NotificationItem(
+                        notification = notif,
+                        onMarkRead = { InAppNotificationCenter.markAsRead(notif.id) },
+                        onCreateTransaction = {
+                            InAppNotificationCenter.markAsRead(notif.id)
+                            navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction)
+                        }
+                    )
                 }
             }
         }
