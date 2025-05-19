@@ -34,6 +34,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -85,7 +86,7 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.math.BigDecimal
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CategoriesListContent(
     parentList: List<CategoryGroup>,
@@ -140,6 +141,7 @@ private fun CategoriesListContent(
     var editCategory by remember { mutableStateOf<Category?>(null) }
 
     Column(modifier = Modifier.fillMaxSize()) {
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyGroupsState,
@@ -485,7 +487,7 @@ private fun ChildListContent(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 fun CategoriesScreen(
     viewModel: CategoriesViewModel = hiltViewModel(),
     goalsViewModel: GoalsViewModel = hiltViewModel()
@@ -642,6 +644,13 @@ fun CategoriesScreen(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
+                Text(
+                    text = "Categories & Budgets",
+                    style = MaterialTheme.typography.titleLargeEmphasized
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 if (percentages.isNotEmpty()) {
                     CategoryBudgetPieChart(percentages)
                 } else {

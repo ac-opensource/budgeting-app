@@ -1,6 +1,7 @@
 package dev.pandesal.sbp.presentation.accounts
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,7 +44,7 @@ import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SquigglyDivider
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AccountsScreen(
     viewModel: AccountsViewModel = hiltViewModel()
@@ -51,22 +53,31 @@ fun AccountsScreen(
     var showNew by remember { mutableStateOf(false) }
     val navigationManager = LocalNavigationManager.current
 
-    when (val state = uiState) {
-        is AccountsUiState.Loading -> {
-            Text("Loading...", modifier = Modifier.padding(16.dp))
-        }
-        is AccountsUiState.Success -> {
-            AccountsContent(
-                accounts = state.accounts,
-                onAddWallet = {
-                    navigationManager.navigate(NavigationDestination.NewAccount)
-                },
-            )
-        }
-        is AccountsUiState.Error -> {
-            Text(state.message, color = MaterialTheme.colorScheme.error)
+    Column {
+        Text(
+            modifier = Modifier.padding(16.dp),
+            text = "Accounts",
+            style = MaterialTheme.typography.titleLargeEmphasized
+        )
+
+        when (val state = uiState) {
+            is AccountsUiState.Loading -> {
+                Text("Loading...", modifier = Modifier.padding(16.dp))
+            }
+            is AccountsUiState.Success -> {
+                AccountsContent(
+                    accounts = state.accounts,
+                    onAddWallet = {
+                        navigationManager.navigate(NavigationDestination.NewAccount)
+                    },
+                )
+            }
+            is AccountsUiState.Error -> {
+                Text(state.message, color = MaterialTheme.colorScheme.error)
+            }
         }
     }
+
 }
 
 @Composable
@@ -95,7 +106,7 @@ private fun AccountsContent(
                     text = "Total: $symbol${totalValue.format()}",
                     style = MaterialTheme.typography.titleMedium,
                 )
-                Button(onClick = onAddWallet) { Text("Add Wallet") }
+                Button(onClick = onAddWallet) { Text("Add Wallet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimary) }
             }
         }
         item {
