@@ -84,7 +84,7 @@ abstract class SbpDatabase : RoomDatabase(), DatabaseDaos {
                                     "INSERT INTO category_groups (id, name, description, icon, weight, isFavorite, isArchived, isSystemSet) VALUES (2, 'Transfers', '', '', 0, 0, 0, 1)"
                                 )
                                 db.execSQL(
-                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (28, 'Adjustment', '', '', 2, 'TRANSFER', 0, 0, 0, 1)"
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (28, 'Move Funds', '', '', 2, 'TRANSFER', 0, 0, 0, 1)"
                                 )
                                 db.execSQL(
                                     "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (29, 'Goal Contribution', '', '', 2, 'TRANSFER', 1, 0, 0, 1)"

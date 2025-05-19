@@ -13,6 +13,8 @@ import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.accounts.AccountsScreen
 import dev.pandesal.sbp.presentation.accounts.NewAccountScreen
+import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
+import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen

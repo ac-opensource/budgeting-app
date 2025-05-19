@@ -52,7 +52,7 @@ class AccountsViewModelTest {
     @Test
     fun addLoanAccountCreatesLiabilityCategory() = runTest {
         val vm = AccountsViewModel(useCase, categoryUseCase)
-        vm.addAccount("Car Loan", AccountType.LOAN, "PHP", "1000", "100")
+        vm.addAccount("Car Loan", AccountType.LOAN, BigDecimal.ZERO, "PHP", "1000", "100")
         advanceUntilIdle()
         assertEquals("Liabilities", categoryRepository.insertedGroups[0].name)
         assertEquals("Car Loan", categoryRepository.insertedCategories[0].name)

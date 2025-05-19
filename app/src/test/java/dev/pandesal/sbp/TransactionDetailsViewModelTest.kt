@@ -33,7 +33,7 @@ class TransactionDetailsViewModelTest {
             accountId = "",
             transactionType = TransactionType.OUTFLOW
         )
-        vm.setTransaction(tx)
+        vm.setTransaction(tx.id)
         advanceUntilIdle()
         assertEquals(tx, vm.transaction.value)
     }
@@ -49,7 +49,7 @@ class TransactionDetailsViewModelTest {
             accountId = "",
             transactionType = TransactionType.OUTFLOW
         )
-        vm.setTransaction(tx)
+        vm.setTransaction(tx.id)
         vm.save()
         advanceUntilIdle()
         assertEquals(listOf(tx), repository.insertedTransactions)

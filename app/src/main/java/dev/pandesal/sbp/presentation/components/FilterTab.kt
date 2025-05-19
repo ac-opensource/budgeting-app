@@ -64,6 +64,7 @@ fun FilterTab(
                 Text(
                     text = option,
                     style = MaterialTheme.typography.labelMedium,
+                    color = if (selectedIndex == index) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
                 )

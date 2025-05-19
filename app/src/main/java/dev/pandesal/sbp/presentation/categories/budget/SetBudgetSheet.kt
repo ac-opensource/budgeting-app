@@ -158,7 +158,7 @@ fun SetBudgetSheet(
                             onSubmit(amount, selectedTab == 1, selectedDate.takeIf { selectedTab == 1 })
                             onDismissRequest()
                         },
-                        enabled = amount > BigDecimal.ZERO
+//                        enabled = amount > BigDecimal.ZERO
                     ) {
                         Icon(Icons.Default.Check, contentDescription = null)
                     }

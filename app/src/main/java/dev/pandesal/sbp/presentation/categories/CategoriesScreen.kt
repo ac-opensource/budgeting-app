@@ -83,6 +83,7 @@ import dev.pandesal.sbp.presentation.goals.GoalsViewModel
 import dev.pandesal.sbp.domain.model.Goal
 import dev.pandesal.sbp.presentation.goals.GoalsUiState
 import dev.pandesal.sbp.presentation.LocalNavigationManager
+import dev.pandesal.sbp.presentation.NavigationDestination
 import java.time.temporal.ChronoUnit
 import java.time.LocalDate
 import kotlinx.coroutines.launch
@@ -98,6 +99,7 @@ private fun CategoriesListContent(
     goals: List<Goal>,
     onAddCategoryGroup: (name: String) -> Unit,
     onAddCategory: (name: String, groupId: Int) -> Unit,
+    onAddGoal: (amount: BigDecimal, dueDate: LocalDate?) -> Unit,
     onAddBudget: (amount: BigDecimal, categoryId: Int) -> Unit,
     reorderGroup: (from: Int, to: Int) -> Unit,
     reorderCategory: (groupId: Int, from: Int, to: Int) -> Unit,
@@ -236,10 +238,9 @@ private fun CategoriesListContent(
                             },
                             onEditCategory = { editCategory = it },
                             onDeleteCategory = { onDeleteCategory(it) },
-                            onEditBudget = {
-                                    budgetTargetAmountParam,
-                                    selectedCategoryIdParam,
-                                    showSetBudgetSheetParam ->
+                            onEditBudget = { budgetTargetAmountParam,
+                                             selectedCategoryIdParam,
+                                             showSetBudgetSheetParam ->
                                 budgetTargetAmount = budgetTargetAmountParam
                                 selectedCategoryId = selectedCategoryIdParam
                                 showSetBudgetSheet = true
@@ -258,8 +259,7 @@ private fun CategoriesListContent(
             initialAmount = budgetTargetAmount,
             onSubmit = { amount, isGoal, date ->
                 if (isGoal) {
-                    val name = state.categoriesWithBudget.firstOrNull { it.category.id == selectedCategoryId }?.category?.name ?: ""
-                    goalsViewModel.addGoal(name, amount, dueDate = date)
+                    onAddGoal(amount, date)
                 } else {
                     onAddBudget(amount, selectedCategoryId!!)
                 }
@@ -438,7 +438,8 @@ private fun ChildListContent(
                                             LinearProgressIndicator(
                                                 progress = {
                                                     if (it.allocated > BigDecimal.ZERO)
-                                                        (it.spent / it.allocated).toFloat().coerceIn(0f, 1f)
+                                                        (it.spent / it.allocated).toFloat()
+                                                            .coerceIn(0f, 1f)
                                                     else 0f
                                                 },
                                                 modifier = Modifier.fillMaxWidth(0.5f)
@@ -450,7 +451,10 @@ private fun ChildListContent(
                                     if (goal != null) {
                                         Column(horizontalAlignment = Alignment.End) {
                                             goal.dueDate?.let {
-                                                val months = ChronoUnit.MONTHS.between(LocalDate.now().withDayOfMonth(1), it.withDayOfMonth(1)).toInt()
+                                                val months = ChronoUnit.MONTHS.between(
+                                                    LocalDate.now().withDayOfMonth(1),
+                                                    it.withDayOfMonth(1)
+                                                ).toInt()
                                                 Text("Due: ${it}")
                                                 Text("$months months left")
                                             }
@@ -617,6 +621,13 @@ fun CategoriesScreen(
                         viewModel.setBudgetForCategory(
                             categoryId,
                             amount
+                        )
+                    },
+                    onAddGoal = { amount, dueDate ->
+                        goalsViewModel.addGoal(
+                            name = "",
+                            target = amount,
+                            dueDate = dueDate
                         )
                     },
                     reorderGroup = { from, to ->

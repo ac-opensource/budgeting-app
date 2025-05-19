@@ -125,7 +125,7 @@ fun NewCategoryGroupScreen(
                         onSubmit(name)
                         onDismissRequest()
                     },
-                    enabled = name.isNotBlank()
+//                    enabled = name.isNotBlank()
                 ) {
                     Icon(Icons.Default.Check, contentDescription = null)
                 }

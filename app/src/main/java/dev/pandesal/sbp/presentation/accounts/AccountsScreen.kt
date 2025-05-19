@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.clickable
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.Delete
@@ -62,6 +63,7 @@ import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SquigglyDivider
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)

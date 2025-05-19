@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -101,42 +102,43 @@ fun NewCategoryScreen(
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(text = "Add Category to Group: $groupName")
 
-            Column {
-                Text("Category Name")
-                ElevatedCard(
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .fillMaxWidth(),
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
-                ) {
-                    BasicTextField(
-                        value = name,
-                        onValueChange = { name = it },
+                Column {
+                    Text("Category Name")
+                    ElevatedCard(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            HorizontalFloatingToolbar(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                expanded = true,
-                floatingActionButton = {
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = {
-                            onSubmit(name, groupId)
-                            onDismissRequest()
-                        },
-                        enabled = name.isNotBlank()
+                            .padding(top = 4.dp)
+                            .fillMaxWidth(),
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
                     ) {
-                        Icon(Icons.Default.Check, contentDescription = null)
+                        BasicTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
                     }
-                },
-                content = {}
-            )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                HorizontalFloatingToolbar(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    expanded = true,
+                    floatingActionButton = {
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = {
+                                onSubmit(name, groupId)
+                                onDismissRequest()
+                            },
+//                        enabled = name.isNotBlank()
+                        ) {
+                            Icon(Icons.Default.Check, contentDescription = null)
+                        }
+                    },
+                    content = {}
+                )
+            }
         }
     }
 }
