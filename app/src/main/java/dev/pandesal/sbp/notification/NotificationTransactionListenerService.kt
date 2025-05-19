@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import dev.pandesal.sbp.R
 import dev.pandesal.sbp.presentation.MainActivity
 import dev.pandesal.sbp.notification.InAppNotificationCenter
+import dev.pandesal.sbp.domain.model.NotificationType
 
 class NotificationTransactionListenerService : NotificationListenerService() {
 
@@ -61,6 +62,7 @@ class NotificationTransactionListenerService : NotificationListenerService() {
 
         InAppNotificationCenter.postNotification(
             message = message,
+            type = NotificationType.TRANSACTION_SUGGESTION,
             canCreateTransaction = true
         )
     }

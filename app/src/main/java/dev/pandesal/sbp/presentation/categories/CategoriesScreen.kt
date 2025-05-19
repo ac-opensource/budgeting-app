@@ -69,6 +69,7 @@ import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.CategoryWithBudget
 import dev.pandesal.sbp.extensions.ReorderHapticFeedbackType
 import dev.pandesal.sbp.extensions.rememberReorderHapticFeedback
+import dev.pandesal.sbp.extensions.currencySymbol
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetSheet
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
@@ -428,7 +429,8 @@ private fun ChildListContent(
                             } else {
                                 if (item.budget != null) {
                                     item.budget.let {
-                                        Text("₱${it.spent} / ₱${it.allocated}")
+                                        val symbol = it.currency.currencySymbol()
+                                        Text("$symbol${it.spent.format()} / $symbol${it.allocated.format()}")
                                     }
                                 } else {
                                     TextButton(

@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
+import androidx.navigation.compose.navArgs
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.accounts.AccountsScreen
@@ -17,6 +18,7 @@ import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewRecurringTransactionScreen
+import dev.pandesal.sbp.presentation.transactions.details.TransactionDetailsScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
 import kotlinx.serialization.Serializable
@@ -92,6 +94,17 @@ fun AppNavigation(navController: NavHostController) {
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
                 NewRecurringTransactionScreen()
+            }
+
+            dialog<NavigationDestination.TransactionDetails>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+            ) { backStackEntry ->
+                val args = backStackEntry.navArgs<NavigationDestination.TransactionDetails>()
+                TransactionDetailsScreen(
+                    transaction = args.transaction,
+                    onDismiss = { navController.navigateUp() },
+                    onSave = { navController.navigateUp() }
+                )
             }
 
             composable<NavigationDestination.Notifications> {

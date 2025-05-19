@@ -48,6 +48,7 @@ class InsightsViewModelTest {
         )
         val vm = InsightsViewModel(transactionUseCase, categoryUseCase, accountUseCase)
         advanceUntilIdle()
-        assertTrue(vm.uiState.value is InsightsUiState.Success)
+        val state = vm.uiState.value as InsightsUiState.Success
+        assertTrue(state.calendarEvents.isNotEmpty())
     }
 }

@@ -12,7 +12,11 @@ data class AccountEntity(
     val name: String,
     val type: String,
     val balance: BigDecimal = BigDecimal.ZERO,
-    val currency: String = "PHP"
+    val currency: String = "PHP",
+    val contractValue: BigDecimal? = null,
+    val monthlyPayment: BigDecimal? = null,
+    val startDate: String? = null,
+    val endDate: String? = null,
 )
 
 fun AccountEntity.toDomainModel(): Account {
@@ -21,7 +25,11 @@ fun AccountEntity.toDomainModel(): Account {
         name = name,
         type = AccountType.valueOf(type),
         balance = balance,
-        currency = currency
+        currency = currency,
+        contractValue = contractValue,
+        monthlyPayment = monthlyPayment,
+        startDate = startDate,
+        endDate = endDate,
     )
 }
 
@@ -31,6 +39,10 @@ fun Account.toEntity(): AccountEntity {
         name = name,
         type = type.name,
         balance = balance,
-        currency = currency
+        currency = currency,
+        contractValue = contractValue,
+        monthlyPayment = monthlyPayment,
+        startDate = startDate,
+        endDate = endDate,
     )
 }
