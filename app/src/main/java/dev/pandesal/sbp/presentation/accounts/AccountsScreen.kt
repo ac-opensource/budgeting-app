@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.AccountType
 import dev.pandesal.sbp.extensions.format
 import dev.pandesal.sbp.extensions.label
+import dev.pandesal.sbp.extensions.currencySymbol
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SquigglyDivider
@@ -75,6 +76,7 @@ private fun AccountsContent(
     modifier: Modifier = Modifier
 ) {
     val totalValue = accounts.sumOf { it.balance.toDouble() }
+    val symbol = accounts.firstOrNull()?.currency?.currencySymbol() ?: "₱"
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -90,7 +92,7 @@ private fun AccountsContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Total: ₱${totalValue.format()}",
+                    text = "Total: $symbol${totalValue.format()}",
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Button(onClick = onAddWallet) { Text("Add Wallet") }
@@ -111,7 +113,7 @@ private fun AccountsContent(
                     leadingContent = { Icon(getAccountIcon(account.type), contentDescription = null) },
                     trailingContent = {
                         Text(
-                            "₱${account.balance.format()}",
+                            "${account.currency.currencySymbol()}${account.balance.format()}",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
