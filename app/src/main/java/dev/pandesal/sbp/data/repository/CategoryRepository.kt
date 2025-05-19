@@ -71,9 +71,9 @@ class CategoryRepository @Inject constructor(private val dao: CategoryDao): Cate
     override fun getMonthlyBudgetByCategoryIdAndMonth(
         categoryId: String,
         yearMonth: YearMonth
-    ): Flow<MonthlyBudget> =
+    ): Flow<MonthlyBudget?> =
         dao.getMonthlyBudgetByCategoryIdAndYearMonth(categoryId, yearMonth.toString())
-            .map { it.toDomainModel() }
+            .map { it?.toDomainModel() }
 
     override suspend fun insertMonthlyBudget(value: MonthlyBudget) =
         dao.insert(value.toEntity())
