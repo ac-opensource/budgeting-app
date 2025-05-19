@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.24.0] - 2025-05-19
+### Added
+- View wallet transactions in a bottom sheet when selecting an account.
+- Edit or delete an account from the bottom sheet header.
+
 ## [0.23.0] - 2025-05-19
 ### Added
 - Upcoming due reminders for recurring transactions in Notification Center.

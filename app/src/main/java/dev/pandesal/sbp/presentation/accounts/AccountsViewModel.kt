@@ -80,4 +80,16 @@ class AccountsViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateAccountName(account: Account, name: String) {
+        viewModelScope.launch {
+            useCase.insertAccount(account.copy(name = name))
+        }
+    }
+
+    fun deleteAccount(account: Account) {
+        viewModelScope.launch {
+            useCase.deleteAccount(account)
+        }
+    }
 }
