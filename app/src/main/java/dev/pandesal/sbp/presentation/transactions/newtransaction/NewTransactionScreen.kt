@@ -150,14 +150,6 @@ fun NewTransactionScreen(
                 text = { Text("Are you sure you want to delete this transaction?") }
             )
         }
-        if (!editable) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Transparent)
-                    .pointerInput(Unit) {}
-            )
-        }
     }
 }
 
@@ -271,7 +263,7 @@ private fun NewTransactionScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(
                             modifier = Modifier
-                                .size(24.dp)
+                                .height(24.dp)
                                 .padding(4.dp),
                             onClick = { onCancel() }) {
                             Icon(Icons.Filled.Close, "Localized description")
@@ -312,6 +304,7 @@ private fun NewTransactionScreen(
                             if (transaction.amount == BigDecimal.ZERO) "" else transaction.amount.toPlainString()
 
                         BasicTextField(
+                            enabled = editable,
                             value = amountText,
                             onValueChange = { input ->
                                 val newAmount = input.toBigDecimalOrNull() ?: BigDecimal.ZERO
@@ -372,7 +365,7 @@ private fun NewTransactionScreen(
                                 modifier = Modifier
                                     .padding(top = 4.dp)
                                     .fillMaxWidth()
-                                    .clickable { expanded = true }
+                                    .clickable(enabled = editable) { expanded = true }
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -420,7 +413,7 @@ private fun NewTransactionScreen(
                                                             style = MaterialTheme.typography.headlineLarge,
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                             modifier = Modifier
-                                                                .clickable {
+                                                                .clickable(enabled = editable) {
                                                                     onUpdate(
                                                                         transaction.copy(
                                                                             category = item
@@ -437,7 +430,7 @@ private fun NewTransactionScreen(
                                                             color = MaterialTheme.colorScheme.onSurface,
                                                             modifier = Modifier
                                                                 .weight(1f)
-                                                                .clickable {
+                                                                .clickable(enabled = editable) {
                                                                     onUpdate(
                                                                         transaction.copy(
                                                                             category = item
@@ -469,7 +462,7 @@ private fun NewTransactionScreen(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
                                         .fillMaxWidth()
-                                        .clickable { fromAccountExpanded = true }
+                                        .clickable(enabled = editable) { fromAccountExpanded = true }
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -533,6 +526,7 @@ private fun NewTransactionScreen(
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         BasicTextField(
+                                            enabled = editable,
                                             value = transaction.merchantName.orEmpty(),
                                             onValueChange = { onUpdate(transaction.copy(merchantName = it)) },
                                             modifier = Modifier
@@ -547,7 +541,7 @@ private fun NewTransactionScreen(
                                             modifier = Modifier
                                                 .padding(end = 8.dp)
                                                 .size(24.dp)
-                                                .clickable { merchantExpanded = true }
+                                                .clickable(enabled = editable) { merchantExpanded = true }
                                         )
                                     }
                                 }
@@ -561,7 +555,7 @@ private fun NewTransactionScreen(
                                                 text = item,
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .clickable {
+                                                    .clickable(enabled = editable) {
                                                         onUpdate(transaction.copy(merchantName = item))
                                                         merchantExpanded = false
                                                     }
@@ -582,7 +576,7 @@ private fun NewTransactionScreen(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
                                         .fillMaxWidth()
-                                        .clickable { toAccountExpanded = true }
+                                        .clickable(enabled = editable) { toAccountExpanded = true }
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -614,7 +608,7 @@ private fun NewTransactionScreen(
                                                 text = account.name,
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .clickable {
+                                                    .clickable(enabled = editable) {
                                                         onUpdate(transaction.copy(to = account.id, toAccountName = account.name))
                                                         toAccountExpanded = false
                                                     }
@@ -634,7 +628,7 @@ private fun NewTransactionScreen(
                                 modifier = Modifier
                                     .padding(top = 4.dp)
                                     .fillMaxWidth()
-                                    .clickable { showDatePicker.value = true }) {
+                                    .clickable(enabled = editable) { showDatePicker.value = true }) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -658,10 +652,11 @@ private fun NewTransactionScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 8.dp)
-                                    .clickable { isRecurring = !isRecurring },
+                                    .clickable(enabled = editable) { isRecurring = !isRecurring },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Checkbox(
+                                    enabled = editable,
                                     checked = isRecurring,
                                     onCheckedChange = { isRecurring = it }
                                 )
@@ -677,7 +672,7 @@ private fun NewTransactionScreen(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
                                         .fillMaxWidth()
-                                        .clickable { recurringExpanded = true }
+                                        .clickable(enabled = editable) { recurringExpanded = true }
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -721,6 +716,7 @@ private fun NewTransactionScreen(
 
                                 if (selectedInterval == RecurringInterval.AFTER_CUTOFF) {
                                     OutlinedTextField(
+                                        enabled = editable,
                                         value = cutoffDays.toString(),
                                         onValueChange = { input ->
                                             cutoffDays = input.toIntOrNull() ?: 21
@@ -773,6 +769,7 @@ private fun NewTransactionScreen(
 
                             options.forEachIndexed { index, label ->
                                 ToggleButton(
+                                    enabled = editable,
                                     checked = selectedIndex == index,
                                     onCheckedChange = {
                                         selectedIndex = index

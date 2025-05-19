@@ -12,6 +12,9 @@ interface RecurringTransactionDao {
     @Query("SELECT * FROM recurring_transactions")
     fun getRecurringTransactions(): Flow<List<RecurringTransactionEntity>>
 
+    @Query("SELECT * FROM recurring_transactions WHERE id = :id")
+    fun getRecurringTransactionById(id: String): Flow<RecurringTransactionEntity>
+
     @Upsert
     suspend fun insert(value: RecurringTransactionEntity)
 
