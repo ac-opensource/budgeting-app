@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - View recurring transaction details with edit and delete actions.
 - View upcoming recurring transactions in a new screen.
 
+## [0.28.1] - 2025-05-19
+### Changed
+- Clarified contribution guidelines on versioning and changelog entries.
+
 ## [0.28.0] - 2025-05-19
 ### Added
 - Set Budget now opens as a dialog similar to New Transaction.
