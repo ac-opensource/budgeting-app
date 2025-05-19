@@ -51,6 +51,10 @@ sealed class NavigationDestination() {
     @Serializable
     data object NewRecurringTransaction : NavigationDestination()
     @Serializable
+    data object NewCategoryGroup : NavigationDestination()
+    @Serializable
+    data class NewCategory(val groupId: Int, val groupName: String) : NavigationDestination()
+    @Serializable
     data class TransactionDetails(val transactionId: String) : NavigationDestination()
 
 }
@@ -86,6 +90,19 @@ fun AppNavigation(navController: NavHostController) {
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
             ) {
                 NewGoalScreen()
+            }
+
+            dialog<NavigationDestination.NewCategoryGroup>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                NewCategoryGroupScreen()
+            }
+
+            dialog<NavigationDestination.NewCategory>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+            ) { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationDestination.NewCategory>()
+                NewCategoryScreen(groupId = args.groupId, groupName = args.groupName)
             }
 
 

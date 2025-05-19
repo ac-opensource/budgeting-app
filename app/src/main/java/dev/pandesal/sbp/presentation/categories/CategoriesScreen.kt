@@ -82,6 +82,7 @@ import dev.pandesal.sbp.presentation.categories.components.CategoryBudgetPieChar
 import dev.pandesal.sbp.presentation.goals.GoalsViewModel
 import dev.pandesal.sbp.domain.model.Goal
 import dev.pandesal.sbp.presentation.goals.GoalsUiState
+import dev.pandesal.sbp.presentation.LocalNavigationManager
 import java.time.temporal.ChronoUnit
 import java.time.LocalDate
 import kotlinx.coroutines.launch
@@ -96,13 +97,7 @@ private fun CategoriesListContent(
     categoriesWithBudget: List<CategoryWithBudget>,
     goals: List<Goal>,
     onAddCategoryGroup: (name: String) -> Unit,
-    onAddCategory: (
-        name: String,
-        groupId: Int,
-        isGoal: Boolean,
-        target: BigDecimal?,
-        dueDate: LocalDate?
-    ) -> Unit,
+    onAddCategory: (name: String, groupId: Int) -> Unit,
     onAddBudget: (amount: BigDecimal, categoryId: Int) -> Unit,
     reorderGroup: (from: Int, to: Int) -> Unit,
     reorderCategory: (groupId: Int, from: Int, to: Int) -> Unit,
@@ -114,9 +109,6 @@ private fun CategoriesListContent(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    var showNewCategorySheet by remember { mutableStateOf(false) }
-    var selectedGroupId by remember { mutableStateOf<Int?>(null) }
-    var selectedGroupName by remember { mutableStateOf<String?>(null) }
     var selectedCategoryId by remember { mutableStateOf<Int?>(null) }
     val newCategorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -218,10 +210,14 @@ private fun CategoriesListContent(
                                     Icon(Icons.Filled.Delete, contentDescription = "Delete Group")
                                 }
                             }
+                            val navManager = LocalNavigationManager.current
                             TextButton(onClick = {
-                                selectedGroupId = item.id
-                                selectedGroupName = item.name
-                                showNewCategorySheet = true
+                                navManager.navigate(
+                                    NavigationDestination.NewCategory(
+                                        item.id,
+                                        item.name
+                                    )
+                                )
                             }) {
                                 Text("Add Category")
                             }
@@ -257,35 +253,16 @@ private fun CategoriesListContent(
     }
 
 
-    if (showNewCategorySheet && selectedGroupId != null) {
-        NewCategoryScreen(
-            sheetState = newCategorySheetState,
-            groupId = selectedGroupId!!,
-            groupName = selectedGroupName ?: "",
-            onSubmit = { name, groupId, isGoal, target, date ->
-                onAddCategory(name, groupId, isGoal, target, date)
-                showNewCategorySheet = false
-                selectedGroupId = null
-                selectedGroupName = null
-            },
-            onCancel = {
-                showNewCategorySheet = false
-                selectedGroupId = null
-                selectedGroupName = null
-            },
-            onDismissRequest = {
-                showNewCategorySheet = false
-                selectedGroupId = null
-                selectedGroupName = null
-            }
-        )
-    }
-
     if (showSetBudgetSheet) {
         SetBudgetSheet(
             initialAmount = budgetTargetAmount,
-            onSubmit = { amount ->
-                onAddBudget(amount, selectedCategoryId!!)
+            onSubmit = { amount, isGoal, date ->
+                if (isGoal) {
+                    val name = state.categoriesWithBudget.firstOrNull { it.category.id == selectedCategoryId }?.category?.name ?: ""
+                    goalsViewModel.addGoal(name, amount, dueDate = date)
+                } else {
+                    onAddBudget(amount, selectedCategoryId!!)
+                }
                 budgetTargetAmount = amount
                 showSetBudgetSheet = false
             },
@@ -319,7 +296,7 @@ private fun CategoriesListContent(
             groupName = groupList.firstOrNull { it.id == editCategory!!.categoryGroupId }?.name
                 ?: "",
             initialName = editCategory!!.name,
-            onSubmit = { name, _, _, _, _ ->
+            onSubmit = { name, _ ->
                 onEditCategory(editCategory!!, name)
                 editCategory = null
             },
@@ -528,7 +505,6 @@ fun CategoriesScreen(
         val systemBarInsets = WindowInsets.systemBars.asPaddingValues(LocalDensity.current)
         val navigationBarHeight = systemBarInsets.calculateBottomPadding()
 
-        var showNewCategoryGroup by remember { mutableStateOf(false) }
         val newGroupSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         var showTemplateDialog by remember { mutableStateOf(state.showTemplatePrompt) }
         var editMode by remember { mutableStateOf(false) }
@@ -595,7 +571,10 @@ fun CategoriesScreen(
                         TextButton(onClick = { editMode = !editMode }) {
                             Text(if (editMode) "Done" else "Edit")
                         }
-                        TextButton(onClick = { showNewCategoryGroup = true }) {
+                        val navManager = LocalNavigationManager.current
+                        TextButton(onClick = {
+                            navManager.navigate(NavigationDestination.NewCategoryGroup)
+                        }) {
                             Text("Add Category Group")
                         }
                         IconButton(
@@ -631,11 +610,8 @@ fun CategoriesScreen(
                     categoriesWithBudget = state.categoriesWithBudget,
                     goals = goals,
                     onAddCategoryGroup = { name -> viewModel.createCategoryGroup(name) },
-                    onAddCategory = { name, groupId, isGoal, target, date ->
+                    onAddCategory = { name, groupId ->
                         viewModel.createCategory(name, groupId)
-                        if (isGoal && target != null) {
-                            goalsViewModel.addGoal(name, target, dueDate = date)
-                        }
                     },
                     onAddBudget = { amount, categoryId ->
                         viewModel.setBudgetForCategory(
@@ -694,16 +670,5 @@ fun CategoriesScreen(
             }
         }
 
-        if (showNewCategoryGroup) {
-            NewCategoryGroupScreen(
-                sheetState = newGroupSheetState,
-                onSubmit = {
-                    viewModel.createCategoryGroup(it)
-                    showNewCategoryGroup = false
-                },
-                onCancel = { showNewCategoryGroup = false },
-                onDismissRequest = { showNewCategoryGroup = false }
-            )
-        }
     }
 }
