@@ -1,5 +1,6 @@
 package dev.pandesal.sbp
 
+import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.domain.model.RecurringTransaction
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
@@ -18,6 +19,7 @@ import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RecurringTransactionsViewModelTest {
+
     @get:Rule
     val dispatcherRule = MainDispatcherRule()
 

@@ -132,6 +132,10 @@ fun AppNavigation(navController: NavHostController) {
                 TransactionsScreen()
             }
 
+            composable<NavigationDestination.RecurringTransactions> {
+                RecurringTransactionsScreen()
+            }
+
             dialog<NavigationDestination.NewTransaction>(
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
             ) {

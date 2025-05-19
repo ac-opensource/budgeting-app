@@ -3,6 +3,7 @@ package dev.pandesal.sbp.presentation.transactions.recurring
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.pandesal.sbp.domain.model.RecurringTransaction
 import dev.pandesal.sbp.domain.usecase.RecurringTransactionUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +17,7 @@ class RecurringTransactionsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState =
-        MutableStateFlow<RecurringTransactionsUiState>(RecurringTransactionsUiState.Loading)
+        MutableStateFlow<RecurringTransactionsUiState>(RecurringTransactionsUiState.Initial)
     val uiState: StateFlow<RecurringTransactionsUiState> = _uiState.asStateFlow()
 
     init {
@@ -25,5 +26,9 @@ class RecurringTransactionsViewModel @Inject constructor(
                 _uiState.value = RecurringTransactionsUiState.Success(list)
             }
         }
+    }
+
+    fun remove(transaction: RecurringTransaction) {
+        viewModelScope.launch { useCase.removeRecurringTransaction(transaction) }
     }
 }
