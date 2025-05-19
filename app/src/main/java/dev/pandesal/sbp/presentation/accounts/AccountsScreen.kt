@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.AttachMoney
 import androidx.compose.material.icons.outlined.Wallet
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Button
@@ -49,23 +50,20 @@ fun AccountsScreen(
     var showNew by remember { mutableStateOf(false) }
     val navigationManager = LocalNavigationManager.current
 
-    Scaffold { padding ->
-        when (val state = uiState) {
-            is AccountsUiState.Loading -> {
-                Text("Loading...", modifier = Modifier.padding(16.dp))
-            }
-            is AccountsUiState.Success -> {
-                AccountsContent(
-                    accounts = state.accounts,
-                    onAddWallet = {
-                        navigationManager.navigate(NavigationDestination.NewAccount)
-                    },
-                    modifier = Modifier.padding(padding)
-                )
-            }
-            is AccountsUiState.Error -> {
-                Text(state.message, color = MaterialTheme.colorScheme.error)
-            }
+    when (val state = uiState) {
+        is AccountsUiState.Loading -> {
+            Text("Loading...", modifier = Modifier.padding(16.dp))
+        }
+        is AccountsUiState.Success -> {
+            AccountsContent(
+                accounts = state.accounts,
+                onAddWallet = {
+                    navigationManager.navigate(NavigationDestination.NewAccount)
+                },
+            )
+        }
+        is AccountsUiState.Error -> {
+            Text(state.message, color = MaterialTheme.colorScheme.error)
         }
     }
 }
@@ -128,4 +126,5 @@ private fun getAccountIcon(type: AccountType): ImageVector = when (type) {
     AccountType.MOBILE_DIGITAL_WALLET -> Icons.Outlined.AccountBalanceWallet
     AccountType.BANK_ACCOUNT -> Icons.Outlined.AccountBalance
     AccountType.CREDIT_CARD -> Icons.Outlined.CreditCard
+    AccountType.LOAN -> Icons.Outlined.AttachMoney
 }
