@@ -20,14 +20,15 @@ data class TransactionEntity(
     val updatedAt: String,
     val currency: String = "PHP",
     val tags: List<String> = emptyList(),
-    val from: String? = null,
-    val to: String? = null,
+    val from: Int? = null,
+    val fromAccountName: String? = null,
+    val to: Int? = null,
+    val toAccountName: String? = null,
     val merchantName: String? = null,
     val attachment: String? = null,
     val isDeleted: Boolean = false,
     val isArchived: Boolean = false,
     val location: String? = null,
-    val accountId: String,
     val transactionType: String
 )
 
@@ -40,12 +41,13 @@ fun TransactionEntity.toDomainModel(): Transaction {
         amount = amount,
         createdAt = LocalDate.parse(createdAt),
         updatedAt = LocalDate.parse(updatedAt),
-        accountId = accountId,
         transactionType = TransactionType.valueOf(transactionType),
         currency = currency,
         tags = tags,
         from = from,
+        fromAccountName = fromAccountName,
         to = to,
+        toAccountName = toAccountName,
         merchantName = merchantName,
         attachment = attachment,
         isDeleted = isDeleted,
@@ -72,7 +74,6 @@ fun Transaction.toEntity(): TransactionEntity {
         isDeleted = isDeleted,
         isArchived = isArchived,
         location = location,
-        accountId = accountId,
         transactionType = transactionType.name
     )
 }

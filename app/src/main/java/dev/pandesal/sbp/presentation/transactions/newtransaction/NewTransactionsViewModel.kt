@@ -51,7 +51,6 @@ class NewTransactionsViewModel @Inject constructor(
             amount = BigDecimal.ZERO,
             createdAt = LocalDate.now(),
             updatedAt = LocalDate.now(),
-            accountId = "", // you can update this later as needed
             transactionType = TransactionType.OUTFLOW
         )
     )
@@ -155,11 +154,6 @@ class NewTransactionsViewModel @Inject constructor(
             try {
                 if (_transaction.value.amount <= BigDecimal.ZERO) {
                     _uiState.value = NewTransactionUiState.Error("Amount is required")
-                    onResult(false)
-                    return@launch
-                }
-                if (_transaction.value.accountId.isBlank()) {
-                    _uiState.value = NewTransactionUiState.Error("Account is required")
                     onResult(false)
                     return@launch
                 }

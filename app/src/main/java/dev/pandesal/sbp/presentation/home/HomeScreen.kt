@@ -414,7 +414,8 @@ fun HomeScreenPreview() {
                         categoryType = TransactionType.OUTFLOW,
                         weight = 1
                     ),
-                    accountId = "1",
+                    from = 1,
+                    fromAccountName = "Sample Bank",
                     transactionType = TransactionType.OUTFLOW
                 ),
                 Transaction(
@@ -432,7 +433,8 @@ fun HomeScreenPreview() {
                         categoryType = TransactionType.OUTFLOW,
                         weight = 1
                     ),
-                    accountId = "1",
+                    from = 1,
+                    fromAccountName = "Sample Bank",
                     transactionType = TransactionType.INFLOW
                 )
             ),
