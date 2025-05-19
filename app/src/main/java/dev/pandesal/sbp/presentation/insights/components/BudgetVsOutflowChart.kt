@@ -38,6 +38,7 @@ import kotlin.math.max
 @Composable
 fun BudgetVsOutflowChart(
     entries: List<BudgetOutflowUiModel>,
+    subtitle: String = "This Month",
     modifier: Modifier = Modifier,
     barWidth: Dp = 16.dp
 ) {
@@ -70,7 +71,7 @@ fun BudgetVsOutflowChart(
 
             Text("Budget vs Outflow", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("This Month", style = MaterialTheme.typography.bodySmall)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.weight(1f))
             Box(
                 modifier = Modifier

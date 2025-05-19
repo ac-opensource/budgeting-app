@@ -32,6 +32,13 @@ class HomeViewModel @Inject constructor(
     init {
         _uiState.value = HomeUiState.Loading
 
+        val dummyBudgets = listOf(
+            BudgetCategoryUiModel("Groceries", 5000.0, 3200.0, "PHP"),
+            BudgetCategoryUiModel("Utilities", 3000.0, 1200.0, "PHP"),
+            BudgetCategoryUiModel("Transport", 2000.0, 1800.0, "PHP"),
+            BudgetCategoryUiModel("Dining Out", 1500.0, 800.0, "PHP"),
+        )
+
         viewModelScope.launch {
             combine(
                 categoryUseCase.getCategoriesWithLatestBudget(),
@@ -69,7 +76,8 @@ private fun dev.pandesal.sbp.domain.model.Account.toUiModel(): AccountSummaryUiM
         name = name,
         balance = balance.toDouble(),
         isSpendingWallet = isSpendingWallet,
-        isFundingWallet = isFundingWallet
+        isFundingWallet = isFundingWallet,
+        currency = currency
     )
 }
 
