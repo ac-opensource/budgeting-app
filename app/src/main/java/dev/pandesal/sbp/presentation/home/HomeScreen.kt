@@ -178,6 +178,9 @@ private fun HomeScreenContent(
                 },
                 onTransactionClick = {
 
+                },
+                onSearch = {
+                    
                 }
             )
         },
