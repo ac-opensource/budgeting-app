@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import java.time.YearMonth
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.components.TimePeriodDropdown
 import dev.pandesal.sbp.presentation.home.components.NetWorthBarChart
@@ -36,6 +37,7 @@ fun InsightsScreen(viewModel: InsightsViewModel = hiltViewModel()) {
     var cashflowPeriod by remember { mutableStateOf(period) }
     var budgetPeriod by remember { mutableStateOf(period) }
     var netWorthPeriod by remember { mutableStateOf(period) }
+    var calendarMonth by remember { mutableStateOf(YearMonth.now()) }
 
     if (state is InsightsUiState.Initial) {
         SkeletonLoader()
@@ -53,7 +55,12 @@ fun InsightsScreen(viewModel: InsightsViewModel = hiltViewModel()) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            CalendarView(data.calendarEvents)
+            val monthEvents = data.calendarEvents.filter { YearMonth.from(it.date) == calendarMonth }
+            CalendarView(
+                events = monthEvents,
+                month = calendarMonth,
+                onMonthChange = { calendarMonth = it }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
