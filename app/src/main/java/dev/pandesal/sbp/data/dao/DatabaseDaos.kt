@@ -4,4 +4,5 @@ interface DatabaseDaos {
     fun categoryDao(): CategoryDao
     fun transactionDao(): TransactionDao
     fun accountDao(): AccountDao
+    fun goalDao(): GoalDao
 }

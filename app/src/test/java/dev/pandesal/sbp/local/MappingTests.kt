@@ -2,11 +2,15 @@ package dev.pandesal.sbp.local
 
 import dev.pandesal.sbp.data.local.CategoryEntity
 import dev.pandesal.sbp.data.local.CategoryGroupEntity
+import dev.pandesal.sbp.data.local.GoalEntity
 import dev.pandesal.sbp.data.local.toDomainModel
 import dev.pandesal.sbp.data.local.toEntity
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
+import dev.pandesal.sbp.domain.model.Goal
 import dev.pandesal.sbp.domain.model.TransactionType
+import java.math.BigDecimal
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -55,5 +59,21 @@ class MappingTests {
         assertEquals(category.isSystemSet, entity.isSystemSet)
         assertEquals(category.isArchived, back.isArchived)
         assertEquals(category.isSystemSet, back.isSystemSet)
+    }
+
+    @Test
+    fun `goal mapping round trips`() {
+        val goal = Goal(
+            id = 1,
+            name = "Trip",
+            target = BigDecimal.TEN,
+            current = BigDecimal.ONE,
+            dueDate = LocalDate.now()
+        )
+
+        val entity = goal.toEntity()
+        val back = entity.toDomainModel()
+
+        assertEquals(goal, back)
     }
 }
