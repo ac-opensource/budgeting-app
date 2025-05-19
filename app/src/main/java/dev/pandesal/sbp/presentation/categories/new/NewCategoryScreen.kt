@@ -5,13 +5,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
@@ -25,6 +28,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,28 +98,68 @@ fun NewCategoryScreen(
                 }
             }
 
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Category Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column {
+                Text("Category Name")
+                ElevatedCard(
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .fillMaxWidth(),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+                ) {
+                    BasicTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    )
+                }
+            }
 
             if (selectedTab == 1) {
-                OutlinedTextField(
-                    value = targetAmount.toString(),
-                    onValueChange = { targetAmount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
-                    label = { Text("Target Amount") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text("Target Amount")
+                    ElevatedCard(
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .fillMaxWidth(),
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+                    ) {
+                        BasicTextField(
+                            value = targetAmount.toString(),
+                            onValueChange = { targetAmount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+                    }
+                }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(selectedDate?.toString() ?: "Select Due Date")
-                    IconButton(onClick = { showDatePicker = true }) { Icon(Icons.Default.Check, null) }
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text("Due Date")
+                    ElevatedCard(
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .fillMaxWidth()
+                            .clickable { showDatePicker = true },
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                selectedDate?.toString() ?: "Select Due Date",
+                                modifier = Modifier.padding(16.dp)
+                            )
+                            Icon(
+                                Icons.TwoTone.DateRange,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
+                    }
                 }
             }
 
