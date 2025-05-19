@@ -6,6 +6,8 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import dev.pandesal.sbp.domain.model.NotificationType
+import dev.pandesal.sbp.notification.InAppNotificationCenter
 
 class FinancialAppUsageService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -38,6 +40,7 @@ class FinancialAppUsageService : Service() {
             }
             InAppNotificationCenter.postNotification(
                 message = "Did you transact with $appName?",
+                type = NotificationType.TRANSACTION_SUGGESTION,
                 canCreateTransaction = true
             )
         }
