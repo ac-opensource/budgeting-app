@@ -13,8 +13,13 @@ import javax.inject.Inject
 class RecurringTransactionUseCase @Inject constructor(
     private val repository: RecurringTransactionRepositoryInterface
 ) {
+
     fun getRecurringTransactionById(id: String): Flow<RecurringTransaction> =
         repository.getRecurringTransactionById(id)
+
+    fun getRecurringTransactions(): Flow<List<RecurringTransaction>> =
+        repository.getRecurringTransactions()
+
     fun getUpcomingNotifications(
         currentDate: LocalDate = LocalDate.now(),
         withinDays: Long = 7
@@ -35,7 +40,7 @@ class RecurringTransactionUseCase @Inject constructor(
         }
     }
 
-    private fun nextDueDate(rec: dev.pandesal.sbp.domain.model.RecurringTransaction, fromDate: LocalDate): LocalDate {
+    fun nextDueDate(rec: RecurringTransaction, fromDate: LocalDate = LocalDate.now()): LocalDate {
         var due = rec.startDate
         while (!due.isAfter(fromDate)) {
             due = when (rec.interval) {
