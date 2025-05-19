@@ -1,5 +1,6 @@
 package dev.pandesal.sbp.presentation.theme
 
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import dev.pandesal.sbp.R
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -25,6 +26,7 @@ object AppFont {
 
 
 private val defaultTypography = Typography()
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 val Typography = Typography(
     displayLarge = defaultTypography.displayLarge
         .copy(fontFamily = AppFont.ManRope),
@@ -36,6 +38,7 @@ val Typography = Typography(
     headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = AppFont.ManRope),
 
     titleLarge = defaultTypography.titleLarge.copy(fontFamily = AppFont.ManRope),
+    titleLargeEmphasized = defaultTypography.titleLargeEmphasized.copy(fontFamily = AppFont.ManRope, fontWeight = FontWeight.Bold),
     titleMedium = defaultTypography.titleMedium.copy(fontFamily = AppFont.ManRope),
     titleSmall = defaultTypography.titleSmall.copy(fontFamily = AppFont.ManRope),
 

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 
 @Composable
 fun SettingsScreen(
@@ -51,7 +52,7 @@ private data class SettingItem(
 
 private enum class SettingType { SWITCH, TEXT }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SettingsContent(
     settings: dev.pandesal.sbp.domain.model.Settings,
@@ -81,7 +82,7 @@ private fun SettingsContent(
         item {
             Text(
                 text = "Settings",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.titleLargeEmphasized
             )
         }
         items(items) { item ->
