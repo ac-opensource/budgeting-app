@@ -5,4 +5,5 @@ interface DatabaseDaos {
     fun transactionDao(): TransactionDao
     fun accountDao(): AccountDao
     fun goalDao(): GoalDao
+    fun recurringTransactionDao(): RecurringTransactionDao
 }

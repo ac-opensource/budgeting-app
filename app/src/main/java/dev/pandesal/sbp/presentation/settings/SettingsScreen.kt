@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 
@@ -121,7 +122,7 @@ private fun SettingsContent(
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val currencies = listOf("PHP", "USD", "EUR", "JPY")
         ModalBottomSheet(onDismissRequest = { showCurrencySheet = false }, sheetState = sheetState) {
-            LazyColumn(modifier = Modifier.padding(16.dp)) {
+            LazyColumn(modifier = Modifier.padding(16.dp).imePadding()) {
                 items(currencies) { currency ->
                     ListItem(
                         headlineContent = { Text(currency) },
