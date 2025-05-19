@@ -54,10 +54,13 @@ fun NewGoalScreen(viewModel: GoalsViewModel = hiltViewModel()) {
     NewGoalScreen(
         onSubmit = { name, amount, date ->
             viewModel.addGoal(name, amount, dueDate = date)
-            nav.navigateUp()
         },
-        onCancel = { nav.navigateUp() },
-        onDismissRequest = { nav.navigateUp() }
+        onCancel = {
+
+        },
+        onDismissRequest = {
+            nav.navigateUp()
+        }
     )
 }
 

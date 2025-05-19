@@ -149,7 +149,7 @@ fun AppNavigation(navController: NavHostController) {
             }
 
             composable<NavigationDestination.RecurringTransactions> {
-                dev.pandesal.sbp.presentation.transactions.recurring.RecurringTransactionsScreen()
+                RecurringTransactionsScreen()
             }
 
             dialog<NavigationDestination.TransactionDetails>(

@@ -19,12 +19,13 @@ fun BudgetSummaryHeader(unassigned: Double, assigned: Double, currency: String =
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        val symbol = currency.currencySymbol()
+
         Column {
             Text("Unallocated", style = MaterialTheme.typography.labelMedium)
-            val symbol = currency.currencySymbol()
             Text(
                 text = "$symbol${unassigned.format()}",
-                style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
         }
         Column {

@@ -70,9 +70,8 @@ fun SetBudgetScreen(
             } else {
                 categoriesViewModel.setBudgetForCategory(categoryId, amount)
             }
-            nav.navigateUp()
         },
-        onCancel = { nav.navigateUp() },
+        onCancel = {  },
         onDismissRequest = { nav.navigateUp() }
     )
 }

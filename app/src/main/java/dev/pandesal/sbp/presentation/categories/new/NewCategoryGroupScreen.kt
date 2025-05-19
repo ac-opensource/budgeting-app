@@ -45,9 +45,8 @@ fun NewCategoryGroupScreen(
     NewCategoryGroupScreen(
         onSubmit = { name ->
             viewModel.createCategoryGroup(name)
-            nav.navigateUp()
         },
-        onCancel = { nav.navigateUp() },
+        onCancel = { },
         onDismissRequest = { nav.navigateUp() }
     )
 }
