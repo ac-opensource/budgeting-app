@@ -79,6 +79,7 @@ import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.categories.components.CategoryBudgetPieChart
+import dev.pandesal.sbp.presentation.home.components.BudgetSummaryHeader
 import dev.pandesal.sbp.presentation.goals.GoalsViewModel
 import dev.pandesal.sbp.domain.model.Goal
 import dev.pandesal.sbp.presentation.goals.GoalsUiState
@@ -625,6 +626,14 @@ fun CategoriesScreen(
                 Text(
                     text = "Categories & Budgets",
                     style = MaterialTheme.typography.titleLargeEmphasized
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                BudgetSummaryHeader(
+                    unassigned = state.budgetSummary.unassigned,
+                    assigned = state.budgetSummary.assigned,
+                    currency = "PHP"
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

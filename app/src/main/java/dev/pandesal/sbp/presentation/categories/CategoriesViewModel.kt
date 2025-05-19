@@ -11,6 +11,8 @@ import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
+import dev.pandesal.sbp.domain.usecase.ZeroBasedBudgetUseCase
+import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +26,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
-    private val useCase: CategoryUseCase
+    private val useCase: CategoryUseCase,
+    private val zeroBasedBudgetUseCase: ZeroBasedBudgetUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<CategoriesUiState> = MutableStateFlow(CategoriesUiState.Initial)
@@ -38,13 +41,15 @@ class CategoriesViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 useCase.getCategoryGroups(),
-                useCase.getCategoriesWithLatestBudget()
-            ) { groups, categories ->
+                useCase.getCategoriesWithLatestBudget(),
+                zeroBasedBudgetUseCase.getBudgetSummary()
+            ) { groups, categories, summary ->
                 val filtered = categories.filter { it.category.categoryType != TransactionType.INFLOW }
                 CategoriesUiState.Success(
                     categoryGroups = groups.filter { it.name.lowercase() != "inflow" && it.name.lowercase() != "transfers" },
                     categoriesWithBudget = filtered,
-                    showTemplatePrompt = categories.none { it.category.categoryType == TransactionType.OUTFLOW }
+                    showTemplatePrompt = categories.none { it.category.categoryType == TransactionType.OUTFLOW },
+                    budgetSummary = summary.toUiModel()
                 )
             }.collect { state ->
                 _uiState.value = state
@@ -169,3 +174,6 @@ class CategoriesViewModel @Inject constructor(
 
 
 }
+
+private fun dev.pandesal.sbp.domain.model.BudgetSummary.toUiModel(): BudgetSummaryUiModel =
+    BudgetSummaryUiModel(assigned, unassigned)
