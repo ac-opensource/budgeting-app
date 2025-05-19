@@ -37,10 +37,19 @@ class GoalsViewModel @Inject constructor(
         name: String,
         target: BigDecimal,
         current: BigDecimal = BigDecimal.ZERO,
-        dueDate: LocalDate? = null
+        dueDate: LocalDate? = null,
+        categoryId: Int? = null
     ) {
         viewModelScope.launch {
-            useCase.insertGoal(Goal(name = name, target = target, current = current, dueDate = dueDate))
+            useCase.insertGoal(
+                Goal(
+                    name = name,
+                    target = target,
+                    current = current,
+                    dueDate = dueDate,
+                    categoryId = categoryId
+                )
+            )
             val account = Account(name = "$name Goal Jar", type = AccountType.CASH_WALLET)
             accountUseCase.insertAccount(account)
         }

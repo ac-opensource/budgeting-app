@@ -74,7 +74,7 @@ import dev.pandesal.sbp.extensions.ReorderHapticFeedbackType
 import dev.pandesal.sbp.extensions.rememberReorderHapticFeedback
 import dev.pandesal.sbp.extensions.currencySymbol
 import dev.pandesal.sbp.extensions.format
-import dev.pandesal.sbp.presentation.categories.budget.SetBudgetSheet
+import dev.pandesal.sbp.presentation.categories.budget.SetBudgetScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
@@ -99,7 +99,6 @@ private fun CategoriesListContent(
     goals: List<Goal>,
     onAddCategoryGroup: (name: String) -> Unit,
     onAddCategory: (name: String, groupId: Int) -> Unit,
-    onAddGoal: (amount: BigDecimal, dueDate: LocalDate?) -> Unit,
     onAddBudget: (amount: BigDecimal, categoryId: Int) -> Unit,
     reorderGroup: (from: Int, to: Int) -> Unit,
     reorderCategory: (groupId: Int, from: Int, to: Int) -> Unit,
@@ -116,6 +115,8 @@ private fun CategoriesListContent(
 
     var groupList by remember { mutableStateOf(parentList) }
 
+    val navManager = LocalNavigationManager.current
+
 
     LaunchedEffect(parentList) {
         groupList = parentList
@@ -129,10 +130,6 @@ private fun CategoriesListContent(
             }
             reorderGroup(from.index, to.index)
         }
-
-    // State for Set Budget sheet
-    var showSetBudgetSheet by remember { mutableStateOf(false) }
-    var budgetTargetAmount by remember { mutableStateOf(BigDecimal.ZERO) }
 
     var editGroup by remember { mutableStateOf<CategoryGroup?>(null) }
     var editCategory by remember { mutableStateOf<Category?>(null) }
@@ -229,21 +226,23 @@ private fun CategoriesListContent(
                         ChildListContent(
                             childCategories = childCategories,
                             goals = goals,
-                            onAddBudgetClick = {
-                                selectedCategoryId = it
-                                showSetBudgetSheet = true
+                            onAddBudgetClick = { id ->
+                                navManager.navigate(
+                                    NavigationDestination.SetBudget(id, null)
+                                )
                             },
                             reorderCategory = { from, to ->
                                 reorderCategory(item.id, from, to)
                             },
                             onEditCategory = { editCategory = it },
                             onDeleteCategory = { onDeleteCategory(it) },
-                            onEditBudget = { budgetTargetAmountParam,
-                                             selectedCategoryIdParam,
-                                             showSetBudgetSheetParam ->
-                                budgetTargetAmount = budgetTargetAmountParam
-                                selectedCategoryId = selectedCategoryIdParam
-                                showSetBudgetSheet = true
+                            onEditBudget = { amount, id ->
+                                navManager.navigate(
+                                    NavigationDestination.SetBudget(
+                                        id,
+                                        amount.toString()
+                                    )
+                                )
                             },
                             editMode = editMode
                         )
@@ -254,26 +253,7 @@ private fun CategoriesListContent(
     }
 
 
-    if (showSetBudgetSheet) {
-        SetBudgetSheet(
-            initialAmount = budgetTargetAmount,
-            onSubmit = { amount, isGoal, date ->
-                if (isGoal) {
-                    onAddGoal(amount, date)
-                } else {
-                    onAddBudget(amount, selectedCategoryId!!)
-                }
-                budgetTargetAmount = amount
-                showSetBudgetSheet = false
-            },
-            onCancel = {
-                showSetBudgetSheet = false
-            },
-            onDismissRequest = {
-                showSetBudgetSheet = false
-            }
-        )
-    }
+
 
 
     if (editGroup != null) {
@@ -315,14 +295,13 @@ private fun ChildListContent(
     onEditCategory: (Category) -> Unit,
     onEditBudget: (
         budgetTargetAmount: BigDecimal,
-        selectedCategoryId: Int,
-        showSetBudgetSheet: Boolean
+        selectedCategoryId: Int
     ) -> Unit,
     onDeleteCategory: (Category) -> Unit,
     editMode: Boolean
 ) {
     var childList by remember { mutableStateOf(childCategories) }
-    val goalMap = remember(goals) { goals.associateBy { it.name } }
+    val goalMap = remember(goals) { goals.associateBy { it.categoryId } }
 
     LaunchedEffect(childCategories) {
         childList = childCategories
@@ -409,8 +388,7 @@ private fun ChildListContent(
                                     IconButton(onClick = {
                                         onEditBudget(
                                             item.budget.allocated,
-                                            item.category.id,
-                                            true
+                                            item.category.id
                                         )
                                     }) {
                                         Icon(Icons.Filled.Edit, contentDescription = "Edit Budget")
@@ -447,7 +425,7 @@ private fun ChildListContent(
                                         }
                                     }
                                 } else {
-                                    val goal = goalMap[item.category.name]
+                                    val goal = goalMap[item.category.id]
                                     if (goal != null) {
                                         Column(horizontalAlignment = Alignment.End) {
                                             goal.dueDate?.let {
@@ -621,13 +599,6 @@ fun CategoriesScreen(
                         viewModel.setBudgetForCategory(
                             categoryId,
                             amount
-                        )
-                    },
-                    onAddGoal = { amount, dueDate ->
-                        goalsViewModel.addGoal(
-                            name = "",
-                            target = amount,
-                            dueDate = dueDate
                         )
                     },
                     reorderGroup = { from, to ->
