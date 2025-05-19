@@ -56,8 +56,8 @@ class AccountsViewModel @Inject constructor(
             val account = Account(
                 name = name,
                 type = type,
-                currency = currency,
                 balance = initialBalance,
+                currency = currency,
                 contractValue = contract,
                 monthlyPayment = monthly,
                 startDate = if (contract != null && monthly != null) start else null,

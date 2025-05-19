@@ -50,23 +50,20 @@ fun AccountsScreen(
     var showNew by remember { mutableStateOf(false) }
     val navigationManager = LocalNavigationManager.current
 
-    Scaffold { padding ->
-        when (val state = uiState) {
-            is AccountsUiState.Loading -> {
-                Text("Loading...", modifier = Modifier.padding(16.dp))
-            }
-            is AccountsUiState.Success -> {
-                AccountsContent(
-                    accounts = state.accounts,
-                    onAddWallet = {
-                        navigationManager.navigate(NavigationDestination.NewAccount)
-                    },
-                    modifier = Modifier.padding(padding)
-                )
-            }
-            is AccountsUiState.Error -> {
-                Text(state.message, color = MaterialTheme.colorScheme.error)
-            }
+    when (val state = uiState) {
+        is AccountsUiState.Loading -> {
+            Text("Loading...", modifier = Modifier.padding(16.dp))
+        }
+        is AccountsUiState.Success -> {
+            AccountsContent(
+                accounts = state.accounts,
+                onAddWallet = {
+                    navigationManager.navigate(NavigationDestination.NewAccount)
+                },
+            )
+        }
+        is AccountsUiState.Error -> {
+            Text(state.message, color = MaterialTheme.colorScheme.error)
         }
     }
 }

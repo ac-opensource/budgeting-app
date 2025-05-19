@@ -56,7 +56,7 @@ fun NewAccountScreen(
 
     NewAccountScreen(
         onSubmit = { name, type, balance, currency, contractValue, monthlyPayment ->
-            viewModel.addAccount(name, type, currency, contractValue, monthlyPayment)
+            viewModel.addAccount(name, type, balance, currency, contractValue, monthlyPayment)
         },
         onCancel = { },
         onDismissRequest = {
