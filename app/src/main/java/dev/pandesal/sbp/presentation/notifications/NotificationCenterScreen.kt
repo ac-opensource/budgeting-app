@@ -26,10 +26,14 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.notification.InAppNotificationCenter
+import dev.pandesal.sbp.domain.model.NotificationType
+import dev.pandesal.sbp.presentation.components.FilterTab
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,6 +41,17 @@ import dev.pandesal.sbp.presentation.LocalNavigationManager
 fun NotificationCenterScreen() {
     val navController = LocalNavigationManager.current
     val notifications by InAppNotificationCenter.notifications.collectAsState()
+    val tabTitles = listOf(
+        "All notifications",
+        "Upcoming Bills Reminder",
+        "Transaction Suggestions"
+    )
+    val selectedIndex = remember { mutableIntStateOf(0) }
+    val filteredNotifications = when (selectedIndex.intValue) {
+        1 -> notifications.filter { it.type == NotificationType.BILL_REMINDER }
+        2 -> notifications.filter { it.type == NotificationType.TRANSACTION_SUGGESTION }
+        else -> notifications
+    }
 
     Scaffold(
         topBar = {
@@ -50,32 +65,43 @@ fun NotificationCenterScreen() {
             )
         }
     ) { padding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            items(notifications, key = { it.id }) { notif ->
-                val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
-                    if (it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart) {
-                        InAppNotificationCenter.archive(notif.id)
-                        true
-                    } else {
-                        false
-                    }
-                })
-                SwipeToDismissBox(
-                    state = dismissState,
-                    backgroundContent = {},
-                ) {
-                    NotificationItem(
-                        notification = notif,
-                        onMarkRead = { InAppNotificationCenter.markAsRead(notif.id) },
-                        onCreateTransaction = {
-                            InAppNotificationCenter.markAsRead(notif.id)
-                            navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction)
+            FilterTab(
+                selectedIndex = selectedIndex.intValue,
+                tabs = tabTitles
+            ) { index ->
+                selectedIndex.intValue = index
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(filteredNotifications, key = { it.id }) { notif ->
+                    val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
+                        if (it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart) {
+                            InAppNotificationCenter.archive(notif.id)
+                            true
+                        } else {
+                            false
                         }
-                    )
+                    })
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {},
+                    ) {
+                        NotificationItem(
+                            notification = notif,
+                            onMarkRead = { InAppNotificationCenter.markAsRead(notif.id) },
+                            onCreateTransaction = {
+                                InAppNotificationCenter.markAsRead(notif.id)
+                                navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction)
+                            }
+                        )
+                    }
                 }
             }
         }
