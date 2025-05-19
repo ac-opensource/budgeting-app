@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Tab
@@ -72,12 +73,9 @@ fun NotificationCenterScreen() {
             )
         }
 
-        TabRow(
+        PrimaryTabRow(
             selectedTabIndex = selectedIndex.intValue,
             containerColor = MaterialTheme.colorScheme.surface,
-            indicator = { tabPositions ->
-                TabRowDefaults.PrimaryIndicator(tabPositions[selectedIndex.intValue])
-            }
         ) {
             tabTitles.forEachIndexed { index, title ->
                 Tab(
