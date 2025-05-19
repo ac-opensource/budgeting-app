@@ -45,9 +45,9 @@ fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewMo
     val navController = LocalNavigationManager.current
     val notifications by viewModel.notifications.collectAsState()
     val tabTitles = listOf(
-        "All notifications",
-        "Upcoming Bills Reminder",
-        "Transaction Suggestions"
+        "All",
+        "Upcoming/Bills",
+        "Transactions"
     )
     val selectedIndex = remember { mutableIntStateOf(0) }
     val filteredNotifications = when (selectedIndex.intValue) {

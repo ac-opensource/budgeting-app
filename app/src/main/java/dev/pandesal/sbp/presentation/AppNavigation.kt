@@ -13,6 +13,8 @@ import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.accounts.AccountsScreen
 import dev.pandesal.sbp.presentation.accounts.NewAccountScreen
+import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
+import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
@@ -50,6 +52,10 @@ sealed class NavigationDestination() {
     @Serializable
     data object NewRecurringTransaction : NavigationDestination()
     @Serializable
+    data object NewCategoryGroup : NavigationDestination()
+    @Serializable
+    data class NewCategory(val groupId: Int, val groupName: String) : NavigationDestination()
+    @Serializable
     data class TransactionDetails(val transactionId: String) : NavigationDestination()
 
 }
@@ -85,6 +91,19 @@ fun AppNavigation(navController: NavHostController) {
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
             ) {
                 NewGoalScreen()
+            }
+
+            dialog<NavigationDestination.NewCategoryGroup>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                NewCategoryGroupScreen()
+            }
+
+            dialog<NavigationDestination.NewCategory>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+            ) { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationDestination.NewCategory>()
+                NewCategoryScreen(groupId = args.groupId, groupName = args.groupName)
             }
 
 

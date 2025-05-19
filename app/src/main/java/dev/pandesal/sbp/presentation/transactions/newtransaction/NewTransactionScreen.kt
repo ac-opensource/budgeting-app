@@ -83,6 +83,8 @@ import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
@@ -174,6 +176,25 @@ private fun NewTransactionScreen(
     onCancel: () -> Unit,
     onUpdate: (Transaction) -> Unit
 ) {
+    val navManager = LocalNavigationManager.current
+
+    if (accounts.isEmpty()) {
+        AlertDialog(
+            onDismissRequest = {
+                navManager.navigateUp()
+                navManager.navigate(NavigationDestination.Accounts)
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    navManager.navigateUp()
+                    navManager.navigate(NavigationDestination.Accounts)
+                }) { Text("Add Account") }
+            },
+            title = { Text("No Accounts") },
+            text = { Text("Please add an account first.") }
+        )
+        return
+    }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = transaction.createdAt.atStartOfDay(ZoneId.systemDefault())
             .toInstant().toEpochMilli()
@@ -710,7 +731,7 @@ private fun NewTransactionScreen(
                 floatingActionButton = {
                     FloatingToolbarDefaults.VibrantFloatingActionButton(
                         onClick = {
-                            onSave(transaction)
+                            onSave(transaction, isRecurring, selectedInterval, cutoffDays)
                         },
                     ) {
                         Icon(Icons.Default.Check, "Localized description")
