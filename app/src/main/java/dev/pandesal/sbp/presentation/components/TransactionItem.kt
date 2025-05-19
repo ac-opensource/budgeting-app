@@ -16,9 +16,12 @@ import dev.pandesal.sbp.domain.model.Transaction
 import java.math.BigDecimal
 
 @Composable
-fun TransactionItem(tx: Transaction) {
+fun TransactionItem(
+    tx: Transaction,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp)
     ) {
