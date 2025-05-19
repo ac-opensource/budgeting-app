@@ -80,6 +80,9 @@ import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.categories.components.CategoryBudgetPieChart
 import dev.pandesal.sbp.presentation.goals.GoalsViewModel
+import dev.pandesal.sbp.domain.model.Goal
+import dev.pandesal.sbp.presentation.goals.GoalsUiState
+import java.time.temporal.ChronoUnit
 import java.time.LocalDate
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
@@ -91,6 +94,7 @@ import java.math.BigDecimal
 private fun CategoriesListContent(
     parentList: List<CategoryGroup>,
     categoriesWithBudget: List<CategoryWithBudget>,
+    goals: List<Goal>,
     onAddCategoryGroup: (name: String) -> Unit,
     onAddCategory: (
         name: String,
@@ -118,7 +122,6 @@ private fun CategoriesListContent(
 
     var groupList by remember { mutableStateOf(parentList) }
 
-    val goalsViewModel: GoalsViewModel = hiltViewModel()
 
     LaunchedEffect(parentList) {
         groupList = parentList
@@ -227,6 +230,7 @@ private fun CategoriesListContent(
 
                         ChildListContent(
                             childCategories = childCategories,
+                            goals = goals,
                             onAddBudgetClick = {
                                 selectedCategoryId = it
                                 showSetBudgetSheet = true
@@ -328,6 +332,7 @@ private fun CategoriesListContent(
 @Composable
 private fun ChildListContent(
     childCategories: List<CategoryWithBudget>,
+    goals: List<Goal>,
     onAddBudgetClick: (categoryId: Int) -> Unit,
     reorderCategory: (from: Int, to: Int) -> Unit,
     onEditCategory: (Category) -> Unit,
@@ -340,6 +345,7 @@ private fun ChildListContent(
     editMode: Boolean
 ) {
     var childList by remember { mutableStateOf(childCategories) }
+    val goalMap = remember(goals) { goals.associateBy { it.name } }
 
     LaunchedEffect(childCategories) {
         childList = childCategories
@@ -463,15 +469,26 @@ private fun ChildListContent(
                                         }
                                     }
                                 } else {
-                                    TextButton(
-                                        onClick = {
-                                            onAddBudgetClick(item.category.id)
-                                        },
-                                        colors = ButtonDefaults.textButtonColors(
-                                            contentColor = MaterialTheme.colorScheme.onTertiary
-                                        )
-                                    ) {
-                                        Text("Set Budget")
+                                    val goal = goalMap[item.category.name]
+                                    if (goal != null) {
+                                        Column(horizontalAlignment = Alignment.End) {
+                                            goal.dueDate?.let {
+                                                val months = ChronoUnit.MONTHS.between(LocalDate.now().withDayOfMonth(1), it.withDayOfMonth(1)).toInt()
+                                                Text("Due: ${it}")
+                                                Text("$months months left")
+                                            }
+                                        }
+                                    } else {
+                                        TextButton(
+                                            onClick = {
+                                                onAddBudgetClick(item.category.id)
+                                            },
+                                            colors = ButtonDefaults.textButtonColors(
+                                                contentColor = MaterialTheme.colorScheme.onTertiary
+                                            )
+                                        ) {
+                                            Text("Set Budget")
+                                        }
                                     }
                                 }
                             }
@@ -493,12 +510,14 @@ fun CategoriesScreen(
     goalsViewModel: GoalsViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState()
+    val goalsState = goalsViewModel.uiState.collectAsState()
     val haptic = rememberReorderHapticFeedback()
 
     if (uiState.value is CategoriesUiState.Initial) {
         SkeletonLoader()
     } else if (uiState.value is CategoriesUiState.Success) {
         val state = uiState.value as CategoriesUiState.Success
+        val goals = (goalsState.value as? GoalsUiState.Success)?.goals ?: emptyList()
 
         val scaffoldState = rememberBottomSheetScaffoldState()
         val scope = rememberCoroutineScope()
@@ -610,6 +629,7 @@ fun CategoriesScreen(
                 CategoriesListContent(
                     parentList = state.categoryGroups,
                     categoriesWithBudget = state.categoriesWithBudget,
+                    goals = goals,
                     onAddCategoryGroup = { name -> viewModel.createCategoryGroup(name) },
                     onAddCategory = { name, groupId, isGoal, target, date ->
                         viewModel.createCategory(name, groupId)
