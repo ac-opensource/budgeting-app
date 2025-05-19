@@ -38,9 +38,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun NewCategoryScreen(
     sheetState: SheetState = rememberModalBottomSheetState(),
     groupId: Int,

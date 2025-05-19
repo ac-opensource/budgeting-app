@@ -258,9 +258,6 @@ private fun CategoriesListContent(
             groupName = selectedGroupName ?: "",
             onSubmit = { name, groupId, isGoal, target, date ->
                 onAddCategory(name, groupId, isGoal, target, date)
-                if (isGoal && target != null) {
-                    goalsViewModel.addGoal(name, target, dueDate = date)
-                }
                 showNewCategorySheet = false
                 selectedGroupId = null
                 selectedGroupName = null
@@ -490,7 +487,8 @@ private fun ChildListContent(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun CategoriesScreen(
-    viewModel: CategoriesViewModel = hiltViewModel()
+    viewModel: CategoriesViewModel = hiltViewModel(),
+    goalsViewModel: GoalsViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState()
     val haptic = rememberReorderHapticFeedback()
