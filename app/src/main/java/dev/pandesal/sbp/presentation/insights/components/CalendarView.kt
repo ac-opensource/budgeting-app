@@ -30,7 +30,7 @@ fun CalendarView(
     val today = LocalDate.now()
     val monthStart = today.withDayOfMonth(1)
     val daysInMonth = today.lengthOfMonth()
-    val firstDayOffset = (monthStart.dayOfWeek.value % 7)
+    val firstDayOffset = monthStart.dayOfWeek.ordinal
     val grouped = events.groupBy { it.date }
 
     Card(

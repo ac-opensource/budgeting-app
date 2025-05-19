@@ -49,10 +49,11 @@ class InsightsViewModel @Inject constructor(
             combine(
                 transactionUseCase.getAllTransactions(),
                 categoryUseCase.getMonthlyBudgetsByYearMonth(YearMonth.now()),
-                accountUseCase.getAccounts(),
-                _period
-            ) { transactions, budgets, accounts, period ->
-                val cashflow = groupTransactionsByPeriod(transactions, period)
+                accountUseCase.getAccounts()
+            ) { transactions, budgets, accounts ->
+                val cashflowByPeriod = TimePeriod.values().associateWith { p ->
+                    groupTransactionsByPeriod(transactions, p)
+                }
 
                 val totalBudget = budgets.sumOf { it.allocated.toDouble() }
                 val totalSpent = budgets.sumOf { it.spent.toDouble() }
@@ -78,7 +79,7 @@ class InsightsViewModel @Inject constructor(
                 }
 
                 InsightsUiState.Success(
-                    cashflow,
+                    cashflowByPeriod,
                     budgetVsOutflow,
                     netWorth,
                     calendarEvents

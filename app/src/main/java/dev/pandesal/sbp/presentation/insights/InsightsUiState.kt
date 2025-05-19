@@ -9,7 +9,7 @@ sealed interface InsightsUiState {
     data object Initial : InsightsUiState
     data object Loading : InsightsUiState
     data class Success(
-        val cashflow: List<CashflowUiModel>,
+        val cashflowByPeriod: Map<TimePeriod, List<CashflowUiModel>>,
         val budgetVsOutflow: List<BudgetOutflowUiModel>,
         val netWorthData: List<NetWorthUiModel>,
         val calendarEvents: List<CalendarEvent>
