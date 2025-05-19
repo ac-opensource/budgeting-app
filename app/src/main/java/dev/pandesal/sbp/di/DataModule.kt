@@ -16,11 +16,13 @@ import dev.pandesal.sbp.data.repository.TransactionRepository
 import dev.pandesal.sbp.data.repository.AccountRepository
 import dev.pandesal.sbp.data.repository.GoalRepository
 import dev.pandesal.sbp.data.repository.SettingsRepository
+import dev.pandesal.sbp.data.repository.RecurringTransactionRepository
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
 import dev.pandesal.sbp.domain.repository.GoalRepositoryInterface
 import dev.pandesal.sbp.domain.repository.SettingsRepositoryInterface
+import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -98,6 +100,12 @@ object DataModule {
         @ApplicationContext context: Context
     ): SettingsRepositoryInterface {
         return SettingsRepository(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideRecurringTransactionRepository(): RecurringTransactionRepositoryInterface {
+        return RecurringTransactionRepository()
     }
 
 
