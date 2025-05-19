@@ -13,6 +13,8 @@ import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
+import dev.pandesal.sbp.domain.usecase.RecurringTransactionUseCase
+import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.presentation.categories.CategoriesUiState
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +34,8 @@ import javax.inject.Inject
 class NewTransactionsViewModel @Inject constructor(
     private val transactionUseCase: TransactionUseCase,
     private val categoryUseCase: CategoryUseCase,
-    private val accountUseCase: AccountUseCase
+    private val accountUseCase: AccountUseCase,
+    private val recurringTransactionUseCase: RecurringTransactionUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NewTransactionUiState>(NewTransactionUiState.Initial)
@@ -142,10 +145,39 @@ class NewTransactionsViewModel @Inject constructor(
         )
     }
 
-    fun saveTransaction(onResult: (Boolean) -> Unit = {}) {
+    fun saveTransaction(
+        isRecurring: Boolean,
+        interval: RecurringInterval,
+        cutoffDays: Int,
+        onResult: (Boolean) -> Unit = {}
+    ) {
         viewModelScope.launch {
             try {
+                if (_transaction.value.amount <= BigDecimal.ZERO) {
+                    _uiState.value = NewTransactionUiState.Error("Amount is required")
+                    onResult(false)
+                    return@launch
+                }
+                if (_transaction.value.accountId.isBlank()) {
+                    _uiState.value = NewTransactionUiState.Error("Account is required")
+                    onResult(false)
+                    return@launch
+                }
+                if (_transaction.value.category == null) {
+                    _uiState.value = NewTransactionUiState.Error("Category is required")
+                    onResult(false)
+                    return@launch
+                }
+
                 transactionUseCase.insert(_transaction.value)
+                if (isRecurring) {
+                    val recurring = dev.pandesal.sbp.domain.model.RecurringTransaction(
+                        transaction = _transaction.value,
+                        interval = interval,
+                        cutoffDays = cutoffDays
+                    )
+                    recurringTransactionUseCase.addRecurringTransaction(recurring)
+                }
                 onResult(true)
             } catch (e: Exception) {
                 _uiState.value = NewTransactionUiState.Error("Save failed: ${e.localizedMessage}")

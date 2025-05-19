@@ -4,6 +4,7 @@ import dev.pandesal.sbp.domain.model.Notification
 import dev.pandesal.sbp.domain.model.NotificationType
 import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
+import dev.pandesal.sbp.domain.model.RecurringTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
@@ -43,5 +44,13 @@ class RecurringTransactionUseCase @Inject constructor(
             }
         }
         return due
+    }
+
+    suspend fun addRecurringTransaction(transaction: RecurringTransaction) {
+        repository.addRecurringTransaction(transaction)
+    }
+
+    suspend fun removeRecurringTransaction(transaction: RecurringTransaction) {
+        repository.removeRecurringTransaction(transaction)
     }
 }
