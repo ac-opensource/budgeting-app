@@ -87,7 +87,7 @@ private fun dev.pandesal.sbp.domain.model.NetWorthRecord.toUiModel(): NetWorthUi
 private fun dev.pandesal.sbp.domain.model.CategoryWithBudget.toBudgetUiModel(): BudgetCategoryUiModel {
     val allocated = budget?.allocated?.toDouble() ?: 0.0
     val spent = budget?.spent?.toDouble() ?: 0.0
-    return BudgetCategoryUiModel(category.name, allocated, spent)
+    return BudgetCategoryUiModel(category.name, allocated, spent, budget?.currency ?: "PHP")
 }
 
 private fun dev.pandesal.sbp.domain.model.BudgetSummary.toUiModel(): BudgetSummaryUiModel =

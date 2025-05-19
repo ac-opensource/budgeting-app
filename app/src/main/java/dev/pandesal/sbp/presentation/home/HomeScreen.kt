@@ -287,7 +287,7 @@ private fun HomeScreenContent(
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            BudgetSummaryHeader(unassigned = unassigned, assigned = assigned)
+//            BudgetSummaryHeader(unassigned = unassigned, assigned = assigned)
             val thickStrokeWidth = with(LocalDensity.current) { 8.dp.toPx() }
             val thickStroke =
                 remember(thickStrokeWidth) {
@@ -304,12 +304,13 @@ private fun HomeScreenContent(
             ) {
 
                 displayCategories.forEachIndexed { index, (label, percent) ->
+                    if (percent < 0) return@forEachIndexed
                     LinearWavyProgressIndicator(
                         progress = {
                             1f
                         },
                         modifier = Modifier
-                            .weight(percent.toFloat())
+                            .weight( percent.coerceAtLeast(0.1).toFloat())
                             .fillMaxHeight(),
                         amplitude = {
                             1f

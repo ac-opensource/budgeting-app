@@ -54,7 +54,7 @@ fun TransactionsScreen(
             state.transactions,
             onNewTransactionClick = { navManager.navigate(NavigationDestination.NewTransaction) },
             onTransactionClick = { transaction ->
-                navManager.navigate(NavigationDestination.TransactionDetails(transaction))
+                navManager.navigate(NavigationDestination.TransactionDetails(transaction.id))
             }
         )
     }

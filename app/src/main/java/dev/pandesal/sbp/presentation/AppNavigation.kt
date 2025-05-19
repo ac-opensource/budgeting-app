@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
-import androidx.navigation.compose.navArgs
+import androidx.navigation.toRoute
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.accounts.AccountsScreen
@@ -48,7 +48,7 @@ sealed class NavigationDestination() {
     @Serializable
     data object NewRecurringTransaction : NavigationDestination()
     @Serializable
-    data class TransactionDetails(val transaction: Transaction) : NavigationDestination()
+    data class TransactionDetails(val transactionId: String) : NavigationDestination()
 
 }
 
@@ -99,9 +99,9 @@ fun AppNavigation(navController: NavHostController) {
             dialog<NavigationDestination.TransactionDetails>(
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
             ) { backStackEntry ->
-                val args = backStackEntry.navArgs<NavigationDestination.TransactionDetails>()
+                val args = backStackEntry.toRoute<NavigationDestination.TransactionDetails>()
                 TransactionDetailsScreen(
-                    transaction = args.transaction,
+                    transactionId = args.transactionId,
                     onDismiss = { navController.navigateUp() },
                     onSave = { navController.navigateUp() }
                 )

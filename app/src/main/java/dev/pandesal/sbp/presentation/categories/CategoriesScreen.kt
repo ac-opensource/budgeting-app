@@ -2,6 +2,7 @@ package dev.pandesal.sbp.presentation.categories
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -70,6 +71,7 @@ import dev.pandesal.sbp.domain.model.CategoryWithBudget
 import dev.pandesal.sbp.extensions.ReorderHapticFeedbackType
 import dev.pandesal.sbp.extensions.rememberReorderHapticFeedback
 import dev.pandesal.sbp.extensions.currencySymbol
+import dev.pandesal.sbp.extensions.format
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetSheet
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
@@ -77,9 +79,7 @@ import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.categories.components.CategoryBudgetPieChart
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.detectReorderAfterLongPress
 import sh.calvin.reorderable.rememberReorderableLazyListState
-import sh.calvin.reorderable.reorderable
 import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -130,23 +130,25 @@ private fun CategoriesListContent(
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .reorderable(reorderableLazyGroupsColumnState)
-                .detectReorderAfterLongPress(reorderableLazyGroupsColumnState),
+            modifier = Modifier.fillMaxSize(),
             state = lazyGroupsState,
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             itemsIndexed(groupList, key = { _, item -> item.id }) { index, item ->
                 ReorderableItem(reorderableLazyGroupsColumnState, item.id) {
+                    val interactionSource = remember { MutableInteractionSource() }
                     val childCategories =
                         categoriesWithBudget.filter { it.category.categoryGroupId == item.id }
                     Card(
                         onClick = {},
                         modifier = Modifier
                             .wrapContentHeight()
-                            .detectReorderAfterLongPress(reorderableLazyGroupsColumnState)
+                            .longPressDraggableHandle(
+                                onDragStarted = {},
+                                onDragStopped = {},
+                                interactionSource = interactionSource,
+                            )
                             .semantics {
                                 customActions = listOf(
                                     CustomAccessibilityAction(
@@ -176,7 +178,8 @@ private fun CategoriesListContent(
                                         }
                                     ),
                                 )
-                            }
+                            },
+                        interactionSource = interactionSource,
                     ) {
                         Row(
                             Modifier.fillMaxSize(),
@@ -341,22 +344,25 @@ private fun ChildListContent(
         LazyColumn(
             modifier = Modifier
                 .height((68 * childList.size).dp + 16.dp)
-                .fillMaxWidth()
-                .reorderable(reorderableLazyCategoriesColumnState)
-                .detectReorderAfterLongPress(reorderableLazyCategoriesColumnState),
+                .fillMaxWidth(),
             state = lazyCategoriesListState,
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             itemsIndexed(childList, key = { _, item -> item.category.id }) { index, item ->
                 ReorderableItem(reorderableLazyCategoriesColumnState, item.category.id) {
+                    val interactionSource = remember { MutableInteractionSource() }
                     Card(
                         onClick = {},
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .height(60.dp)
-                            .detectReorderAfterLongPress(reorderableLazyCategoriesColumnState)
+                            .longPressDraggableHandle(
+                                onDragStarted = {},
+                                onDragStopped = {},
+                                interactionSource = interactionSource,
+                            )
                             .semantics {
                                 customActions = listOf(
                                     CustomAccessibilityAction(
@@ -386,7 +392,8 @@ private fun ChildListContent(
                                         }
                                     ),
                                 )
-                            }
+                            },
+                        interactionSource = interactionSource,
                     ) {
                         Row(
                             Modifier.fillMaxSize(),

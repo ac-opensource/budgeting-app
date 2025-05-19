@@ -19,8 +19,16 @@ class TransactionDetailsViewModel @Inject constructor(
     private val _transaction = MutableStateFlow<Transaction?>(null)
     val transaction: StateFlow<Transaction?> = _transaction.asStateFlow()
 
-    fun setTransaction(tx: Transaction) {
-        _transaction.value = tx
+    fun getTransactionById(id: String) {
+        viewModelScope.launch {
+            useCase.getTransactionById(id).collect {
+                _transaction.value = it
+            }
+        }
+    }
+
+    fun setTransaction(txId: String) {
+        getTransactionById(txId)
     }
 
     fun updateTransaction(tx: Transaction) {
