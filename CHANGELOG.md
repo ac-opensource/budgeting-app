@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2025-05-19
+### Added
+- Transaction details screen with edit and save functionality.
+
 ## [0.11.0] - 2025-05-19
 ### Added
 - Notification Center now shows sections for **All notifications**, **Upcoming Bills Reminder**, and **Transaction Suggestions**.
