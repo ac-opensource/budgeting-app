@@ -20,8 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pandesal.sbp.domain.model.RecurringInterval
+import dev.pandesal.sbp.domain.model.RecurringTransaction
 import dev.pandesal.sbp.presentation.LocalNavigationManager
-import dev.pandesal.sbp.presentation.components.TransactionItem
+import dev.pandesal.sbp.presentation.NavigationDestination
+import java.time.LocalDate
 
 @Composable
 fun RecurringTransactionsScreen(
@@ -30,32 +33,41 @@ fun RecurringTransactionsScreen(
     val navManager = LocalNavigationManager.current
     val state = viewModel.uiState.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { navManager.navigateUp() }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = null)
-            }
-            Text(
-                text = "Recurring Transactions",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(start = 8.dp)
+    if (state.value is RecurringTransactionsUiState.Success) {
+        val transactions = (state.value as RecurringTransactionsUiState.Success).transactions
+        RecurringTransactionsContent(transactions, nextDueDate = {
+            viewModel.nextDueDate(it, LocalDate.now())
+        }) { rec ->
+            navManager.navigate(
+                NavigationDestination.TransactionDetails(rec.transaction.id)
             )
         }
+    }
+}
 
-        if (state.value is RecurringTransactionsUiState.Success) {
-            val list = (state.value as RecurringTransactionsUiState.Success).transactions
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(list) { rec ->
-                    TransactionItem(
-                        tx = rec.transaction,
-                        modifier = Modifier.clickable { /* TODO: open details */ }
-                    )
+@Composable
+private fun RecurringTransactionsContent(
+    transactions: List<RecurringTransaction>,
+    nextDueDate: (RecurringTransaction) -> LocalDate,
+    onItemClick: (RecurringTransaction) -> Unit
+) {
+    LazyColumn {
+        items(transactions, key = { it.transaction.id }) { rec ->
+            Column(
+                modifier = Modifier
+                    .clickable { onItemClick(rec) }
+                    .padding(16.dp)
+            ) {
+                Text(rec.transaction.name, style = MaterialTheme.typography.titleMedium)
+                val interval = when (rec.interval) {
+                    RecurringInterval.DAILY -> "Daily"
+                    RecurringInterval.WEEKLY -> "Weekly"
+                    RecurringInterval.MONTHLY -> "Monthly"
+                    RecurringInterval.AFTER_CUTOFF -> "Monthly after cutoff"
                 }
+                Text(interval, style = MaterialTheme.typography.bodySmall)
+                val nextDate = nextDueDate(rec)
+                Text("Next on $nextDate", style = MaterialTheme.typography.bodySmall)
             }
         }
     }

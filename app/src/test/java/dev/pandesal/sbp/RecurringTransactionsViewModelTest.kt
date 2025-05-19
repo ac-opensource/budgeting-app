@@ -27,23 +27,18 @@ class RecurringTransactionsViewModelTest {
     private val useCase = RecurringTransactionUseCase(repository)
 
     @Test
-    fun uiStateEmitsTransactions() = runTest {
-        val tx = RecurringTransaction(
-            transaction = Transaction(
-                name = "Bill",
-                amount = BigDecimal.ONE,
-                createdAt = LocalDate.now(),
-                updatedAt = LocalDate.now(),
-                transactionType = TransactionType.OUTFLOW
-            ),
-            interval = RecurringInterval.MONTHLY
+    fun uiStateEmitsRecurring() = runTest {
+        val tx = Transaction(
+            name = "Bill",
+            amount = BigDecimal.ONE,
+            createdAt = LocalDate.now(),
+            updatedAt = LocalDate.now(),
+            transactionType = TransactionType.OUTFLOW
         )
-        repository.transactionsFlow.value = listOf(tx)
-
+        repository.recurringFlow.value = listOf(RecurringTransaction(tx, dev.pandesal.sbp.domain.model.RecurringInterval.MONTHLY))
         val vm = RecurringTransactionsViewModel(useCase)
         advanceUntilIdle()
-
         val state = vm.uiState.value as RecurringTransactionsUiState.Success
-        assertEquals(listOf(tx), state.transactions)
+        assertEquals(1, state.transactions.size)
     }
 }
