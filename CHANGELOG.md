@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2025-05-19
+### Changed
+- New Category Group and Category screens mirror the card layout of New Transaction.
+- Goal due date row now uses a calendar icon and is fully clickable.
+### Added
+- Categories with goals show the due date and months remaining when no budget is set.
+
 ## [0.21.0] - 2025-05-19
 ### Added
 - Progress bar for category budgets.
