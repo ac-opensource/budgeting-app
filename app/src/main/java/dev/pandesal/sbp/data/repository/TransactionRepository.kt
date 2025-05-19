@@ -143,7 +143,7 @@ class TransactionRepository @Inject constructor(
                 .firstOrNull()
                 ?.maxByOrNull { YearMonth.parse(it.yearMonth) }
 
-            val allocated = previous?.allocated ?: amount.negate()
+            val allocated = previous?.allocated ?: BigDecimal.ZERO
             val newBudget = MonthlyBudgetEntity(
                 categoryId = category.id,
                 yearMonth = month.toString(),

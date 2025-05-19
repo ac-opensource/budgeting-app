@@ -48,6 +48,9 @@ class RecurringTransactionUseCase @Inject constructor(
                 RecurringInterval.WEEKLY -> due.plusWeeks(1)
                 RecurringInterval.MONTHLY -> due.plusMonths(1)
                 RecurringInterval.AFTER_CUTOFF -> due.plusMonths(1).withDayOfMonth(rec.cutoffDays)
+                RecurringInterval.QUARTERLY -> due.plusMonths(3)
+                RecurringInterval.HALF_YEARLY -> due.plusMonths(6)
+                RecurringInterval.YEARLY -> due.plusYears(1)
             }
         }
         return due

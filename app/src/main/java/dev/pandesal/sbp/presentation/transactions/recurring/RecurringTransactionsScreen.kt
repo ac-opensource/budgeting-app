@@ -48,7 +48,7 @@ fun RecurringTransactionsScreen(
 @Composable
 private fun RecurringTransactionsContent(
     transactions: List<RecurringTransaction>,
-    nextDueDate: (RecurringTransaction) -> LocalDate,
+    nextDueDate: (RecurringTransaction) -> LocalDate?,
     onItemClick: (RecurringTransaction) -> Unit
 ) {
     LazyColumn {
@@ -63,7 +63,10 @@ private fun RecurringTransactionsContent(
                     RecurringInterval.DAILY -> "Daily"
                     RecurringInterval.WEEKLY -> "Weekly"
                     RecurringInterval.MONTHLY -> "Monthly"
-                    RecurringInterval.AFTER_CUTOFF -> "Monthly after cutoff"
+                    RecurringInterval.AFTER_CUTOFF -> "Monthly After Cutoff"
+                    RecurringInterval.QUARTERLY -> "Quarterly"
+                    RecurringInterval.HALF_YEARLY -> "Every 6 Months"
+                    RecurringInterval.YEARLY -> "Year"
                 }
                 Text(interval, style = MaterialTheme.typography.bodySmall)
                 val nextDate = nextDueDate(rec)
