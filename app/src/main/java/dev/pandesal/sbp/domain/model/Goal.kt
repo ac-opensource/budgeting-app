@@ -18,5 +18,6 @@ data class Goal(
     @Serializable(with = BigDecimalSerializer::class)
     val current: BigDecimal = BigDecimal.ZERO,
     @Serializable(with = LocalDateSerializer::class)
-    val dueDate: LocalDate? = null
+    val dueDate: LocalDate? = null,
+    val categoryId: Int? = null
 ) : Parcelable

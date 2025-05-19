@@ -12,7 +12,8 @@ data class GoalEntity(
     val name: String,
     val target: BigDecimal,
     val current: BigDecimal,
-    val dueDate: String?
+    val dueDate: String?,
+    val categoryId: Int?
 )
 
 fun GoalEntity.toDomainModel(): Goal {
@@ -21,7 +22,8 @@ fun GoalEntity.toDomainModel(): Goal {
         name = name,
         target = target,
         current = current,
-        dueDate = dueDate?.let { LocalDate.parse(it) }
+        dueDate = dueDate?.let { LocalDate.parse(it) },
+        categoryId = categoryId
     )
 }
 
@@ -31,6 +33,7 @@ fun Goal.toEntity(): GoalEntity {
         name = name,
         target = target,
         current = current,
-        dueDate = dueDate?.toString()
+        dueDate = dueDate?.toString(),
+        categoryId = categoryId
     )
 }

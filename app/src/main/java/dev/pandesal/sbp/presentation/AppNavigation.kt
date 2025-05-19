@@ -20,9 +20,12 @@ import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewRecurringTransactionScreen
+import dev.pandesal.sbp.presentation.transactions.details.TransactionDetailsScreen
+import dev.pandesal.sbp.presentation.categories.budget.SetBudgetScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
 import dev.pandesal.sbp.presentation.goals.NewGoalScreen
+import java.math.BigDecimal
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -53,6 +56,8 @@ sealed class NavigationDestination() {
     data object NewRecurringTransaction : NavigationDestination()
     @Serializable
     data object NewCategoryGroup : NavigationDestination()
+    @Serializable
+    data class SetBudget(val categoryId: Int, val amount: String? = null) : NavigationDestination()
     @Serializable
     data class NewCategory(val groupId: Int, val groupName: String) : NavigationDestination()
     @Serializable
@@ -104,6 +109,16 @@ fun AppNavigation(navController: NavHostController) {
             ) { backStackEntry ->
                 val args = backStackEntry.toRoute<NavigationDestination.NewCategory>()
                 NewCategoryScreen(groupId = args.groupId, groupName = args.groupName)
+            }
+
+            dialog<NavigationDestination.SetBudget>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+            ) { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationDestination.SetBudget>()
+                SetBudgetScreen(
+                    categoryId = args.categoryId,
+                    initialAmount = args.amount?.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                )
             }
 
 

@@ -29,7 +29,7 @@ import java.math.BigDecimal
         AccountEntity::class,
         GoalEntity::class,
         RecurringTransactionEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(BigDecimalConverter::class, ListStringConverter::class)
