@@ -70,6 +70,7 @@ import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.FilterTab
 import dev.pandesal.sbp.presentation.components.NotificationsPopup
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
+import dev.pandesal.sbp.presentation.home.components.BudgetSummaryHeader
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
@@ -110,6 +111,8 @@ fun HomeScreen(
             totalAmount = totalAmount,
             categoryPercentages = categoryPercentages,
             transactions = txState.transactions,
+            unassigned = state.budgetSummary.unassigned,
+            assigned = state.budgetSummary.assigned,
             onViewNotifications = {
                 navController.navigate(NavigationDestination.Notifications)
             }
@@ -123,6 +126,8 @@ private fun HomeScreenContent(
     totalAmount: Double,
     categoryPercentages: List<Pair<String, Double>>,
     transactions: List<Transaction>,
+    unassigned: Double,
+    assigned: Double,
     onViewNotifications: () -> Unit = {}
 ) {
     val topCategories = categoryPercentages
@@ -282,6 +287,7 @@ private fun HomeScreenContent(
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+            BudgetSummaryHeader(unassigned = unassigned, assigned = assigned)
             val thickStrokeWidth = with(LocalDensity.current) { 8.dp.toPx() }
             val thickStroke =
                 remember(thickStrokeWidth) {
@@ -425,6 +431,8 @@ fun HomeScreenPreview() {
                     transactionType = TransactionType.INFLOW
                 )
             ),
+            unassigned = 0.0,
+            assigned = 0.0,
         )
     }
 
