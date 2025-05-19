@@ -3,6 +3,7 @@ package dev.pandesal.sbp
 import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.AccountType
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
+import java.math.BigDecimal
 import dev.pandesal.sbp.fakes.FakeAccountRepository
 import dev.pandesal.sbp.presentation.accounts.AccountsUiState
 import dev.pandesal.sbp.presentation.accounts.AccountsViewModel
@@ -37,9 +38,10 @@ class AccountsViewModelTest {
     @Test
     fun addAccountInsertsAccount() = runTest {
         val vm = AccountsViewModel(useCase)
-        vm.addAccount("B", AccountType.BANK_ACCOUNT, "PHP")
+        vm.addAccount("B", AccountType.BANK_ACCOUNT, BigDecimal.TEN, "PHP")
         advanceUntilIdle()
         assertEquals(1, repository.insertedAccounts.size)
         assertEquals("B", repository.insertedAccounts[0].name)
+        assertEquals(BigDecimal.TEN, repository.insertedAccounts[0].balance)
     }
 }

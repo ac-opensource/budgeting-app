@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,9 +30,19 @@ class AccountsViewModel @Inject constructor(
         }
     }
 
-    fun addAccount(name: String, type: AccountType, currency: String = "PHP") {
+    fun addAccount(
+        name: String,
+        type: AccountType,
+        initialBalance: BigDecimal = BigDecimal.ZERO,
+        currency: String = "PHP"
+    ) {
         viewModelScope.launch {
-            val account = Account(name = name, type = type, currency = currency)
+            val account = Account(
+                name = name,
+                type = type,
+                balance = initialBalance,
+                currency = currency
+            )
             useCase.insertAccount(account)
         }
     }

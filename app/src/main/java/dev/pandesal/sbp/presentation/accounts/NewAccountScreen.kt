@@ -26,6 +26,13 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ListItem
+import androidx.compose.ui.text.input.KeyboardType
+import java.math.BigDecimal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,7 +55,9 @@ fun NewAccountScreen(
     val navigationManager = LocalNavigationManager.current
 
     NewAccountScreen(
-        onSubmit = { name, type, currency -> viewModel.addAccount(name, type, currency) },
+        onSubmit = { name, type, balance, currency ->
+            viewModel.addAccount(name, type, balance, currency)
+        },
         onCancel = { },
         onDismissRequest = {
             navigationManager.navigateUp()
@@ -60,13 +69,15 @@ fun NewAccountScreen(
 @Composable
 private fun NewAccountScreen(
     sheetState: SheetState = rememberModalBottomSheetState(),
-    onSubmit: (name: String, type: AccountType, currency: String) -> Unit,
+    onSubmit: (name: String, type: AccountType, balance: BigDecimal, currency: String) -> Unit,
     onCancel: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf(AccountType.CASH_WALLET) }
     var currency by remember { mutableStateOf("PHP") }
+    var balance by remember { mutableStateOf(BigDecimal.ZERO) }
+    var showCurrencySheet by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -109,10 +120,25 @@ private fun NewAccountScreen(
                 )
 
                 OutlinedTextField(
+                    value = balance.toString(),
+                    onValueChange = { balance = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
+                    label = { Text("Initial Balance") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
                     value = currency,
-                    onValueChange = { currency = it },
+                    onValueChange = { },
                     label = { Text("Currency") },
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .clickable { showCurrencySheet = true },
+                    readOnly = true
                 )
 
                 Row(
@@ -144,6 +170,27 @@ private fun NewAccountScreen(
             }
         }
 
+        if (showCurrencySheet) {
+            val currencySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            val currencies = listOf("PHP", "USD", "EUR", "JPY")
+            ModalBottomSheet(
+                onDismissRequest = { showCurrencySheet = false },
+                sheetState = currencySheetState
+            ) {
+                LazyColumn(modifier = Modifier.padding(16.dp)) {
+                    items(currencies) { currencyOption ->
+                        ListItem(
+                            headlineContent = { Text(currencyOption) },
+                            modifier = Modifier.clickable {
+                                currency = currencyOption
+                                showCurrencySheet = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         HorizontalFloatingToolbar(
@@ -152,7 +199,7 @@ private fun NewAccountScreen(
             floatingActionButton = {
                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                     onClick = {
-                        onSubmit(name, selectedType, currency)
+                        onSubmit(name, selectedType, balance, currency)
                         onDismissRequest()
                     }
                 ) {
