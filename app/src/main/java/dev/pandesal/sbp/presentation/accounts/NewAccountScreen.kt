@@ -80,6 +80,7 @@ private fun getAccountIcon(type: AccountType): ImageVector = when (type) {
     AccountType.CREDIT_CARD -> Icons.Outlined.CreditCard
     AccountType.LOAN -> Icons.Outlined.AttachMoney
 }
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NewAccountScreen(
@@ -160,7 +161,9 @@ private fun NewAccountScreen(
                     ) {
                         BasicTextField(
                             value = if (balance == BigDecimal.ZERO) "" else balance.toPlainString(),
-                            onValueChange = { balance = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
+                            onValueChange = {
+                                balance = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                            },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                             modifier = Modifier
@@ -282,7 +285,12 @@ private fun NewAccountScreen(
                 LazyColumn(modifier = Modifier.padding(16.dp)) {
                     items(AccountType.values()) { type ->
                         ListItem(
-                            leadingContent = { Icon(getAccountIcon(type), contentDescription = null) },
+                            leadingContent = {
+                                Icon(
+                                    getAccountIcon(type),
+                                    contentDescription = null
+                                )
+                            },
                             headlineContent = { Text(type.label()) },
                             modifier = Modifier.clickable {
                                 selectedType = type
@@ -317,26 +325,22 @@ private fun NewAccountScreen(
                 }
             },
             content = {
-                ElevatedCard(
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                         .clickable { showTypeSheet = true }
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Icon(getAccountIcon(selectedType), contentDescription = null)
-                        Text(
-                            selectedType.label(),
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                        Icon(
-                            Icons.TwoTone.ArrowDropDown,
-                            contentDescription = null,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
+                    Icon(getAccountIcon(selectedType), contentDescription = null)
+                    Text(
+                        selectedType.label(),
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                    Icon(
+                        Icons.TwoTone.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
                 }
             }
         )
