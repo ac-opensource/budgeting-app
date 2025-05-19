@@ -5,10 +5,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.22.0] - 2025-05-19
+
+## [0.24.0] - 2025-05-19
 ### Added
 - View wallet transactions in a bottom sheet when selecting an account.
 - Edit or delete an account from the bottom sheet header.
+
+## [0.23.0] - 2025-05-19
+### Added
+- Upcoming due reminders for recurring transactions in Notification Center.
+
+## [0.23.0] - 2025-05-19
+### Added
+- Default "Transfers" category group with Adjustment, Goal Contribution and Loan Payment categories.
+- New transactions default to the Adjustment category when Transfer is selected.
+- Categories with goals show the due date and months remaining when no budget is set.
+
+### Changed
+- New Category Group and Category screens mirror the card layout of New Transaction.
+- Goal due date row now uses a calendar icon and is fully clickable.
 
 ## [0.21.0] - 2025-05-19
 ### Added
