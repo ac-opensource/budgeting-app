@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.Alignment
@@ -73,7 +74,8 @@ fun NewCategoryScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(24.dp)
+                .imePadding(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(text = "Add Category to Group: $groupName")
