@@ -21,6 +21,7 @@ import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewRecurringTransactionScreen
 import dev.pandesal.sbp.presentation.transactions.details.TransactionDetailsScreen
+import dev.pandesal.sbp.presentation.transactions.recurring.RecurringTransactionsScreen
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
@@ -54,6 +55,8 @@ sealed class NavigationDestination() {
     data object NewGoal : NavigationDestination()
     @Serializable
     data object NewRecurringTransaction : NavigationDestination()
+    @Serializable
+    data object RecurringTransactions : NavigationDestination()
     @Serializable
     data object NewCategoryGroup : NavigationDestination()
     @Serializable
@@ -136,6 +139,10 @@ fun AppNavigation(navController: NavHostController) {
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
                 NewRecurringTransactionScreen()
+            }
+
+            composable<NavigationDestination.RecurringTransactions> {
+                dev.pandesal.sbp.presentation.transactions.recurring.RecurringTransactionsScreen()
             }
 
             dialog<NavigationDestination.TransactionDetails>(
