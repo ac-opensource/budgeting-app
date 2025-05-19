@@ -17,6 +17,9 @@ class RecurringTransactionRepository @Inject constructor(
     override fun getRecurringTransactions(): Flow<List<RecurringTransaction>> =
         dao.getRecurringTransactions().map { list -> list.map { it.toDomainModel() } }
 
+    override fun getRecurringTransactionById(id: String): Flow<RecurringTransaction> =
+        dao.getRecurringTransactionById(id).map { it.toDomainModel() }
+
     override suspend fun addRecurringTransaction(transaction: RecurringTransaction) {
         dao.insert(transaction.toEntity())
     }
