@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.1] - 2025-05-19
+### Changed
+- Budget/Goal toggle moved from the New Category form to the Set Budget sheet.
+- Set Budget sheet redesigned with a floating toolbar.
+
+## [0.25.0] - 2025-05-19
+### Added
+- Navigation dialogs for creating new categories and category groups.
+### Changed
+- New Category and Category Group screens now use a floating toolbar with a Budget/Goal toggle.
+
 
 ## [0.24.0] - 2025-05-19
 ### Added
