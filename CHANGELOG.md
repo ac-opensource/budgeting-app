@@ -5,34 +5,35 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.10.0] - 2025-05-21
+## [0.10.0] - 2025-05-19
 ### Added
-- Option to set an initial balance when adding an account.
-- Currency selection now uses a dropdown like in Settings.
-
-## [0.9.0] - 2025-05-21
+- Loan account type with contract value and monthly payment fields.
+- Automatic liability category creation for loans.
+- 
+## [0.9.0] - 2025-05-18
 ### Added
 - Recurring transaction options can now be selected directly from the New Transaction screen.
 
-## [0.8.0] - 2025-05-21
+
+## [0.8.0] - 2025-05-18
 ### Added
 - Graph bars now have rounded edges and display a popup with budget or net worth details when tapped.
 ### Fixed
 - Insights screen no longer crashes when data is missing.
 
-## [0.7.0] - 2025-05-21
+## [0.7.0] - 2025-05-18
 ### Added
 - Basic screen for setting recurring transactions with options for Monthly, Weekly, Daily and after cutoff date.
 - Access recurring transaction setup from the New Transaction screen.
 
-## [0.6.0] - 2025-05-21
+## [0.6.0] - 2025-05-18
 ### Added
 - Edit mode toggle on Categories screen with edit and delete buttons per group and category.
 - Budgets can now be edited from the Categories screen.
 - Budgets now store their currency alongside allocation data.
 - Currency is now stored for each account in the database.
 
-## [0.5.1] - 2025-05-21
+## [0.5.1] - 2025-05-18
 ### Fixed
 - Accounts total now calculates correctly.
 - Total amount text aligns with the add account button.
@@ -42,29 +43,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Changed
 - Added a squiggly divider for a more playful Accounts screen.
 
-## [0.5.0] - 2025-05-20
+## [0.5.0] - 2025-0518
 ### Added
 - Prompt to add default outflow categories when none exist.
 ### Changed
 - Inflow categories no longer appear in transaction or category lists and are ignored in budgets.
 
-## [0.4.0] - 2025-05-19
+## [0.4.0] - 2025-05-18
 ### Changed
 - New transaction screen elements animate sequentially when opening.
 
-## [0.3.2] - 2025-05-19
+## [0.3.2] - 2025-05-18
 ### Fixed
 - Pie chart now renders correctly in the Categories screen.
 
-## [0.3.1] - 2025-05-19
+## [0.3.1] - 2025-05-18
 ### Changed
 - Moved "Add Category Group" button to the sheet handle area on Categories screen
 
-## [0.3.1] - 2025-05-20
+## [0.3.1] - 2025-0518
 ### Changed
 - Moved "Add Wallet" button to the top of the Accounts screen so bottom controls no longer overlap.
 
-## [0.3.0] - 2025-05-19
+## [0.3.0] - 2025-05-18
 ### Added
 - Seeded an **Inflow** category group with default categories such as Salary and Allowance.
 - New transactions default to the **Salary** category when the transaction type is Inflow.
@@ -85,7 +86,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - Unit tests for ViewModels
 
-## [0.2.1] - 2025-05-19
+## [0.2.1] - 2025-05-18
 ### Fixed
 - Default transaction type selection is now Outflow.
 - New transaction dialog now fills the entire screen width.
