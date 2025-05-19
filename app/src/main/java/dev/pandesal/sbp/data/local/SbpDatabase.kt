@@ -13,8 +13,10 @@ import dev.pandesal.sbp.data.dao.AccountDao
 import dev.pandesal.sbp.data.dao.CategoryDao
 import dev.pandesal.sbp.data.dao.TransactionDao
 import dev.pandesal.sbp.data.dao.GoalDao
+import dev.pandesal.sbp.data.dao.RecurringTransactionDao
 import dev.pandesal.sbp.data.local.AccountEntity
 import dev.pandesal.sbp.data.local.GoalEntity
+import dev.pandesal.sbp.data.local.RecurringTransactionEntity
 import kotlinx.serialization.json.Json
 import java.math.BigDecimal
 
@@ -25,8 +27,9 @@ import java.math.BigDecimal
         MonthlyBudgetEntity::class,
         TransactionEntity::class,
         AccountEntity::class,
-        GoalEntity::class],
-    version = 3,
+        GoalEntity::class,
+        RecurringTransactionEntity::class],
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(BigDecimalConverter::class, ListStringConverter::class)
@@ -36,6 +39,7 @@ abstract class SbpDatabase : RoomDatabase(), DatabaseDaos {
     abstract override fun transactionDao(): TransactionDao
     abstract override fun accountDao(): AccountDao
     abstract override fun goalDao(): GoalDao
+    abstract override fun recurringTransactionDao(): RecurringTransactionDao
 
     companion object {
 

@@ -10,6 +10,7 @@ import dev.pandesal.sbp.data.dao.CategoryDao
 import dev.pandesal.sbp.data.dao.TransactionDao
 import dev.pandesal.sbp.data.dao.AccountDao
 import dev.pandesal.sbp.data.dao.GoalDao
+import dev.pandesal.sbp.data.dao.RecurringTransactionDao
 import dev.pandesal.sbp.data.local.SbpDatabase
 import dev.pandesal.sbp.data.repository.CategoryRepository
 import dev.pandesal.sbp.data.repository.TransactionRepository
@@ -63,6 +64,12 @@ object DataModule {
 
     @Singleton
     @Provides
+    fun provideRecurringTransactionDao(database: SbpDatabase): RecurringTransactionDao {
+        return database.recurringTransactionDao()
+    }
+
+    @Singleton
+    @Provides
     fun provideCategoryRepository(
         categoryDao: CategoryDao,
     ): CategoryRepositoryInterface {
@@ -104,8 +111,10 @@ object DataModule {
 
     @Singleton
     @Provides
-    fun provideRecurringTransactionRepository(): RecurringTransactionRepositoryInterface {
-        return RecurringTransactionRepository()
+    fun provideRecurringTransactionRepository(
+        dao: RecurringTransactionDao
+    ): RecurringTransactionRepositoryInterface {
+        return RecurringTransactionRepository(dao)
     }
 
 

@@ -76,4 +76,28 @@ class MappingTests {
 
         assertEquals(goal, back)
     }
+
+    @Test
+    fun `recurring transaction mapping round trips`() {
+        val domain = dev.pandesal.sbp.domain.model.RecurringTransaction(
+            transaction = dev.pandesal.sbp.domain.model.Transaction(
+                name = "Bill",
+                amount = BigDecimal.TEN,
+                createdAt = LocalDate.now(),
+                updatedAt = LocalDate.now(),
+                accountId = "1",
+                transactionType = TransactionType.OUTFLOW
+            ),
+            interval = dev.pandesal.sbp.domain.model.RecurringInterval.MONTHLY,
+            cutoffDays = 15,
+            startDate = LocalDate.now()
+        )
+
+        val entity = domain.toEntity()
+        val back = entity.toDomainModel()
+
+        assertEquals(domain.interval, back.interval)
+        assertEquals(domain.transaction.name, back.transaction.name)
+        assertEquals(domain.cutoffDays, back.cutoffDays)
+    }
 }

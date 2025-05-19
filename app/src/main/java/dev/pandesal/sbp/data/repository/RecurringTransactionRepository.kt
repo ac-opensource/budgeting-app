@@ -1,24 +1,27 @@
 package dev.pandesal.sbp.data.repository
 
+import dev.pandesal.sbp.data.dao.RecurringTransactionDao
+import dev.pandesal.sbp.data.local.toDomainModel
+import dev.pandesal.sbp.data.local.toEntity
 import dev.pandesal.sbp.domain.model.RecurringTransaction
 import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RecurringTransactionRepository @Inject constructor() : RecurringTransactionRepositoryInterface {
-    private val recurringTransactions = MutableStateFlow<List<RecurringTransaction>>(emptyList())
-
-    override fun getRecurringTransactions(): StateFlow<List<RecurringTransaction>> = recurringTransactions.asStateFlow()
+class RecurringTransactionRepository @Inject constructor(
+    private val dao: RecurringTransactionDao
+) : RecurringTransactionRepositoryInterface {
+    override fun getRecurringTransactions(): Flow<List<RecurringTransaction>> =
+        dao.getRecurringTransactions().map { list -> list.map { it.toDomainModel() } }
 
     override suspend fun addRecurringTransaction(transaction: RecurringTransaction) {
-        recurringTransactions.value = recurringTransactions.value + transaction
+        dao.insert(transaction.toEntity())
     }
 
     override suspend fun removeRecurringTransaction(transaction: RecurringTransaction) {
-        recurringTransactions.value = recurringTransactions.value - transaction
+        dao.delete(transaction.toEntity())
     }
 }
