@@ -36,12 +36,14 @@ import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.notification.InAppNotificationCenter
 import dev.pandesal.sbp.domain.model.NotificationType
 import dev.pandesal.sbp.presentation.LocalNavigationManager
+import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pandesal.sbp.presentation.notifications.NotificationCenterViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationCenterScreen() {
+fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewModel()) {
     val navController = LocalNavigationManager.current
-    val notifications by InAppNotificationCenter.notifications.collectAsState()
+    val notifications by viewModel.notifications.collectAsState()
     val tabTitles = listOf(
         "All notifications",
         "Upcoming Bills Reminder",
