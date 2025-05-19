@@ -10,6 +10,8 @@ import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
+import dev.pandesal.sbp.presentation.model.CalendarEvent
+import dev.pandesal.sbp.presentation.model.CalendarEventType
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import dev.pandesal.sbp.presentation.insights.TimePeriod
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,7 +68,21 @@ class InsightsViewModel @Inject constructor(
                     .sumOf { it.balance.toDouble() }
                 val netWorth = listOf(NetWorthUiModel("Now", assets, liabilities))
 
-                InsightsUiState.Success(cashflow, budgetVsOutflow, netWorth)
+                val calendarEvents = transactions.mapNotNull { tx ->
+                    val type = when (tx.transactionType) {
+                        TransactionType.INFLOW -> CalendarEventType.INFLOW
+                        TransactionType.OUTFLOW -> CalendarEventType.OUTFLOW
+                        else -> null
+                    }
+                    type?.let { CalendarEvent(tx.createdAt, it) }
+                }
+
+                InsightsUiState.Success(
+                    cashflow,
+                    budgetVsOutflow,
+                    netWorth,
+                    calendarEvents
+                )
             }.collect { state ->
                 _uiState.value = state
             }

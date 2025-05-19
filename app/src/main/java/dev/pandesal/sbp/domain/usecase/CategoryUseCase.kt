@@ -101,6 +101,30 @@ class CategoryUseCase @Inject constructor(
                 icon = "",
                 weight = 1,
                 isSystemSet = true
+            ),
+            CategoryGroup(
+                id = 12,
+                name = "Quality of Life Goals",
+                description = "",
+                icon = "",
+                weight = 2,
+                isSystemSet = true
+            ),
+            CategoryGroup(
+                id = 13,
+                name = "Just for Fun",
+                description = "",
+                icon = "",
+                weight = 3,
+                isSystemSet = true
+            ),
+            CategoryGroup(
+                id = 14,
+                name = "Debt Payments",
+                description = "",
+                icon = "",
+                weight = 4,
+                isSystemSet = true
             )
         )
 
@@ -108,9 +132,24 @@ class CategoryUseCase @Inject constructor(
             Category(7, "Rent", "", "", 10, TransactionType.OUTFLOW, 0, isSystemSet = true),
             Category(8, "Utilities", "", "", 10, TransactionType.OUTFLOW, 1, isSystemSet = true),
             Category(9, "Groceries", "", "", 10, TransactionType.OUTFLOW, 2, isSystemSet = true),
+            Category(13, "Phone", "", "", 10, TransactionType.OUTFLOW, 3, isSystemSet = true),
+            Category(14, "Internet", "", "", 10, TransactionType.OUTFLOW, 4, isSystemSet = true),
+            Category(15, "Insurance", "", "", 10, TransactionType.OUTFLOW, 5, isSystemSet = true),
+            Category(16, "Transportation", "", "", 10, TransactionType.OUTFLOW, 6, isSystemSet = true),
             Category(10, "Car Maintenance", "", "", 11, TransactionType.OUTFLOW, 0, isSystemSet = true),
             Category(11, "Medical", "", "", 11, TransactionType.OUTFLOW, 1, isSystemSet = true),
-            Category(12, "Clothing", "", "", 11, TransactionType.OUTFLOW, 2, isSystemSet = true)
+            Category(12, "Clothing", "", "", 11, TransactionType.OUTFLOW, 2, isSystemSet = true),
+            Category(17, "Education", "", "", 11, TransactionType.OUTFLOW, 3, isSystemSet = true),
+            Category(18, "Gifts", "", "", 11, TransactionType.OUTFLOW, 4, isSystemSet = true),
+            Category(19, "Vacation", "", "", 12, TransactionType.OUTFLOW, 0, isSystemSet = true),
+            Category(20, "Entertainment", "", "", 12, TransactionType.OUTFLOW, 1, isSystemSet = true),
+            Category(21, "Dining Out", "", "", 12, TransactionType.OUTFLOW, 2, isSystemSet = true),
+            Category(22, "Hobbies", "", "", 13, TransactionType.OUTFLOW, 0, isSystemSet = true),
+            Category(23, "Personal Care", "", "", 13, TransactionType.OUTFLOW, 1, isSystemSet = true),
+            Category(24, "Fun Money", "", "", 13, TransactionType.OUTFLOW, 2, isSystemSet = true),
+            Category(25, "Credit Card", "", "", 14, TransactionType.OUTFLOW, 0, isSystemSet = true),
+            Category(26, "Student Loan", "", "", 14, TransactionType.OUTFLOW, 1, isSystemSet = true),
+            Category(27, "Mortgage", "", "", 14, TransactionType.OUTFLOW, 2, isSystemSet = true)
         )
 
         groups.forEach { repository.insertCategoryGroup(it) }
