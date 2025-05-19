@@ -32,6 +32,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -437,7 +438,17 @@ private fun ChildListContent(
                                 if (item.budget != null) {
                                     item.budget.let {
                                         val symbol = it.currency.currencySymbol()
-                                        Text("$symbol${it.spent.format()} / $symbol${it.allocated.format()}")
+                                        Column(horizontalAlignment = Alignment.End) {
+                                            Text("$symbol${it.spent.format()} / $symbol${it.allocated.format()}")
+                                            LinearProgressIndicator(
+                                                progress = {
+                                                    if (it.allocated > BigDecimal.ZERO)
+                                                        (it.spent / it.allocated).toFloat().coerceIn(0f, 1f)
+                                                    else 0f
+                                                },
+                                                modifier = Modifier.fillMaxWidth(0.5f)
+                                            )
+                                        }
                                     }
                                 } else {
                                     TextButton(
