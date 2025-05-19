@@ -2,41 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.20.0] - 2025-05-24
+## [0.21.0] - 2025-05-19
+### Added
+- Progress bar for category budgets.
+- Creating a goal now also creates a Goal Jar account.
+- Toggle between Budget and Goal when creating a new category.
+
+## [0.20.0] - 2025-05-19
 ### Added
 - Scrollable Insights screen with individual date range dropdowns for each chart.
 - Fixed calendar alignment issues.
 
-## [0.19.9] - 2025-05-22
+## [0.19.9] - 2025-05-19
 ### Changed
 - Replaced filter tabs with a docked tab row in the Notifications screen.
 - Added sample actionable notifications.
 
-## [0.18.0] - 2025-05-23
+## [0.18.0] - 2025-05-19
 ### Changed
 - Redesigned New Account screen to mirror the New Transaction dialog.
 - Fixed currency selector and moved account type selection to a dropdown on the floating toolbar.
 - Loan accounts now toggle between **Paid Amount** and **Remaining Balance** using a switch.
 
-## [0.17.0] - 2025-05-21
+## [0.17.0] - 2025-05-19
 ### Added
 - Zero-based budgeting summary with calculation of unassigned funds on the home screen.
 
-## [0.16.0] - 2025-05-22
+
+## [0.16.0] - 2025-05-19
 ### Added
 - Ability to save financial goals for future spending or savings.
 
-## [0.15.0] - 2025-05-22
+## [0.15.0] - 2025-05-19
 ### Added
 - Toggle on Insights charts for selecting time period (daily, weekly, monthly, 3M, 6M, yearly).
 
-## [0.14.1] - 2025-05-21
+## [0.14.1] - 2025-05-19
 ### Changed
 - Category groups and categories are now movable by long pressing anywhere.
 
-## [0.14.0] - 2025-05-21
+## [0.14.0] - 2025-05-19
 ### Added
 - Calendar view showing bills and transactions in Insights screen.
 

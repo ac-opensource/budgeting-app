@@ -32,6 +32,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
@@ -78,6 +79,8 @@ import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.categories.components.CategoryBudgetPieChart
+import dev.pandesal.sbp.presentation.goals.GoalsViewModel
+import java.time.LocalDate
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -89,7 +92,13 @@ private fun CategoriesListContent(
     parentList: List<CategoryGroup>,
     categoriesWithBudget: List<CategoryWithBudget>,
     onAddCategoryGroup: (name: String) -> Unit,
-    onAddCategory: (name: String, groupId: Int) -> Unit,
+    onAddCategory: (
+        name: String,
+        groupId: Int,
+        isGoal: Boolean,
+        target: BigDecimal?,
+        dueDate: LocalDate?
+    ) -> Unit,
     onAddBudget: (amount: BigDecimal, categoryId: Int) -> Unit,
     reorderGroup: (from: Int, to: Int) -> Unit,
     reorderCategory: (groupId: Int, from: Int, to: Int) -> Unit,
@@ -108,6 +117,8 @@ private fun CategoriesListContent(
     val newCategorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var groupList by remember { mutableStateOf(parentList) }
+
+    val goalsViewModel: GoalsViewModel = hiltViewModel()
 
     LaunchedEffect(parentList) {
         groupList = parentList
@@ -247,8 +258,8 @@ private fun CategoriesListContent(
             sheetState = newCategorySheetState,
             groupId = selectedGroupId!!,
             groupName = selectedGroupName ?: "",
-            onSubmit = { name, groupId ->
-                onAddCategory(name, groupId)
+            onSubmit = { name, groupId, isGoal, target, date ->
+                onAddCategory(name, groupId, isGoal, target, date)
                 showNewCategorySheet = false
                 selectedGroupId = null
                 selectedGroupName = null
@@ -304,7 +315,7 @@ private fun CategoriesListContent(
             groupName = groupList.firstOrNull { it.id == editCategory!!.categoryGroupId }?.name
                 ?: "",
             initialName = editCategory!!.name,
-            onSubmit = { name, _ ->
+            onSubmit = { name, _, _, _, _ ->
                 onEditCategory(editCategory!!, name)
                 editCategory = null
             },
@@ -439,7 +450,17 @@ private fun ChildListContent(
                                 if (item.budget != null) {
                                     item.budget.let {
                                         val symbol = it.currency.currencySymbol()
-                                        Text("$symbol${it.spent.format()} / $symbol${it.allocated.format()}")
+                                        Column(horizontalAlignment = Alignment.End) {
+                                            Text("$symbol${it.spent.format()} / $symbol${it.allocated.format()}")
+                                            LinearProgressIndicator(
+                                                progress = {
+                                                    if (it.allocated > BigDecimal.ZERO)
+                                                        (it.spent / it.allocated).toFloat().coerceIn(0f, 1f)
+                                                    else 0f
+                                                },
+                                                modifier = Modifier.fillMaxWidth(0.5f)
+                                            )
+                                        }
                                     }
                                 } else {
                                     TextButton(
@@ -468,7 +489,8 @@ private fun ChildListContent(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 fun CategoriesScreen(
-    viewModel: CategoriesViewModel = hiltViewModel()
+    viewModel: CategoriesViewModel = hiltViewModel(),
+    goalsViewModel: GoalsViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState()
     val haptic = rememberReorderHapticFeedback()
@@ -589,7 +611,12 @@ fun CategoriesScreen(
                     parentList = state.categoryGroups,
                     categoriesWithBudget = state.categoriesWithBudget,
                     onAddCategoryGroup = { name -> viewModel.createCategoryGroup(name) },
-                    onAddCategory = { name, groupId -> viewModel.createCategory(name, groupId) },
+                    onAddCategory = { name, groupId, isGoal, target, date ->
+                        viewModel.createCategory(name, groupId)
+                        if (isGoal && target != null) {
+                            goalsViewModel.addGoal(name, target, dueDate = date)
+                        }
+                    },
                     onAddBudget = { amount, categoryId ->
                         viewModel.setBudgetForCategory(
                             categoryId,

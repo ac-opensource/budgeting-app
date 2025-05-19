@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.pandesal.sbp.domain.model.Goal
 import dev.pandesal.sbp.domain.usecase.GoalUseCase
+import dev.pandesal.sbp.domain.usecase.AccountUseCase
+import dev.pandesal.sbp.domain.model.Account
+import dev.pandesal.sbp.domain.model.AccountType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GoalsViewModel @Inject constructor(
-    private val useCase: GoalUseCase
+    private val useCase: GoalUseCase,
+    private val accountUseCase: AccountUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<GoalsUiState>(GoalsUiState.Loading)
@@ -29,9 +33,16 @@ class GoalsViewModel @Inject constructor(
         }
     }
 
-    fun addGoal(name: String, target: BigDecimal, current: BigDecimal = BigDecimal.ZERO, dueDate: LocalDate? = null) {
+    fun addGoal(
+        name: String,
+        target: BigDecimal,
+        current: BigDecimal = BigDecimal.ZERO,
+        dueDate: LocalDate? = null
+    ) {
         viewModelScope.launch {
             useCase.insertGoal(Goal(name = name, target = target, current = current, dueDate = dueDate))
+            val account = Account(name = "$name Goal Jar", type = AccountType.CASH_WALLET)
+            accountUseCase.insertAccount(account)
         }
     }
 }
