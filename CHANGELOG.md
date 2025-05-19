@@ -2,18 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
-
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.11.0] - 2025-05-19
+### Added
+- Notification Center now shows sections for **All notifications**, **Upcoming Bills Reminder**, and **Transaction Suggestions**.
 
 ## [0.10.0] - 2025-05-19
 ### Added
 - Loan account type with contract value and monthly payment fields.
 - Automatic liability category creation for loans.
-- 
+
 ## [0.9.0] - 2025-05-18
 ### Added
 - Recurring transaction options can now be selected directly from the New Transaction screen.
-
 
 ## [0.8.0] - 2025-05-18
 ### Added
