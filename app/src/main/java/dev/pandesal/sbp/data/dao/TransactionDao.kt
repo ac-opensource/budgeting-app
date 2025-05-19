@@ -44,7 +44,7 @@ interface TransactionDao {
                c.weight AS category_weight
         FROM transactions t
         INNER JOIN categories c ON t.category_id = c.id
-        WHERE t.transactionType = :transactionType AND t.accountId = :accountId
+        WHERE t.transactionType = :transactionType AND t.`from` = :accountId
     """)
     fun getTransactionsByTypeAndAccountId(transactionType: String, accountId: String): Flow<List<TransactionEntity>>
 
@@ -70,7 +70,7 @@ interface TransactionDao {
                c.weight AS category_weight
         FROM transactions t
         INNER JOIN categories c ON t.category_id = c.id
-        WHERE t.transactionType = :transactionType AND t.accountId = :accountId AND t.category_id = :categoryId
+        WHERE t.transactionType = :transactionType AND t.`from` = :accountId AND t.category_id = :categoryId
     """)
     fun getTransactionsByTypeAndAccountIdAndCategoryId(transactionType: String, accountId: String, categoryId: String): Flow<List<TransactionEntity>>
 
@@ -96,7 +96,7 @@ interface TransactionDao {
                c.weight AS category_weight
         FROM transactions t
         INNER JOIN categories c ON t.category_id = c.id
-        WHERE t.transactionType = :transactionType AND t.accountId = :accountId AND t.createdAt BETWEEN :startDate AND :endDate
+        WHERE t.transactionType = :transactionType AND t.`from` = :accountId AND t.createdAt BETWEEN :startDate AND :endDate
     """)
     fun getTransactionsByTypeAndAccountIdAndDateRange(transactionType: String, accountId: String, startDate: String, endDate: String): Flow<List<TransactionEntity>>
 
@@ -122,7 +122,7 @@ interface TransactionDao {
                c.weight AS category_weight
         FROM transactions t
         INNER JOIN categories c ON t.category_id = c.id
-        WHERE t.accountId = :accountId
+        WHERE t.`from` = :accountId
     """)
     fun getTransactionsByAccountId(accountId: String): Flow<List<TransactionEntity>>
 
@@ -161,7 +161,7 @@ interface TransactionDao {
                c.weight AS category_weight
         FROM transactions t
         INNER JOIN categories c ON t.category_id = c.id
-        WHERE t.createdAt BETWEEN :startDate AND :endDate AND t.accountId = :accountId
+        WHERE t.createdAt BETWEEN :startDate AND :endDate AND t.`from` = :accountId
     """)
     fun getTransactionsByDateRangeAndAccountId(startDate: String, endDate: String, accountId: String): Flow<List<TransactionEntity>>
 

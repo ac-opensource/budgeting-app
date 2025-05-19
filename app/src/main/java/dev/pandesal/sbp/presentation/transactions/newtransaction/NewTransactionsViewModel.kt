@@ -51,7 +51,6 @@ class NewTransactionsViewModel @Inject constructor(
             amount = BigDecimal.ZERO,
             createdAt = LocalDate.now(),
             updatedAt = LocalDate.now(),
-            accountId = "", // you can update this later as needed
             transactionType = TransactionType.OUTFLOW
         )
     )
@@ -158,11 +157,6 @@ class NewTransactionsViewModel @Inject constructor(
                     onResult(false)
                     return@launch
                 }
-                if (_transaction.value.accountId.isBlank()) {
-                    _uiState.value = NewTransactionUiState.Error("Account is required")
-                    onResult(false)
-                    return@launch
-                }
                 if (_transaction.value.category == null) {
                     _uiState.value = NewTransactionUiState.Error("Category is required")
                     onResult(false)
@@ -183,6 +177,25 @@ class NewTransactionsViewModel @Inject constructor(
                 _uiState.value = NewTransactionUiState.Error("Save failed: ${e.localizedMessage}")
                 onResult(false)
             }
+        }
+    }
+
+    fun loadTransaction(id: String) {
+        viewModelScope.launch {
+            transactionUseCase.getTransactionById(id).collect { tx ->
+                _transaction.value = tx
+            }
+        }
+    }
+
+    fun deleteTransaction(transaction: Transaction, onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            runCatching { transactionUseCase.delete(transaction) }
+                .onSuccess { onResult(true) }
+                .onFailure {
+                    _uiState.value = NewTransactionUiState.Error("Delete failed: ${it.localizedMessage}")
+                    onResult(false)
+                }
         }
     }
 }

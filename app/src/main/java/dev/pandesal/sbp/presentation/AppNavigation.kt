@@ -142,10 +142,9 @@ fun AppNavigation(navController: NavHostController) {
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
             ) { backStackEntry ->
                 val args = backStackEntry.toRoute<NavigationDestination.TransactionDetails>()
-                TransactionDetailsScreen(
+                NewTransactionScreen(
                     transactionId = args.transactionId,
-                    onDismiss = { navController.navigateUp() },
-                    onSave = { navController.navigateUp() }
+                    readOnly = true
                 )
             }
 

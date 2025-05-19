@@ -25,14 +25,15 @@ data class Transaction(
     val updatedAt: LocalDate,
     val currency: String = "PHP",
     val tags: List<String> = emptyList(),
-    val from: String? = null,
-    val to: String? = null,
+    val from: Int? = null,
+    val fromAccountName: String? = null,
+    val to: Int? = null,
+    val toAccountName: String? = null,
     val merchantName: String? = null,
     val attachment: String? = null,
     val isDeleted: Boolean = false,
     val isArchived: Boolean = false,
     val location: String? = null,
-    val accountId: String, // Track which account was used
     val transactionType: TransactionType
 ): Parcelable
 

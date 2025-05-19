@@ -42,7 +42,7 @@ class CategoriesViewModel @Inject constructor(
             ) { groups, categories ->
                 val filtered = categories.filter { it.category.categoryType != TransactionType.INFLOW }
                 CategoriesUiState.Success(
-                    categoryGroups = groups.filter { it.name.lowercase() != "inflow" },
+                    categoryGroups = groups.filter { it.name.lowercase() != "inflow" && it.name.lowercase() != "transfers" },
                     categoriesWithBudget = filtered,
                     showTemplatePrompt = categories.none { it.category.categoryType == TransactionType.OUTFLOW }
                 )
