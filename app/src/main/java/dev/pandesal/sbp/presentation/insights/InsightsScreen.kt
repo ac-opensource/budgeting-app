@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.presentation.home.components.NetWorthBarChart
 import dev.pandesal.sbp.presentation.insights.components.BudgetVsOutflowChart
 import dev.pandesal.sbp.presentation.insights.components.CashflowLineChart
+import dev.pandesal.sbp.presentation.insights.components.CalendarView
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
@@ -33,6 +34,8 @@ fun InsightsScreen(viewModel: InsightsViewModel = hiltViewModel()) {
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
+            CalendarView(data.calendarEvents)
+            Spacer(modifier = Modifier.height(16.dp))
             CashflowLineChart(data.cashflow)
             Spacer(modifier = Modifier.height(16.dp))
             BudgetVsOutflowChart(data.budgetVsOutflow)
