@@ -18,7 +18,6 @@ import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewRecurringTransactionScreen
-import dev.pandesal.sbp.presentation.transactions.details.TransactionDetailsScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
 import dev.pandesal.sbp.presentation.goals.NewGoalScreen
@@ -109,10 +108,9 @@ fun AppNavigation(navController: NavHostController) {
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
             ) { backStackEntry ->
                 val args = backStackEntry.toRoute<NavigationDestination.TransactionDetails>()
-                TransactionDetailsScreen(
+                NewTransactionScreen(
                     transactionId = args.transactionId,
-                    onDismiss = { navController.navigateUp() },
-                    onSave = { navController.navigateUp() }
+                    readOnly = true
                 )
             }
 
