@@ -23,6 +23,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - Close, edit and delete buttons now work in read-only transaction view.
 - Close button layout matches other dialogs.
 
+## [0.29.0] - 2025-05-19
+### Added
+- Display allocated and unallocated summary above budgets pie chart in Categories screen.
+
 ## [0.28.0] - 2025-05-19
 ### Added
 - Set Budget now opens as a dialog similar to New Transaction.

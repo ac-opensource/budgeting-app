@@ -84,6 +84,7 @@ import dev.pandesal.sbp.domain.model.Goal
 import dev.pandesal.sbp.presentation.goals.GoalsUiState
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
+import dev.pandesal.sbp.presentation.home.components.BudgetSummaryHeader
 import java.time.temporal.ChronoUnit
 import java.time.LocalDate
 import kotlinx.coroutines.launch
@@ -625,6 +626,13 @@ fun CategoriesScreen(
                 Text(
                     text = "Categories & Budgets",
                     style = MaterialTheme.typography.titleLargeEmphasized
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                BudgetSummaryHeader(
+                    unassigned = state.budgetSummary.unassigned,
+                    assigned = state.budgetSummary.assigned
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

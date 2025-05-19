@@ -4,6 +4,7 @@ import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.CategoryWithBudget
 import dev.pandesal.sbp.domain.model.MonthlyBudget
+import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
@@ -14,6 +15,7 @@ sealed interface CategoriesUiState {
         val categoryGroups: List<CategoryGroup>,
         val categoriesWithBudget: List<CategoryWithBudget>,
         val showTemplatePrompt: Boolean,
+        val budgetSummary: BudgetSummaryUiModel,
     ) : CategoriesUiState
     data class Error(val errorMessage: String) : CategoriesUiState
 }
