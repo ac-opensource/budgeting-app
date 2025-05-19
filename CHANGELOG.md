@@ -20,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - Budget/Goal toggle moved from the New Category form to the Set Budget sheet.
 - Set Budget sheet redesigned with a floating toolbar.
 
+## [0.26.0] - 2025-05-19
+### Added
+- Transactions now open in the New Transaction dialog with read-only fields and options to edit or delete.
+
 ## [0.25.1] - 2025-05-19
 ### Fixed
 - Dialogs now move above the soft keyboard when typing.

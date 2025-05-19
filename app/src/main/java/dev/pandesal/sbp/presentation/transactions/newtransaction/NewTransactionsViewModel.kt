@@ -185,4 +185,23 @@ class NewTransactionsViewModel @Inject constructor(
             }
         }
     }
+
+    fun loadTransaction(id: String) {
+        viewModelScope.launch {
+            transactionUseCase.getTransactionById(id).collect { tx ->
+                _transaction.value = tx
+            }
+        }
+    }
+
+    fun deleteTransaction(transaction: Transaction, onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            runCatching { transactionUseCase.delete(transaction) }
+                .onSuccess { onResult(true) }
+                .onFailure {
+                    _uiState.value = NewTransactionUiState.Error("Delete failed: ${it.localizedMessage}")
+                    onResult(false)
+                }
+        }
+    }
 }

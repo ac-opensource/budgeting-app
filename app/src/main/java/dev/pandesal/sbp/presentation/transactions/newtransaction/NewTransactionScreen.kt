@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.material.icons.twotone.Favorite
@@ -70,6 +72,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
@@ -89,22 +92,33 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun NewTransactionScreen(
+    transactionId: String? = null,
+    readOnly: Boolean = false,
     viewModel: NewTransactionsViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState()
     val navManager = LocalNavigationManager.current
 
+    LaunchedEffect(transactionId) {
+        transactionId?.let { viewModel.loadTransaction(it) }
+    }
+
     if (uiState.value is NewTransactionUiState.Initial) {
         SkeletonLoader()
     } else if (uiState.value is NewTransactionUiState.Success) {
         val state = uiState.value as NewTransactionUiState.Success
+        var editable by remember { mutableStateOf(!readOnly) }
+        var showDelete by remember { mutableStateOf(false) }
         NewTransactionScreen(
-            state.groupedCategories,
-            state.accounts,
-            state.transaction,
-            state.merchants,
-            onSave = { _, recur, interval, cutoff ->
-                viewModel.saveTransaction(recur, interval, cutoff) {
+            groupedCategories = state.groupedCategories,
+            accounts = state.accounts,
+            transaction = state.transaction,
+            merchants = state.merchants,
+            editable = editable,
+            onEdit = { editable = true },
+            onDelete = { showDelete = true },
+            onSave = {
+                viewModel.saveTransaction {
                     navManager.navigateUp()
                 }
             },
@@ -115,16 +129,35 @@ fun NewTransactionScreen(
                 viewModel.updateTransaction(it)
             }
         )
-    } else if (uiState.value is NewTransactionUiState.Error) {
-        val errorState = uiState.value as NewTransactionUiState.Error
-        AlertDialog(
-            onDismissRequest = { navManager.navigateUp() },
-            confirmButton = {
-                TextButton(onClick = { navManager.navigateUp() }) { Text("OK") }
-            },
-            title = { Text("Error") },
-            text = { Text(errorState.errorMessage) }
-        )
+
+        if (showDelete) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showDelete = false },
+                confirmButton = {
+                    androidx.compose.material3.Button(onClick = {
+                        viewModel.deleteTransaction(state.transaction) {
+                            navManager.navigateUp()
+                        }
+                        showDelete = false
+                    }) { androidx.compose.material3.Text("Delete") }
+                },
+                dismissButton = {
+                    androidx.compose.material3.Button(onClick = { showDelete = false }) {
+                        androidx.compose.material3.Text("Cancel")
+                    }
+                },
+                title = { androidx.compose.material3.Text("Delete Transaction") },
+                text = { androidx.compose.material3.Text("Are you sure you want to delete this transaction?") }
+            )
+        }
+        if (!editable) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Color.Transparent)
+                    .pointerInput(Unit) {}
+            )
+        }
     }
 }
 
@@ -136,7 +169,10 @@ private fun NewTransactionScreen(
     accounts: List<Account>,
     transaction: Transaction,
     merchants: List<String>,
-    onSave: (Transaction, Boolean, RecurringInterval, Int) -> Unit,
+    editable: Boolean,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onSave: (Transaction) -> Unit,
     onCancel: () -> Unit,
     onUpdate: (Transaction) -> Unit
 ) {
@@ -207,15 +243,16 @@ private fun NewTransactionScreen(
         showButtons = true
     }
 
-    Column(
-        modifier = Modifier
-            .background(Color.Transparent)
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-            .imePadding(),
-        verticalArrangement = Arrangement.Bottom
-    ) {
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .background(Color.Transparent)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+                .imePadding(),
+            verticalArrangement = Arrangement.Bottom
+        ) {
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -231,12 +268,26 @@ private fun NewTransactionScreen(
                     defaultElevation = 16.dp
                 ),
             ) {
-                IconButton(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .padding(4.dp),
-                    onClick = { onCancel() }) {
-                    Icon(Icons.Filled.Close, "Localized description")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(4.dp),
+                        onClick = { onCancel() }) {
+                        Icon(Icons.Filled.Close, "Localized description")
+                    }
+                    if (editable) {
+                        IconButton(onClick = { onSave(transaction) }) {
+                            Icon(Icons.Filled.Check, null)
+                        }
+                    } else {
+                        IconButton(onClick = onEdit) {
+                            Icon(Icons.Filled.Edit, null)
+                        }
+                        IconButton(onClick = onDelete) {
+                            Icon(Icons.Filled.Delete, null)
+                        }
+                    }
                 }
             }
         }
