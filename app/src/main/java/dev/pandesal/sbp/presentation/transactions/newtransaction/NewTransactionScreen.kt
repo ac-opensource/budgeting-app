@@ -31,6 +31,9 @@ import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.material.icons.twotone.Favorite
 import androidx.compose.material.icons.twotone.Wallet
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.CardDefaults
@@ -46,6 +49,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberDatePickerState
@@ -71,6 +75,7 @@ import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.model.Account
+import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
@@ -105,9 +110,6 @@ fun NewTransactionScreen(
             },
             onUpdate = {
                 viewModel.updateTransaction(it)
-            },
-            onRecurringTransactionClicked = {
-                navManager.navigate(NavigationDestination.NewRecurringTransaction)
             }
         )
     }
@@ -123,8 +125,7 @@ private fun NewTransactionScreen(
     merchants: List<String>,
     onSave: (Transaction) -> Unit,
     onCancel: () -> Unit,
-    onUpdate: (Transaction) -> Unit,
-    onRecurringTransactionClicked: () -> Unit
+    onUpdate: (Transaction) -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = transaction.createdAt.atStartOfDay(ZoneId.systemDefault())
@@ -147,6 +148,10 @@ private fun NewTransactionScreen(
     var merchantExpanded by remember { mutableStateOf(false) }
     var fromAccountExpanded by remember { mutableStateOf(false) }
     var toAccountExpanded by remember { mutableStateOf(false) }
+    var isRecurring by remember { mutableStateOf(false) }
+    var recurringExpanded by remember { mutableStateOf(false) }
+    var selectedInterval by remember { mutableStateOf(RecurringInterval.MONTHLY) }
+    var cutoffDays by remember { mutableIntStateOf(21) }
 
     // Transaction Type Tabs
     val transactionTypes =
@@ -552,6 +557,79 @@ private fun NewTransactionScreen(
                                 )
                             }
                         }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                                .clickable { isRecurring = !isRecurring },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = isRecurring,
+                                onCheckedChange = { isRecurring = it }
+                            )
+                            Text(
+                                text = "Recurring",
+                                modifier = Modifier.padding(start = 8.dp),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        if (isRecurring) {
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable { recurringExpanded = true }
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = selectedInterval.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercaseChar() },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+
+                                    Icon(
+                                        Icons.TwoTone.ArrowDropDown,
+                                        contentDescription = "Interval",
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                }
+                            }
+
+                            DropdownMenu(
+                                expanded = recurringExpanded,
+                                onDismissRequest = { recurringExpanded = false }
+                            ) {
+                                RecurringInterval.values().forEach { interval ->
+                                    DropdownMenuItem(
+                                        text = { Text(interval.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercaseChar() }) },
+                                        onClick = {
+                                            selectedInterval = interval
+                                            recurringExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+
+                            if (selectedInterval == RecurringInterval.AFTER_CUTOFF) {
+                                OutlinedTextField(
+                                    value = cutoffDays.toString(),
+                                    onValueChange = { input ->
+                                        cutoffDays = input.toIntOrNull() ?: 21
+                                    },
+                                    label = { Text("Days After Cutoff") },
+                                    modifier = Modifier
+                                        .padding(top = 16.dp)
+                                        .fillMaxWidth()
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -584,11 +662,6 @@ private fun NewTransactionScreen(
                         horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = {
-                            onRecurringTransactionClicked()
-                        }) {
-                            Icon(Icons.TwoTone.DateRange, contentDescription = "Schedule")
-                        }
 
                         val modifiers = listOf(
                             Modifier.wrapContentSize(),

@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.extensions.format
+import dev.pandesal.sbp.extensions.currencySymbol
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 
 @Composable
@@ -40,7 +41,10 @@ fun AccountCard(account: AccountSummaryUiModel) {
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            Text("₱${account.balance.format()}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "${account.currency.currencySymbol()}${account.balance.format()}",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
