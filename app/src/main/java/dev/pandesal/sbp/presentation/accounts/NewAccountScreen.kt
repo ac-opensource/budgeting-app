@@ -11,7 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material.icons.outlined.AccountBalance
+import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.AttachMoney
+import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.Wallet
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,17 +27,18 @@ import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ListItem
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.vector.ImageVector
 import java.math.BigDecimal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -41,11 +48,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.AccountType
 import dev.pandesal.sbp.presentation.LocalNavigationManager
+import dev.pandesal.sbp.extensions.label
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +72,15 @@ fun NewAccountScreen(
     )
 
 }
+
+private fun getAccountIcon(type: AccountType): ImageVector = when (type) {
+    AccountType.CASH_WALLET -> Icons.Outlined.Wallet
+    AccountType.MOBILE_DIGITAL_WALLET -> Icons.Outlined.AccountBalanceWallet
+    AccountType.BANK_ACCOUNT -> Icons.Outlined.AccountBalance
+    AccountType.CREDIT_CARD -> Icons.Outlined.CreditCard
+    AccountType.LOAN -> Icons.Outlined.AttachMoney
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NewAccountScreen(
@@ -80,6 +96,8 @@ private fun NewAccountScreen(
     var monthlyPayment by remember { mutableStateOf("") }
     var balance by remember { mutableStateOf(BigDecimal.ZERO) }
     var showCurrencySheet by remember { mutableStateOf(false) }
+    var showTypeSheet by remember { mutableStateOf(false) }
+    var paidAmount by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -114,74 +132,124 @@ private fun NewAccountScreen(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Account Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = balance.toString(),
-                    onValueChange = { balance = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
-                    label = { Text("Initial Balance") },
+                Text("Account Name", style = MaterialTheme.typography.bodyMedium)
+                ElevatedCard(
                     modifier = Modifier
+                        .padding(top = 4.dp)
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true
-                )
-
-                OutlinedTextField(
-                    value = currency,
-                    onValueChange = { },
-                    label = { Text("Currency") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-                        .clickable { showCurrencySheet = true },
-                    readOnly = true
-                )
-
-                if (selectedType == AccountType.LOAN) {
-                    OutlinedTextField(
-                        value = contractValue,
-                        onValueChange = { contractValue = it },
-                        label = { Text("Total Contract Value") },
-                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
-                    )
-                    OutlinedTextField(
-                        value = monthlyPayment,
-                        onValueChange = { monthlyPayment = it },
-                        label = { Text("Monthly Payment") },
-                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                ) {
+                    BasicTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
                     )
                 }
 
-                Row(
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
-                ) {
-                    val allTypes = AccountType.values()
-                    allTypes.forEachIndexed { index, type ->
-                        ToggleButton(
-                            checked = selectedType == type,
-                            onCheckedChange = { selectedType = type },
-                            modifier = Modifier.weight(1f),
-                            shapes = when (index) {
-                                0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                allTypes.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                                else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                            }
+                val balanceLabel = when {
+                    selectedType == AccountType.LOAN && paidAmount -> "Paid Amount"
+                    selectedType == AccountType.LOAN && !paidAmount -> "Remaining Balance"
+                    else -> "Initial Balance"
+                }
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(balanceLabel, style = MaterialTheme.typography.bodyMedium)
+                    ElevatedCard(
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .fillMaxWidth()
+                    ) {
+                        BasicTextField(
+                            value = if (balance == BigDecimal.ZERO) "" else balance.toPlainString(),
+                            onValueChange = {
+                                balance = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+                    }
+                }
+
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text("Currency", style = MaterialTheme.typography.bodyMedium)
+                    ElevatedCard(
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .fillMaxWidth()
+                            .clickable { showCurrencySheet = true }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            val label = type.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercaseChar() }
                             Text(
-                                label,
-                                color = if (selectedType == type) Color.White else Color.Black
+                                currency,
+                                modifier = Modifier.padding(16.dp),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Icon(
+                                Icons.TwoTone.ArrowDropDown,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
                             )
                         }
+                    }
+                }
+
+                if (selectedType == AccountType.LOAN) {
+                    Column(modifier = Modifier.padding(top = 16.dp)) {
+                        Text("Total Contract Value", style = MaterialTheme.typography.bodyMedium)
+                        ElevatedCard(
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .fillMaxWidth()
+                        ) {
+                            BasicTextField(
+                                value = contractValue,
+                                onValueChange = { contractValue = it },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
+                    }
+
+                    Column(modifier = Modifier.padding(top = 16.dp)) {
+                        Text("Monthly Payment", style = MaterialTheme.typography.bodyMedium)
+                        ElevatedCard(
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .fillMaxWidth()
+                        ) {
+                            BasicTextField(
+                                value = monthlyPayment,
+                                onValueChange = { monthlyPayment = it },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
+                    }
+                }
+
+                if (selectedType == AccountType.LOAN) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
+                        Text("Paid Amount")
+                        Switch(
+                            checked = paidAmount,
+                            onCheckedChange = { paidAmount = it },
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                        Text("Remaining Balance")
                     }
                 }
             }
@@ -208,6 +276,32 @@ private fun NewAccountScreen(
             }
         }
 
+        if (showTypeSheet) {
+            val typeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ModalBottomSheet(
+                onDismissRequest = { showTypeSheet = false },
+                sheetState = typeSheetState
+            ) {
+                LazyColumn(modifier = Modifier.padding(16.dp)) {
+                    items(AccountType.values()) { type ->
+                        ListItem(
+                            leadingContent = {
+                                Icon(
+                                    getAccountIcon(type),
+                                    contentDescription = null
+                                )
+                            },
+                            headlineContent = { Text(type.label()) },
+                            modifier = Modifier.clickable {
+                                selectedType = type
+                                showTypeSheet = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         HorizontalFloatingToolbar(
@@ -216,14 +310,39 @@ private fun NewAccountScreen(
             floatingActionButton = {
                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                     onClick = {
-                        onSubmit(name, selectedType, balance, currency, contractValue.ifBlank { null }, monthlyPayment.ifBlank { null })
+                        onSubmit(
+                            name,
+                            selectedType,
+                            balance,
+                            currency,
+                            contractValue.ifBlank { null },
+                            monthlyPayment.ifBlank { null }
+                        )
                         onDismissRequest()
                     }
                 ) {
                     Icon(Icons.Default.Check, contentDescription = null)
                 }
             },
-            content = {}
+            content = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable { showTypeSheet = true }
+                ) {
+                    Icon(getAccountIcon(selectedType), contentDescription = null)
+                    Text(
+                        selectedType.label(),
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                    Icon(
+                        Icons.TwoTone.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
         )
     }
 }

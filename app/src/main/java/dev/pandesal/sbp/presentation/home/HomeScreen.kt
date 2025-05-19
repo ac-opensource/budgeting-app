@@ -113,6 +113,9 @@ fun HomeScreen(
             transactions = txState.transactions,
             unassigned = state.budgetSummary.unassigned,
             assigned = state.budgetSummary.assigned,
+            onTransactionClicked = {
+                navController.navigate(NavigationDestination.TransactionDetails(it))
+            },
             onViewNotifications = {
                 navController.navigate(NavigationDestination.Notifications)
             }
@@ -128,6 +131,7 @@ private fun HomeScreenContent(
     transactions: List<Transaction>,
     unassigned: Double,
     assigned: Double,
+    onTransactionClicked: (transactionId: String) -> Unit = {},
     onViewNotifications: () -> Unit = {}
 ) {
     val topCategories = categoryPercentages
@@ -182,7 +186,7 @@ private fun HomeScreenContent(
 
                 },
                 onTransactionClick = {
-
+                    onTransactionClicked(it.id)
                 }
             )
         },

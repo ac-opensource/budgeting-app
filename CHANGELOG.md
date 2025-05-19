@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - Replaced filter tabs with a docked tab row in the Notifications screen.
 - Added sample actionable notifications.
 
+## [0.18.0] - 2025-05-23
+### Changed
+- Redesigned New Account screen to mirror the New Transaction dialog.
+- Fixed currency selector and moved account type selection to a dropdown on the floating toolbar.
+- Loan accounts now toggle between **Paid Amount** and **Remaining Balance** using a switch.
+
 ## [0.17.0] - 2025-05-21
 ### Added
 - Zero-based budgeting summary with calculation of unassigned funds on the home screen.
