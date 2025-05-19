@@ -13,6 +13,8 @@ import javax.inject.Inject
 class RecurringTransactionUseCase @Inject constructor(
     private val repository: RecurringTransactionRepositoryInterface
 ) {
+    fun getRecurringTransactions(): Flow<List<RecurringTransaction>> =
+        repository.getRecurringTransactions()
     fun getUpcomingNotifications(
         currentDate: LocalDate = LocalDate.now(),
         withinDays: Long = 7

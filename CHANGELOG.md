@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.1] - 2025-05-19
+### Added
+- FakeRecurringTransactionRepository for tests.
+- Unit tests for RecurringTransactionsViewModel and RecurringTransactionDetailsViewModel.
+
 ## [0.28.0] - 2025-05-19
 ### Added
 - Set Budget now opens as a dialog similar to New Transaction.
