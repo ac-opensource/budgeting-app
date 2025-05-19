@@ -116,6 +116,17 @@ class NewTransactionsViewModel @Inject constructor(
                     newTransaction = newTransaction.copy(category = salary)
                 }
             }
+        } else if (_transaction.value.transactionType != newTransaction.transactionType &&
+            newTransaction.transactionType == TransactionType.TRANSFER
+        ) {
+            val current = _uiState.value
+            if (current is NewTransactionUiState.Success) {
+                val adjustment = current.groupedCategories.values.flatten()
+                    .firstOrNull { it.name.equals("Adjustment", ignoreCase = true) }
+                if (adjustment != null) {
+                    newTransaction = newTransaction.copy(category = adjustment)
+                }
+            }
         }
 
         if (_transaction.value.category?.id != newTransaction.category?.id && newTransaction.category != null) {

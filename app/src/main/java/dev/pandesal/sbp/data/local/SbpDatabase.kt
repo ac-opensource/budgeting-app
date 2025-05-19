@@ -76,6 +76,18 @@ abstract class SbpDatabase : RoomDatabase(), DatabaseDaos {
                                 db.execSQL(
                                     "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (6, 'Gift', '', '', 1, 'INFLOW', 0, 0, 0, 1)"
                                 )
+                                db.execSQL(
+                                    "INSERT INTO category_groups (id, name, description, icon, weight, isFavorite, isArchived, isSystemSet) VALUES (2, 'Transfers', '', '', 0, 0, 0, 1)"
+                                )
+                                db.execSQL(
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (28, 'Adjustment', '', '', 2, 'TRANSFER', 0, 0, 0, 1)"
+                                )
+                                db.execSQL(
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (29, 'Goal Contribution', '', '', 2, 'TRANSFER', 1, 0, 0, 1)"
+                                )
+                                db.execSQL(
+                                    "INSERT INTO categories (id, name, icon, description, categoryGroupId, categoryType, weight, isFavorite, isArchived, isSystemSet) VALUES (30, 'Loan Payment', '', '', 2, 'TRANSFER', 2, 0, 0, 1)"
+                                )
                             }
                         })
                         .fallbackToDestructiveMigration()
