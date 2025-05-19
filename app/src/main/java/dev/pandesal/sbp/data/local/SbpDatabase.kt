@@ -23,7 +23,7 @@ import java.math.BigDecimal
         MonthlyBudgetEntity::class,
         TransactionEntity::class,
         AccountEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(BigDecimalConverter::class, ListStringConverter::class)
