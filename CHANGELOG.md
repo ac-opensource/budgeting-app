@@ -2,11 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+### Added
+- Toggle between Budget and Goal when creating a new category.
+
+## [0.18.0] - 2025-05-22
+### Added
+- Progress bar for category budgets.
+- Creating a goal now also creates a Goal Jar account.
 
 ## [0.17.0] - 2025-05-21
 ### Added
 - Zero-based budgeting summary with calculation of unassigned funds on the home screen.
+
 
 ## [0.16.0] - 2025-05-22
 ### Added
