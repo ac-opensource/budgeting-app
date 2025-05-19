@@ -1,6 +1,7 @@
 package dev.pandesal.sbp.notification
 
 import dev.pandesal.sbp.domain.model.Notification
+import dev.pandesal.sbp.domain.model.NotificationType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,9 +10,17 @@ object InAppNotificationCenter {
     private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
     val notifications: StateFlow<List<Notification>> = _notifications.asStateFlow()
 
-    fun postNotification(message: String, canCreateTransaction: Boolean = false) {
+    fun postNotification(
+        message: String,
+        type: NotificationType = NotificationType.GENERAL,
+        canCreateTransaction: Boolean = false
+    ) {
         _notifications.value =
-            _notifications.value + Notification(message = message, canCreateTransaction = canCreateTransaction)
+            _notifications.value + Notification(
+                message = message,
+                type = type,
+                canCreateTransaction = canCreateTransaction
+            )
     }
 
     fun markAsRead(id: String) {

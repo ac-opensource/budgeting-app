@@ -12,9 +12,12 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.pandesal.sbp.presentation.components.FilterTab
+import dev.pandesal.sbp.presentation.insights.TimePeriod
 import dev.pandesal.sbp.presentation.home.components.NetWorthBarChart
 import dev.pandesal.sbp.presentation.insights.components.BudgetVsOutflowChart
 import dev.pandesal.sbp.presentation.insights.components.CashflowLineChart
+import dev.pandesal.sbp.presentation.insights.components.CalendarView
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
@@ -23,6 +26,7 @@ import dev.pandesal.sbp.presentation.components.SkeletonLoader
 @Composable
 fun InsightsScreen(viewModel: InsightsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsState()
+    val period by viewModel.period.collectAsState()
 
     if (state is InsightsUiState.Initial) {
         SkeletonLoader()
@@ -33,9 +37,20 @@ fun InsightsScreen(viewModel: InsightsViewModel = hiltViewModel()) {
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
+
+            FilterTab(
+                selectedIndex = period.ordinal,
+                tabs = TimePeriod.values().map { it.label }
+            ) { index ->
+                viewModel.setPeriod(TimePeriod.values()[index])
+            }
+
+            CalendarView(data.calendarEvents)
+
+            Spacer(modifier = Modifier.height(16.dp))
             CashflowLineChart(data.cashflow)
             Spacer(modifier = Modifier.height(16.dp))
-            BudgetVsOutflowChart(data.budgetVsOutflow)
+            BudgetVsOutflowChart(data.budgetVsOutflow, period.label)
             Spacer(modifier = Modifier.height(16.dp))
             NetWorthBarChart(data.netWorthData)
         }

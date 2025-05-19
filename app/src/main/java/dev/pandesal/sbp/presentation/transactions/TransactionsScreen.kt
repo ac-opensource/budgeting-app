@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChipDefaults
@@ -52,7 +53,9 @@ fun TransactionsScreen(
         TransactionsContent(
             state.transactions,
             onNewTransactionClick = { navManager.navigate(NavigationDestination.NewTransaction) },
-            onTransactionClick = { navManager.navigate(NavigationDestination.TransactionDetails) }
+            onTransactionClick = { transaction ->
+                navManager.navigate(NavigationDestination.TransactionDetails(transaction))
+            }
         )
     }
 }
@@ -119,7 +122,10 @@ fun TransactionsContent(
                         })
                 }
                 items(txList) { transaction ->
-                    TransactionItem(transaction)
+                    TransactionItem(
+                        tx = transaction,
+                        modifier = Modifier.clickable { onTransactionClick(transaction) }
+                    )
                 }
 
                 item {
