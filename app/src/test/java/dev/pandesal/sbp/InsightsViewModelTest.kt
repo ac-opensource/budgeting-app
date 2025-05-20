@@ -34,7 +34,7 @@ class InsightsViewModelTest {
 
     private val accountUseCase = AccountUseCase(accountRepo)
     private val categoryUseCase = CategoryUseCase(categoryRepo)
-    private val transactionUseCase = TransactionUseCase(transactionRepo)
+    private val transactionUseCase = TransactionUseCase(transactionRepo, accountRepo)
 
     @Test
     fun uiStateEmitsSuccess() = runTest {

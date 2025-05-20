@@ -4,6 +4,7 @@ import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import dev.pandesal.sbp.fakes.FakeTransactionRepository
+import dev.pandesal.sbp.fakes.FakeAccountRepository
 import dev.pandesal.sbp.presentation.transactions.details.TransactionDetailsViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -20,7 +21,8 @@ class TransactionDetailsViewModelTest {
     val dispatcherRule = MainDispatcherRule()
 
     private val repository = FakeTransactionRepository()
-    private val useCase = TransactionUseCase(repository)
+    private val accountRepository = FakeAccountRepository()
+    private val useCase = TransactionUseCase(repository, accountRepository)
 
     @Test
     fun setTransactionUpdatesState() = runTest {
