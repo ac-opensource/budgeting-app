@@ -70,8 +70,8 @@ class TransactionRepository @Inject constructor(
             endDate.toString()
         ).map { it.map { it.toDomainModel() } }
 
-    override fun getTransactionById(id: String): Flow<Transaction> =
-        dao.getTransactionById(id).map { it.toDomainModel() }
+    override fun getTransactionById(id: String): Flow<Transaction?> =
+        dao.getTransactionById(id).map { it?.toDomainModel() }
 
     override fun getTransactionsByAccountId(accountId: String): Flow<List<Transaction>> =
         dao.getTransactionsByAccountId(accountId).map { it.map { it.toDomainModel() } }
@@ -133,7 +133,7 @@ class TransactionRepository @Inject constructor(
         if (amount == BigDecimal.ZERO) return
 
         val current = categoryDao
-            .getMonthlyBudgetByCategoryIdAndYearMonth(category.id.toString(), month.toString())
+            .getMonthlyBudgetByCategoryIdAndYearMonth(category.id, month.toString())
             .firstOrNull()
 
         if (current != null) {
@@ -143,7 +143,7 @@ class TransactionRepository @Inject constructor(
                 .firstOrNull()
                 ?.maxByOrNull { YearMonth.parse(it.yearMonth) }
 
-            val allocated = previous?.allocated ?: amount.negate()
+            val allocated = previous?.allocated ?: BigDecimal.ZERO
             val newBudget = MonthlyBudgetEntity(
                 categoryId = category.id,
                 yearMonth = month.toString(),

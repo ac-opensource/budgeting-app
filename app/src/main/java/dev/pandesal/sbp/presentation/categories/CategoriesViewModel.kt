@@ -1,8 +1,5 @@
 package dev.pandesal.sbp.presentation.categories
 
-import android.util.Log
-import androidx.collection.mutableIntListOf
-import androidx.collection.mutableIntSetOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,12 +8,12 @@ import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
+import dev.pandesal.sbp.domain.usecase.ZeroBasedBudgetUseCase
+import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.YearMonth
@@ -24,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
-    private val useCase: CategoryUseCase
+    private val useCase: CategoryUseCase,
+    private val zeroBasedBudgetUseCase: ZeroBasedBudgetUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<CategoriesUiState> = MutableStateFlow(CategoriesUiState.Initial)
@@ -38,13 +36,15 @@ class CategoriesViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 useCase.getCategoryGroups(),
-                useCase.getCategoriesWithLatestBudget()
-            ) { groups, categories ->
+                useCase.getCategoriesWithLatestBudget(),
+                zeroBasedBudgetUseCase.getBudgetSummary()
+            ) { groups, categories, summary ->
                 val filtered = categories.filter { it.category.categoryType != TransactionType.INFLOW }
                 CategoriesUiState.Success(
                     categoryGroups = groups.filter { it.name.lowercase() != "inflow" && it.name.lowercase() != "transfers" },
                     categoriesWithBudget = filtered,
-                    showTemplatePrompt = categories.none { it.category.categoryType == TransactionType.OUTFLOW }
+                    showTemplatePrompt = categories.none { it.category.categoryType == TransactionType.OUTFLOW },
+                    budgetSummary = summary.toUiModel()
                 )
             }.collect { state ->
                 _uiState.value = state
@@ -119,13 +119,18 @@ class CategoriesViewModel @Inject constructor(
 
     fun setBudgetForCategory(categoryId: Int, targetAmount: BigDecimal, yearMonth: YearMonth = YearMonth.now()) {
         viewModelScope.launch {
-            val budget = MonthlyBudget(
-                categoryId = categoryId,
-                month = yearMonth,
-                allocated = targetAmount,
-                spent = BigDecimal.ZERO // assume zero initially when allocating
-            )
-            useCase.insertMonthlyBudget(budget)
+            useCase.getMonthlyBudgetByCategoryIdAndMonth(categoryId, yearMonth)
+                .collect {
+                    val budget = it?.copy(allocated = targetAmount)
+                        ?: MonthlyBudget(
+                            categoryId = categoryId,
+                            month = yearMonth,
+                            allocated = targetAmount,
+                            spent = BigDecimal.ZERO
+                        )
+
+                    useCase.insertMonthlyBudget(budget)
+                }
         }
     }
 
@@ -167,5 +172,7 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
-
 }
+
+private fun dev.pandesal.sbp.domain.model.BudgetSummary.toUiModel(): BudgetSummaryUiModel =
+    BudgetSummaryUiModel(assigned, unassigned)

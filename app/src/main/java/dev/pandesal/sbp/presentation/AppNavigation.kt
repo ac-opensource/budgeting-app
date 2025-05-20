@@ -21,6 +21,8 @@ import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewRecurringTransactionScreen
 import dev.pandesal.sbp.presentation.transactions.details.TransactionDetailsScreen
+import dev.pandesal.sbp.presentation.transactions.recurringdetails.RecurringTransactionDetailsScreen
+import dev.pandesal.sbp.presentation.transactions.recurring.RecurringTransactionsScreen
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
@@ -55,6 +57,8 @@ sealed class NavigationDestination() {
     @Serializable
     data object NewRecurringTransaction : NavigationDestination()
     @Serializable
+    data object RecurringTransactions : NavigationDestination()
+    @Serializable
     data object NewCategoryGroup : NavigationDestination()
     @Serializable
     data class SetBudget(val categoryId: Int, val amount: String? = null) : NavigationDestination()
@@ -62,6 +66,8 @@ sealed class NavigationDestination() {
     data class NewCategory(val groupId: Int, val groupName: String) : NavigationDestination()
     @Serializable
     data class TransactionDetails(val transactionId: String) : NavigationDestination()
+    @Serializable
+    data class RecurringTransactionDetails(val id: String) : NavigationDestination()
 
 }
 
@@ -126,6 +132,10 @@ fun AppNavigation(navController: NavHostController) {
                 TransactionsScreen()
             }
 
+            composable<NavigationDestination.RecurringTransactions> {
+                RecurringTransactionsScreen()
+            }
+
             dialog<NavigationDestination.NewTransaction>(
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
@@ -138,6 +148,10 @@ fun AppNavigation(navController: NavHostController) {
                 NewRecurringTransactionScreen()
             }
 
+            composable<NavigationDestination.RecurringTransactions> {
+                RecurringTransactionsScreen()
+            }
+
             dialog<NavigationDestination.TransactionDetails>(
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
             ) { backStackEntry ->
@@ -146,6 +160,13 @@ fun AppNavigation(navController: NavHostController) {
                     transactionId = args.transactionId,
                     readOnly = true
                 )
+            }
+
+            dialog<NavigationDestination.RecurringTransactionDetails>(
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+            ) { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationDestination.RecurringTransactionDetails>()
+                RecurringTransactionDetailsScreen(id = args.id)
             }
 
             composable<NavigationDestination.Notifications> {

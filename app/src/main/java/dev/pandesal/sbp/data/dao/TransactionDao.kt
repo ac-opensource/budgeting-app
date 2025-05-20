@@ -111,7 +111,7 @@ interface TransactionDao {
         INNER JOIN categories c ON t.category_id = c.id
         WHERE t.id = :id
     """)
-    fun getTransactionById(id: String): Flow<TransactionEntity>
+    fun getTransactionById(id: String): Flow<TransactionEntity?>
 
     @Query("""
         SELECT t.*, 

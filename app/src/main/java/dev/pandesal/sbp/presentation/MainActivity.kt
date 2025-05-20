@@ -81,9 +81,11 @@ class MainActivity : ComponentActivity() {
 
                 val backgroundDiagonalGradient = Brush.linearGradient(
                     colors = listOf(
-                        if (isSystemInDarkTheme()) Color.Black else Color.White,
-                        MaterialTheme.colorScheme.surface,  // Honeydew (surface)
-                        MaterialTheme.colorScheme.background, // Cambridge Blue (background)
+                        Color.White,
+                        Color.White,
+//                        if (isSystemInDarkTheme()) Color.Black else Color.White,
+//                        MaterialTheme.colorScheme.surface,  // Honeydew (surface)
+//                        MaterialTheme.colorScheme.background, // Cambridge Blue (background)
                     ),
                 )
 

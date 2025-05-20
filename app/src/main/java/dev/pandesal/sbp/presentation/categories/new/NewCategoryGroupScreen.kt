@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -30,6 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FloatingToolbarDefaults.vibrantFloatingToolbarColors
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,9 +49,8 @@ fun NewCategoryGroupScreen(
     NewCategoryGroupScreen(
         onSubmit = { name ->
             viewModel.createCategoryGroup(name)
-            nav.navigateUp()
         },
-        onCancel = { nav.navigateUp() },
+        onCancel = { },
         onDismissRequest = { nav.navigateUp() }
     )
 }
@@ -73,8 +76,10 @@ fun NewCategoryGroupScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         ElevatedCard(
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(50),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+            shape = RoundedCornerShape(50),
+            elevation = CardDefaults.elevatedCardElevation(
+                defaultElevation = 16.dp
+            ),
         ) {
             IconButton(
                 modifier = Modifier
@@ -100,8 +105,7 @@ fun NewCategoryGroupScreen(
                 ElevatedCard(
                     modifier = Modifier
                         .padding(top = 4.dp)
-                        .fillMaxWidth(),
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+                        .fillMaxWidth()
                 ) {
                     BasicTextField(
                         value = name,
@@ -116,21 +120,19 @@ fun NewCategoryGroupScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        HorizontalFloatingToolbar(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            expanded = true,
-            floatingActionButton = {
-                FloatingToolbarDefaults.VibrantFloatingActionButton(
-                    onClick = {
-                        onSubmit(name)
-                        onDismissRequest()
-                    },
-//                    enabled = name.isNotBlank()
-                ) {
-                    Icon(Icons.Default.Check, contentDescription = null)
-                }
+
+
+        FloatingActionButton(
+            onClick = {
+                onSubmit(name)
+                onDismissRequest()
             },
-            content = {}
-        )
+            shape = FloatingActionButtonDefaults.shape,
+            containerColor = vibrantFloatingToolbarColors().fabContainerColor,
+            contentColor = vibrantFloatingToolbarColors().fabContentColor,
+        ) {
+            Icon(Icons.Default.Check, contentDescription = null)
+
+        }
     }
 }

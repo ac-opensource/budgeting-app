@@ -19,20 +19,21 @@ fun BudgetSummaryHeader(unassigned: Double, assigned: Double, currency: String =
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        val symbol = currency.currencySymbol()
+
         Column {
-            Text("Unassigned", style = MaterialTheme.typography.labelMedium)
-            val symbol = currency.currencySymbol()
+            Text("Unallocated", style = MaterialTheme.typography.labelMedium)
             Text(
                 text = "$symbol${unassigned.format()}",
-                style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
         }
-//        Column {
-//            Text("Assigned", style = MaterialTheme.typography.labelMedium)
-//            Text(
-//                text = "₱${assigned.format()}",
-//                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-//            )
-//        }
+        Column {
+            Text("Allocated", style = MaterialTheme.typography.labelMedium)
+            Text(
+                text = "$symbol${assigned.format()}",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            )
+        }
     }
 }

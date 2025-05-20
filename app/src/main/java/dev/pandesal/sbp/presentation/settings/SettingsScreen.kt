@@ -32,17 +32,22 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import dev.pandesal.sbp.presentation.LocalNavigationManager
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val settings by viewModel.settings.collectAsState()
+    val nav = LocalNavigationManager.current
     SettingsContent(
         settings = settings,
         onDarkModeChange = viewModel::setDarkMode,
         onNotificationsChange = viewModel::setNotificationsEnabled,
-        onCurrencyChange = viewModel::setCurrency
+        onCurrencyChange = viewModel::setCurrency,
+        onRecurringTransactionsClick = {
+            nav.navigate(dev.pandesal.sbp.presentation.NavigationDestination.RecurringTransactions)
+        }
     )
 }
 
@@ -59,7 +64,8 @@ private fun SettingsContent(
     settings: dev.pandesal.sbp.domain.model.Settings,
     onDarkModeChange: (Boolean) -> Unit,
     onNotificationsChange: (Boolean) -> Unit,
-    onCurrencyChange: (String) -> Unit
+    onCurrencyChange: (String) -> Unit,
+    onRecurringTransactionsClick: () -> Unit
 ) {
     var darkMode by remember { mutableStateOf(settings.darkMode) }
     var notificationsEnabled by remember { mutableStateOf(settings.notificationsEnabled) }
@@ -71,7 +77,8 @@ private fun SettingsContent(
     val items = listOf(
         SettingItem("Dark mode", SettingType.SWITCH),
         SettingItem("Enable notifications", SettingType.SWITCH),
-        SettingItem("Currency", SettingType.TEXT)
+        SettingItem("Currency", SettingType.TEXT),
+        SettingItem("Recurring Transactions", SettingType.TEXT)
     )
 
     val context = LocalContext.current
@@ -112,6 +119,9 @@ private fun SettingsContent(
                     }
                     "Currency" -> SettingText(item.title, settings.currency) {
                         showCurrencySheet = true
+                    }
+                    "Recurring Transactions" -> SettingText(item.title, "") {
+                        onRecurringTransactionsClick()
                     }
                 }
             }

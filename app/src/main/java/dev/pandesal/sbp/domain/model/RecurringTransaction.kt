@@ -9,6 +9,9 @@ enum class RecurringInterval : Parcelable {
     DAILY,
     WEEKLY,
     MONTHLY,
+    QUARTERLY,
+    HALF_YEARLY,
+    YEARLY,
     AFTER_CUTOFF
 }
 

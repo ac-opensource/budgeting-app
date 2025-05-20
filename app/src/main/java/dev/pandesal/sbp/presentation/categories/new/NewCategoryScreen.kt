@@ -23,6 +23,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FloatingToolbarDefaults.vibrantFloatingToolbarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,9 +50,8 @@ fun NewCategoryScreen(
         groupName = groupName,
         onSubmit = { name, id ->
             categoriesViewModel.createCategory(name, id)
-            nav.navigateUp()
         },
-        onCancel = { nav.navigateUp() },
+        onCancel = { },
         onDismissRequest = { nav.navigateUp() }
     )
 }
@@ -107,8 +109,7 @@ fun NewCategoryScreen(
                     ElevatedCard(
                         modifier = Modifier
                             .padding(top = 4.dp)
-                            .fillMaxWidth(),
-                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+                            .fillMaxWidth()
                     ) {
                         BasicTextField(
                             value = name,
@@ -119,26 +120,23 @@ fun NewCategoryScreen(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                HorizontalFloatingToolbar(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    expanded = true,
-                    floatingActionButton = {
-                        FloatingToolbarDefaults.VibrantFloatingActionButton(
-                            onClick = {
-                                onSubmit(name, groupId)
-                                onDismissRequest()
-                            },
-//                        enabled = name.isNotBlank()
-                        ) {
-                            Icon(Icons.Default.Check, contentDescription = null)
-                        }
-                    },
-                    content = {}
-                )
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+        FloatingActionButton(
+            onClick = {
+                onSubmit(name, groupId)
+                onDismissRequest()
+            },
+            shape = FloatingActionButtonDefaults.shape,
+            containerColor = vibrantFloatingToolbarColors().fabContainerColor,
+            contentColor = vibrantFloatingToolbarColors().fabContentColor,
+        ) {
+            Icon(Icons.Default.Check, contentDescription = null)
+
         }
     }
 }
