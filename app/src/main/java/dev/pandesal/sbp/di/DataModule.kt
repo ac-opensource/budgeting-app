@@ -24,6 +24,7 @@ import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
 import dev.pandesal.sbp.domain.repository.GoalRepositoryInterface
 import dev.pandesal.sbp.domain.repository.SettingsRepositoryInterface
 import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
+import dev.pandesal.sbp.notification.SmsTransactionScanner
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -116,6 +117,12 @@ object DataModule {
     ): RecurringTransactionRepositoryInterface {
         return RecurringTransactionRepository(dao)
     }
+
+    @Singleton
+    @Provides
+    fun provideSmsTransactionScanner(
+        @ApplicationContext context: Context
+    ): SmsTransactionScanner = SmsTransactionScanner(context)
 
 
 }
