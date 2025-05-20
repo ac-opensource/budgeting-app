@@ -47,7 +47,8 @@ fun SettingsScreen(
         onCurrencyChange = viewModel::setCurrency,
         onRecurringTransactionsClick = {
             nav.navigate(dev.pandesal.sbp.presentation.NavigationDestination.RecurringTransactions)
-        }
+        },
+        onScanSms = viewModel::scanSms
     )
 }
 
@@ -65,7 +66,8 @@ private fun SettingsContent(
     onDarkModeChange: (Boolean) -> Unit,
     onNotificationsChange: (Boolean) -> Unit,
     onCurrencyChange: (String) -> Unit,
-    onRecurringTransactionsClick: () -> Unit
+    onRecurringTransactionsClick: () -> Unit,
+    onScanSms: () -> Unit
 ) {
     var darkMode by remember { mutableStateOf(settings.darkMode) }
     var notificationsEnabled by remember { mutableStateOf(settings.notificationsEnabled) }
@@ -74,11 +76,17 @@ private fun SettingsContent(
         notificationsEnabled = granted
         onNotificationsChange(granted)
     }
+    val smsLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            onScanSms()
+        }
+    }
     val items = listOf(
         SettingItem("Dark mode", SettingType.SWITCH),
         SettingItem("Enable notifications", SettingType.SWITCH),
         SettingItem("Currency", SettingType.TEXT),
-        SettingItem("Recurring Transactions", SettingType.TEXT)
+        SettingItem("Recurring Transactions", SettingType.TEXT),
+        SettingItem("Import SMS Transactions", SettingType.TEXT)
     )
 
     val context = LocalContext.current
@@ -122,6 +130,14 @@ private fun SettingsContent(
                     }
                     "Recurring Transactions" -> SettingText(item.title, "") {
                         onRecurringTransactionsClick()
+                    }
+                    "Import SMS Transactions" -> SettingText(item.title, "") {
+                        val permission = Manifest.permission.READ_SMS
+                        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                            onScanSms()
+                        } else {
+                            smsLauncher.launch(permission)
+                        }
                     }
                 }
             }
