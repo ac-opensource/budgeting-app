@@ -183,7 +183,9 @@ class NewTransactionsViewModel @Inject constructor(
     fun loadTransaction(id: String) {
         viewModelScope.launch {
             transactionUseCase.getTransactionById(id).collect { tx ->
-                _transaction.value = tx
+                if (tx != null) {
+                    _transaction.value = tx
+                }
             }
         }
     }

@@ -28,7 +28,7 @@ interface CategoryRepositoryInterface {
     // Monthly Budgets
     fun getMonthlyBudgetsByYearMonth(yearMonth: YearMonth): Flow<List<MonthlyBudget>>
     fun getMonthlyBudgetsByCategoryId(categoryId: String): Flow<List<MonthlyBudget>>
-    fun getMonthlyBudgetByCategoryIdAndMonth(categoryId: String, yearMonth: YearMonth): Flow<MonthlyBudget?>
+    fun getMonthlyBudgetByCategoryIdAndMonth(categoryId: Int, yearMonth: YearMonth): Flow<MonthlyBudget?>
     suspend fun insertMonthlyBudget(value: MonthlyBudget)
     suspend fun deleteMonthlyBudget(value: MonthlyBudget)
 }

@@ -18,7 +18,7 @@ interface TransactionRepositoryInterface {
     fun getTransactionsByTypeAndAccountIdAndCategoryId(type: TransactionType, accountId: String, categoryId: String): Flow<List<Transaction>>
     fun getTransactionsByTypeAndDateRange(type: TransactionType, startDate: LocalDate, endDate: LocalDate): Flow<List<Transaction>>
     fun getTransactionsByTypeAndAccountIdAndDateRange(type: TransactionType, accountId: String, startDate: LocalDate, endDate: LocalDate): Flow<List<Transaction>>
-    fun getTransactionById(id: String): Flow<Transaction>
+    fun getTransactionById(id: String): Flow<Transaction?>
     fun getTransactionsByAccountId(accountId: String): Flow<List<Transaction>>
     fun getTransactionsByCategoryId(categoryId: String): Flow<List<Transaction>>
     fun getTransactionsByDateRange(startDate: LocalDate, endDate: LocalDate): Flow<List<Transaction>>

@@ -325,7 +325,7 @@ private fun ChildListContent(
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            itemsIndexed(childList, key = { _, item -> item.category.id }) { index, item ->
+            itemsIndexed(childList, key = { _, item -> item }) { index, item ->
                 ReorderableItem(reorderableLazyCategoriesColumnState, item.category.id) {
                     val interactionSource = remember { MutableInteractionSource() }
                     Card(

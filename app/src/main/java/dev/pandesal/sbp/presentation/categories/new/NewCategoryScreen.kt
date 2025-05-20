@@ -23,6 +23,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FloatingToolbarDefaults.vibrantFloatingToolbarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +51,7 @@ fun NewCategoryScreen(
         onSubmit = { name, id ->
             categoriesViewModel.createCategory(name, id)
         },
-        onCancel = {  },
+        onCancel = { },
         onDismissRequest = { nav.navigateUp() }
     )
 }
@@ -118,26 +121,23 @@ fun NewCategoryScreen(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                HorizontalFloatingToolbar(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    expanded = true,
-                    floatingActionButton = {
-                        FloatingToolbarDefaults.VibrantFloatingActionButton(
-                            onClick = {
-                                onSubmit(name, groupId)
-                                onDismissRequest()
-                            },
-//                        enabled = name.isNotBlank()
-                        ) {
-                            Icon(Icons.Default.Check, contentDescription = null)
-                        }
-                    },
-                    content = {}
-                )
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+        FloatingActionButton(
+            onClick = {
+                onSubmit(name, groupId)
+                onDismissRequest()
+            },
+            shape = FloatingActionButtonDefaults.shape,
+            containerColor = vibrantFloatingToolbarColors().fabContainerColor,
+            contentColor = vibrantFloatingToolbarColors().fabContentColor,
+        ) {
+            Icon(Icons.Default.Check, contentDescription = null)
+
         }
     }
 }

@@ -268,17 +268,21 @@ private fun NewTransactionScreen(
                             onClick = { onCancel() }) {
                             Icon(Icons.Filled.Close, "Localized description")
                         }
-                        if (editable) {
-                            IconButton(onClick = {
-                                onSave(transaction, isRecurring, selectedInterval, cutoffDays)
-                            }) {
-                                Icon(Icons.Filled.Check, null)
-                            }
-                        } else {
-                            IconButton(onClick = onEdit) {
+                        if (!editable) {
+                            IconButton(
+                                modifier = Modifier
+                                    .height(24.dp)
+                                    .padding(4.dp),
+                                onClick = onEdit
+                            ) {
                                 Icon(Icons.Filled.Edit, null)
                             }
-                            IconButton(onClick = onDelete) {
+                            IconButton(
+                                modifier = Modifier
+                                    .height(24.dp)
+                                    .padding(4.dp),
+                                onClick = onDelete
+                            ) {
                                 Icon(Icons.Filled.Delete, null)
                             }
                         }
@@ -462,7 +466,9 @@ private fun NewTransactionScreen(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
                                         .fillMaxWidth()
-                                        .clickable(enabled = editable) { fromAccountExpanded = true }
+                                        .clickable(enabled = editable) {
+                                            fromAccountExpanded = true
+                                        }
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -470,7 +476,8 @@ private fun NewTransactionScreen(
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         Text(
-                                            text = transaction.fromAccountName ?: "Select Source Account",
+                                            text = transaction.fromAccountName
+                                                ?: "Select Source Account",
                                             style = MaterialTheme.typography.bodyMedium,
                                             modifier = Modifier.padding(16.dp)
                                         )
@@ -497,7 +504,12 @@ private fun NewTransactionScreen(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .clickable {
-                                                        onUpdate(transaction.copy(from = account.id, fromAccountName = account.name))
+                                                        onUpdate(
+                                                            transaction.copy(
+                                                                from = account.id,
+                                                                fromAccountName = account.name
+                                                            )
+                                                        )
                                                         fromAccountExpanded = false
                                                     }
                                                     .padding(16.dp)
@@ -541,7 +553,9 @@ private fun NewTransactionScreen(
                                             modifier = Modifier
                                                 .padding(end = 8.dp)
                                                 .size(24.dp)
-                                                .clickable(enabled = editable) { merchantExpanded = true }
+                                                .clickable(enabled = editable) {
+                                                    merchantExpanded = true
+                                                }
                                         )
                                     }
                                 }
@@ -584,7 +598,8 @@ private fun NewTransactionScreen(
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         Text(
-                                            text = transaction.toAccountName ?: "Select Destination Account",
+                                            text = transaction.toAccountName
+                                                ?: "Select Destination Account",
                                             style = MaterialTheme.typography.bodyMedium,
                                             modifier = Modifier.padding(16.dp)
                                         )
@@ -609,7 +624,12 @@ private fun NewTransactionScreen(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .clickable(enabled = editable) {
-                                                        onUpdate(transaction.copy(to = account.id, toAccountName = account.name))
+                                                        onUpdate(
+                                                            transaction.copy(
+                                                                to = account.id,
+                                                                toAccountName = account.name
+                                                            )
+                                                        )
                                                         toAccountExpanded = false
                                                     }
                                                     .padding(16.dp)
@@ -628,7 +648,9 @@ private fun NewTransactionScreen(
                                 modifier = Modifier
                                     .padding(top = 4.dp)
                                     .fillMaxWidth()
-                                    .clickable(enabled = editable) { showDatePicker.value = true }) {
+                                    .clickable(enabled = editable) {
+                                        showDatePicker.value = true
+                                    }) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween,

@@ -32,7 +32,7 @@ class TransactionUseCase @Inject constructor(
     fun getTransactionsByTypeAndAccountIdAndDateRange(type: TransactionType, accountId: String, startDate: LocalDate, endDate: LocalDate): Flow<List<Transaction>> =
         repository.getTransactionsByTypeAndAccountIdAndDateRange(type, accountId, startDate, endDate)
 
-    fun getTransactionById(id: String): Flow<Transaction> =
+    fun getTransactionById(id: String): Flow<Transaction?> =
         repository.getTransactionById(id)
 
     fun getTransactionsByAccountId(accountId: String): Flow<List<Transaction>> =
