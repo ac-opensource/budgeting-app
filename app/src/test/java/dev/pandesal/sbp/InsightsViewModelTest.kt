@@ -44,7 +44,7 @@ class InsightsViewModelTest {
         )
         transactionRepo.transactionsFlow.value = listOf(
             Transaction(name="t", amount=BigDecimal.ONE, createdAt= LocalDate.now(),
-                updatedAt= LocalDate.now(), accountId="", transactionType=TransactionType.OUTFLOW)
+                updatedAt= LocalDate.now(), from=1, fromAccountName = "1", transactionType=TransactionType.OUTFLOW)
         )
         val vm = InsightsViewModel(transactionUseCase, categoryUseCase, accountUseCase)
         advanceUntilIdle()

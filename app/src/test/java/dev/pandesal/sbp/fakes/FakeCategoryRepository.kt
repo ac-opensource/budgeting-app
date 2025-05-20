@@ -37,7 +37,8 @@ class FakeCategoryRepository : CategoryRepositoryInterface {
 
     override fun getMonthlyBudgetsByYearMonth(yearMonth: YearMonth): Flow<List<MonthlyBudget>> = monthlyBudgetsFlow
     override fun getMonthlyBudgetsByCategoryId(categoryId: String): Flow<List<MonthlyBudget>> = flowOf(emptyList())
-    override fun getMonthlyBudgetByCategoryIdAndMonth(categoryId: String, yearMonth: YearMonth): Flow<MonthlyBudget> = flowOf(monthlyBudgetsFlow.value.first())
+
+    override fun getMonthlyBudgetByCategoryIdAndMonth(categoryId: Int, yearMonth: YearMonth): Flow<MonthlyBudget> = flowOf(monthlyBudgetsFlow.value.first())
     override suspend fun insertMonthlyBudget(value: MonthlyBudget) { insertedBudgets.add(value) }
     override suspend fun deleteMonthlyBudget(value: MonthlyBudget) {}
 }

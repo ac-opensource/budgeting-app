@@ -26,7 +26,7 @@ class TransactionsViewModelTest {
     @Test
     fun uiStateEmitsTransactions() = runTest {
         val tx = Transaction(name="t", amount=BigDecimal.ONE, createdAt=LocalDate.now(),
-            updatedAt=LocalDate.now(), accountId="", transactionType=TransactionType.OUTFLOW)
+            updatedAt=LocalDate.now(), from = 1, fromAccountName = "1", transactionType=TransactionType.OUTFLOW)
         repository.pagedFlow.value = listOf(tx)
         val vm = TransactionsViewModel(useCase)
         advanceUntilIdle()

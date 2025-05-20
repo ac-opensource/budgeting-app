@@ -85,7 +85,7 @@ class MappingTests {
                 amount = BigDecimal.TEN,
                 createdAt = LocalDate.now(),
                 updatedAt = LocalDate.now(),
-                accountId = "1",
+                from = 1,
                 transactionType = TransactionType.OUTFLOW
             ),
             interval = dev.pandesal.sbp.domain.model.RecurringInterval.MONTHLY,

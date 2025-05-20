@@ -35,7 +35,7 @@ class RecurringTransactionsViewModelTest {
             updatedAt = LocalDate.now(),
             transactionType = TransactionType.OUTFLOW
         )
-        repository.recurringFlow.value = listOf(RecurringTransaction(tx, dev.pandesal.sbp.domain.model.RecurringInterval.MONTHLY))
+        repository.transactionsFlow.value = listOf(RecurringTransaction(tx, dev.pandesal.sbp.domain.model.RecurringInterval.MONTHLY))
         val vm = RecurringTransactionsViewModel(useCase)
         advanceUntilIdle()
         val state = vm.uiState.value as RecurringTransactionsUiState.Success

@@ -4,12 +4,15 @@ import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.AccountType
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
+import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
+import dev.pandesal.sbp.domain.usecase.RecurringTransactionUseCase
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import dev.pandesal.sbp.fakes.FakeAccountRepository
 import dev.pandesal.sbp.fakes.FakeCategoryRepository
+import dev.pandesal.sbp.fakes.FakeRecurringTransactionRepository
 import dev.pandesal.sbp.fakes.FakeTransactionRepository
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionUiState
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionsViewModel
@@ -29,10 +32,12 @@ class NewTransactionsViewModelTest {
     private val accountRepo = FakeAccountRepository()
     private val categoryRepo = FakeCategoryRepository()
     private val transactionRepo = FakeTransactionRepository()
+    private val recurringTransactionRepo = FakeRecurringTransactionRepository()
 
     private val accountUseCase = AccountUseCase(accountRepo)
     private val categoryUseCase = CategoryUseCase(categoryRepo)
     private val transactionUseCase = TransactionUseCase(transactionRepo)
+    private val recurringTransactionUseCase = RecurringTransactionUseCase(recurringTransactionRepo)
 
     @Test
     fun uiStateEmitsSuccess() = runTest {
@@ -43,15 +48,15 @@ class NewTransactionsViewModelTest {
         categoryRepo.categoriesFlow.value = listOf(category)
         transactionRepo.merchantsFlow.value = listOf("Shop")
 
-        val vm = NewTransactionsViewModel(transactionUseCase, categoryUseCase, accountUseCase)
+        val vm = NewTransactionsViewModel(transactionUseCase, categoryUseCase, accountUseCase, recurringTransactionUseCase)
         advanceUntilIdle()
         assertTrue(vm.uiState.value is NewTransactionUiState.Success)
     }
 
     @Test
     fun saveTransactionCallsInsert() = runTest {
-        val vm = NewTransactionsViewModel(transactionUseCase, categoryUseCase, accountUseCase)
-        vm.saveTransaction()
+        val vm = NewTransactionsViewModel(transactionUseCase, categoryUseCase, accountUseCase, recurringTransactionUseCase)
+        vm.saveTransaction(false, interval = RecurringInterval.MONTHLY, cutoffDays = 1)
         advanceUntilIdle()
         assertEquals(1, transactionRepo.insertedTransactions.size)
     }

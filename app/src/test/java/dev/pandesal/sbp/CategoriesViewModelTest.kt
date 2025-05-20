@@ -6,6 +6,8 @@ import dev.pandesal.sbp.domain.model.CategoryWithBudget
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
+import dev.pandesal.sbp.domain.usecase.ZeroBasedBudgetUseCase
+import dev.pandesal.sbp.fakes.FakeAccountRepository
 import dev.pandesal.sbp.fakes.FakeCategoryRepository
 import dev.pandesal.sbp.presentation.categories.CategoriesUiState
 import dev.pandesal.sbp.presentation.categories.CategoriesViewModel
@@ -25,7 +27,9 @@ class CategoriesViewModelTest {
     val dispatcherRule = MainDispatcherRule()
 
     private val repository = FakeCategoryRepository()
+    private val accountRepository = FakeAccountRepository()
     private val useCase = CategoryUseCase(repository)
+    private val zeroBasedBudgetUseCase = ZeroBasedBudgetUseCase(accountRepository, repository)
 
     @Test
     fun uiStateEmitsGroupsAndCategories() = runTest {
@@ -35,7 +39,7 @@ class CategoriesViewModelTest {
         repository.groupsFlow.value = listOf(group)
         repository.categoriesWithBudgetFlow.value = listOf(CategoryWithBudget(category, budget))
 
-        val vm = CategoriesViewModel(useCase)
+        val vm = CategoriesViewModel(useCase, zeroBasedBudgetUseCase)
         advanceUntilIdle()
 
         val state = vm.uiState.value as CategoriesUiState.Success
@@ -45,7 +49,7 @@ class CategoriesViewModelTest {
 
     @Test
     fun createCategoryGroupInsertsGroup() = runTest {
-        val vm = CategoriesViewModel(useCase)
+        val vm = CategoriesViewModel(useCase, zeroBasedBudgetUseCase)
         vm.createCategoryGroup("New")
         advanceUntilIdle()
         assertEquals("New", repository.insertedGroups[0].name)

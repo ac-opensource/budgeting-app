@@ -30,7 +30,8 @@ class TransactionDetailsViewModelTest {
             amount = BigDecimal.ONE,
             createdAt = LocalDate.now(),
             updatedAt = LocalDate.now(),
-            accountId = "",
+            from = 1,
+            fromAccountName = "1",
             transactionType = TransactionType.OUTFLOW
         )
         vm.setTransaction(tx.id)
@@ -46,7 +47,8 @@ class TransactionDetailsViewModelTest {
             amount = BigDecimal.ONE,
             createdAt = LocalDate.now(),
             updatedAt = LocalDate.now(),
-            accountId = "",
+            from = 1,
+            fromAccountName = "1",
             transactionType = TransactionType.OUTFLOW
         )
         vm.setTransaction(tx.id)
