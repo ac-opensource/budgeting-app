@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.categories.CategoriesViewModel
+import dev.pandesal.sbp.presentation.categories.CategoriesUiState
 import dev.pandesal.sbp.presentation.goals.GoalsViewModel
 import java.math.BigDecimal
 import java.time.Instant
@@ -66,8 +67,12 @@ fun SetBudgetScreen(
         initialAmount = initialAmount,
         onSubmit = { amount, isGoal, date ->
             if (isGoal) {
+                val name = (categoriesViewModel.uiState.value as? CategoriesUiState.Success)
+                    ?.categoriesWithBudget
+                    ?.firstOrNull { it.category.id == categoryId }
+                    ?.category?.name ?: ""
                 goalsViewModel.addGoal(
-                    name = "",
+                    name = name,
                     target = amount,
                     dueDate = date,
                     categoryId = categoryId
