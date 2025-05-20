@@ -120,6 +120,11 @@ object DataModule {
 
     @Singleton
     @Provides
+    fun provideGeminiService(): dev.pandesal.sbp.domain.service.GeminiService =
+        dev.pandesal.sbp.domain.service.GeminiService()
+
+    @Singleton
+    @Provides
     fun provideSmsTransactionScanner(
         @ApplicationContext context: Context
     ): SmsTransactionScanner = SmsTransactionScanner(context)
