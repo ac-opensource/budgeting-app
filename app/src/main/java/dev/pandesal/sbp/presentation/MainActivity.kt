@@ -111,7 +111,7 @@ class MainActivity : ComponentActivity() {
                             floatingActionButton = {
                                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                                     onClick = {
-                                        navController.navigate(NavigationDestination.NewTransaction) {
+                                        navController.navigate(NavigationDestination.NewTransaction()) {
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = true
                                             }

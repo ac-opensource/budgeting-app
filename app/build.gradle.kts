@@ -9,6 +9,10 @@ plugins {
     id(libs.plugins.kotlin.serialization.get().pluginId)
 }
 
+secrets {
+    defaultPropertiesFileName = "local.defaults.properties"
+}
+
 android {
     namespace = "dev.pandesal.sbp"
     compileSdk = 36
