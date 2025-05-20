@@ -21,10 +21,11 @@ class ZeroBasedBudgetUseCase @Inject constructor(
             accountRepository.getAccounts()
         ) { budgets, accounts ->
             val assigned = budgets.sumOf { it.allocated.toDouble() }
+            val spent = budgets.sumOf { it.spent.toDouble() }
             val totalFunds = accounts.sumOf { it.balance.toDouble() }
             BudgetSummary(
                 assigned = assigned,
-                unassigned = totalFunds - assigned
+                unassigned = totalFunds + spent - assigned
             )
         }
 }
