@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.AccountType
+import dev.pandesal.sbp.domain.model.LenderType
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.TransactionType
@@ -43,10 +44,13 @@ class AccountsViewModel @Inject constructor(
         currency: String = "PHP",
         contractValue: String? = null,
         monthlyPayment: String? = null,
+        creditLimit: String? = null,
+        lender: LenderType? = null,
     ) {
         viewModelScope.launch {
             val contract = contractValue?.takeIf { it.isNotBlank() }?.let { BigDecimal(it) }
             val monthly = monthlyPayment?.takeIf { it.isNotBlank() }?.let { BigDecimal(it) }
+            val limit = creditLimit?.takeIf { it.isNotBlank() }?.let { BigDecimal(it) }
             val start = LocalDate.now().toString()
             val end = if (contract != null && monthly != null && monthly > BigDecimal.ZERO) {
                 val months = contract.divide(monthly, 0, java.math.RoundingMode.CEILING).toLong()
@@ -60,12 +64,14 @@ class AccountsViewModel @Inject constructor(
                 currency = currency,
                 contractValue = contract,
                 monthlyPayment = monthly,
+                creditLimit = limit,
+                lenderType = lender,
                 startDate = if (contract != null && monthly != null) start else null,
                 endDate = end
             )
             useCase.insertAccount(account)
 
-            if (type == AccountType.LOAN) {
+            if (type == AccountType.LOAN_FOR_ASSET || type == AccountType.LOAN_FOR_SPENDING) {
                 categoryUseCase.insertCategoryGroup(CategoryGroup(id = 20, name = "Liabilities", description = "", icon = ""))
                 categoryUseCase.insertCategory(
                     Category(

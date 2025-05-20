@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.0] - 2025-05-19
+### Added
+- New loan account types for assets and spending.
+- Accounts can record whether a loan is from an institution or a person.
+- Credit card accounts now include an optional credit limit.
+
 ## [0.28.0] - 2025-05-19
 ### Added
 - Set Budget now opens as a dialog similar to New Transaction.

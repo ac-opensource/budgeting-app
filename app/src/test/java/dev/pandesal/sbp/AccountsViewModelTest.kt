@@ -2,6 +2,7 @@ package dev.pandesal.sbp
 
 import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.AccountType
+import dev.pandesal.sbp.domain.model.LenderType
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import java.math.BigDecimal
@@ -42,7 +43,16 @@ class AccountsViewModelTest {
     @Test
     fun addAccountInsertsAccount() = runTest {
         val vm = AccountsViewModel(useCase, categoryUseCase)
-        vm.addAccount("B", AccountType.BANK_ACCOUNT, initialBalance = BigDecimal.TEN, "PHP", null, null)
+        vm.addAccount(
+            "B",
+            AccountType.BANK_ACCOUNT,
+            initialBalance = BigDecimal.TEN,
+            "PHP",
+            null,
+            null,
+            null,
+            null
+        )
         advanceUntilIdle()
         assertEquals(1, repository.insertedAccounts.size)
         assertEquals("B", repository.insertedAccounts[0].name)
@@ -52,9 +62,19 @@ class AccountsViewModelTest {
     @Test
     fun addLoanAccountCreatesLiabilityCategory() = runTest {
         val vm = AccountsViewModel(useCase, categoryUseCase)
-        vm.addAccount("Car Loan", AccountType.LOAN, BigDecimal.ZERO, "PHP", "1000", "100")
+        vm.addAccount(
+            "Car Loan",
+            AccountType.LOAN_FOR_ASSET,
+            BigDecimal.ZERO,
+            "PHP",
+            "1000",
+            "100",
+            null,
+            LenderType.INSTITUTION
+        )
         advanceUntilIdle()
         assertEquals("Liabilities", categoryRepository.insertedGroups[0].name)
         assertEquals("Car Loan", categoryRepository.insertedCategories[0].name)
     }
 }
+

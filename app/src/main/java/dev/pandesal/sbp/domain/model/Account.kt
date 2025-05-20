@@ -19,6 +19,9 @@ data class Account(
     val contractValue: BigDecimal? = null,
     @Serializable(with = BigDecimalSerializer::class)
     val monthlyPayment: BigDecimal? = null,
+    @Serializable(with = BigDecimalSerializer::class)
+    val creditLimit: BigDecimal? = null,
+    val lenderType: LenderType? = null,
     val startDate: String? = null,
     val endDate: String? = null,
 ) : Parcelable
@@ -30,5 +33,14 @@ enum class AccountType : Parcelable {
     MOBILE_DIGITAL_WALLET,
     BANK_ACCOUNT,
     CREDIT_CARD,
-    LOAN,
+    LOAN_FOR_ASSET,
+    LOAN_FOR_SPENDING,
 }
+
+@Serializable
+@Parcelize
+enum class LenderType : Parcelable {
+    INSTITUTION,
+    PERSON,
+}
+
