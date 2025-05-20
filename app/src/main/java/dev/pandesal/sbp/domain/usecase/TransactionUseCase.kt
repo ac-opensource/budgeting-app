@@ -3,13 +3,16 @@ package dev.pandesal.sbp.domain.usecase
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
+import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import java.math.BigDecimal
 import java.time.LocalDate
 import javax.inject.Inject
 
 class TransactionUseCase @Inject constructor(
-    private val repository: TransactionRepositoryInterface
+    private val repository: TransactionRepositoryInterface,
+    private val accountRepository: AccountRepositoryInterface
 ) {
     fun getAllTransactions(): Flow<List<Transaction>> =
         repository.getAllTransactions()
@@ -62,8 +65,44 @@ class TransactionUseCase @Inject constructor(
     fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>> =
         repository.getMerchantsByCategoryId(categoryId)
 
-    suspend fun insert(transaction: Transaction) =
+    suspend fun insert(transaction: Transaction) {
         repository.insert(transaction)
+
+        val accounts = accountRepository.getAccounts().first()
+        when (transaction.transactionType) {
+            TransactionType.OUTFLOW -> transaction.from?.let { id ->
+                accounts.firstOrNull { it.id == id }?.let { account ->
+                    accountRepository.insertAccount(
+                        account.copy(balance = account.balance - transaction.amount)
+                    )
+                }
+            }
+            TransactionType.INFLOW -> transaction.to?.let { id ->
+                accounts.firstOrNull { it.id == id }?.let { account ->
+                    accountRepository.insertAccount(
+                        account.copy(balance = account.balance + transaction.amount)
+                    )
+                }
+            }
+            TransactionType.TRANSFER -> {
+                transaction.from?.let { fromId ->
+                    accounts.firstOrNull { it.id == fromId }?.let { account ->
+                        accountRepository.insertAccount(
+                            account.copy(balance = account.balance - transaction.amount)
+                        )
+                    }
+                }
+                transaction.to?.let { toId ->
+                    accounts.firstOrNull { it.id == toId }?.let { account ->
+                        accountRepository.insertAccount(
+                            account.copy(balance = account.balance + transaction.amount)
+                        )
+                    }
+                }
+            }
+            else -> {}
+        }
+    }
 
     suspend fun delete(transaction: Transaction) =
         repository.delete(transaction)
