@@ -111,6 +111,24 @@ fun RecurringTransactionDetailsScreen(
                     enabled = false,
                     label = { Text("Start Date") }
                 )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Switch(
+                        checked = rec.reminderEnabled,
+                        onCheckedChange = {
+                            viewModel.update(rec.copy(reminderEnabled = it))
+                        },
+                        enabled = editable
+                    )
+                    Text(
+                        text = "Reminders",
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
             }
         }
 

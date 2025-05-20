@@ -20,5 +20,6 @@ data class RecurringTransaction(
     val transaction: Transaction,
     val interval: RecurringInterval,
     val cutoffDays: Int = 21,
-    val startDate: LocalDate = LocalDate.now()
+    val startDate: LocalDate = LocalDate.now(),
+    val reminderEnabled: Boolean = false
 ) : Parcelable

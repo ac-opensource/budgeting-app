@@ -148,6 +148,7 @@ class NewTransactionsViewModel @Inject constructor(
         isRecurring: Boolean,
         interval: RecurringInterval,
         cutoffDays: Int,
+        reminderEnabled: Boolean,
         onResult: (Boolean) -> Unit = {}
     ) {
         viewModelScope.launch {
@@ -168,7 +169,8 @@ class NewTransactionsViewModel @Inject constructor(
                     val recurring = dev.pandesal.sbp.domain.model.RecurringTransaction(
                         transaction = _transaction.value,
                         interval = interval,
-                        cutoffDays = cutoffDays
+                        cutoffDays = cutoffDays,
+                        reminderEnabled = reminderEnabled
                     )
                     recurringTransactionUseCase.addRecurringTransaction(recurring)
                 }

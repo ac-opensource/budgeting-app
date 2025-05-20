@@ -26,7 +26,7 @@ class RecurringTransactionUseCase @Inject constructor(
     ): Flow<List<Notification>> {
         val endDate = currentDate.plusDays(withinDays)
         return repository.getRecurringTransactions().map { list ->
-            list.mapNotNull { rec ->
+            list.filter { it.reminderEnabled }.mapNotNull { rec ->
                 val next = nextDueDate(rec, currentDate)
                 if (!next.isAfter(endDate)) {
                     Notification(
