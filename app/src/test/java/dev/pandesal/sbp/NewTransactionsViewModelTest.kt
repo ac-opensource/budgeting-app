@@ -24,6 +24,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -38,7 +39,7 @@ class NewTransactionsViewModelTest {
 
     private val accountUseCase = AccountUseCase(accountRepo)
     private val categoryUseCase = CategoryUseCase(categoryRepo)
-    private val transactionUseCase = TransactionUseCase(transactionRepo)
+    private val transactionUseCase = TransactionUseCase(transactionRepo, accountRepo)
     private val recurringTransactionUseCase = RecurringTransactionUseCase(recurringTransactionRepo)
 
     @Test
@@ -64,5 +65,29 @@ class NewTransactionsViewModelTest {
         vm.saveTransaction(false, interval = RecurringInterval.MONTHLY, cutoffDays = 1)
         advanceUntilIdle()
         assertEquals(1, transactionRepo.insertedTransactions.size)
+    }
+
+    @Test
+    fun saveTransactionUpdatesAccountBalance() = runTest {
+        val account = Account(id = 1, name = "A", type = AccountType.CASH_WALLET, balance = BigDecimal("100"), currency = "PHP")
+        accountRepo.accountsFlow.value = listOf(account)
+
+        val vm = NewTransactionsViewModel(transactionUseCase, categoryUseCase, accountUseCase, recurringTransactionUseCase)
+        vm.updateTransaction(
+            Transaction(
+                name = "Test",
+                category = Category(id = 1, name = "C", description = "", icon = "", categoryGroupId = 1, categoryType = TransactionType.OUTFLOW, weight = 0),
+                from = 1,
+                fromAccountName = "A",
+                amount = BigDecimal.TEN,
+                createdAt = LocalDate.now(),
+                updatedAt = LocalDate.now(),
+                transactionType = TransactionType.OUTFLOW
+            )
+        )
+
+        vm.saveTransaction(false, RecurringInterval.MONTHLY, 1)
+        advanceUntilIdle()
+        assertEquals(account.balance - BigDecimal.TEN, accountRepo.insertedAccounts.last().balance)
     }
 }
