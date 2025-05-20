@@ -34,10 +34,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -53,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.AccountType
@@ -188,12 +191,22 @@ fun AccountsScreen(
                 Text("Loading...", modifier = Modifier.padding(16.dp))
             }
             is AccountsUiState.Success -> {
-                AccountsContent(
-                    accounts = state.accounts,
-                    onAddWallet = { navigationManager.navigate(NavigationDestination.NewAccount) },
-                    onAccountClick = { selectedAccount = it },
-                    modifier = Modifier.padding(padding)
-                )
+
+                Column {
+                    Text(
+                        text = "Accounts",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.titleLargeEmphasized
+                    )
+                    Spacer(Modifier.size(16.dp))
+                    AccountsContent(
+                        accounts = state.accounts,
+                        onAddWallet = { navigationManager.navigate(NavigationDestination.NewAccount) },
+                        onAccountClick = { selectedAccount = it },
+                        modifier = Modifier.padding(padding)
+                    )
+                }
+
             }
             is AccountsUiState.Error -> {
                 Text(state.message, color = MaterialTheme.colorScheme.error)
@@ -226,18 +239,24 @@ private fun AccountsContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Total: $symbol${totalValue.format()}",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Button(onClick = onAddWallet) { Text("Add Wallet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimary) }
+                Column {
+                    Text("Consolidated Account", style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        text = "$symbol${totalValue.format()}",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
+                TextButton(onClick = onAddWallet) { Text("Add Account", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground) }
             }
         }
         item {
-            SquigglyDivider(
+            HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(16.dp)
+                    .height(1.dp)
             )
         }
         items(accounts, key = { it.id }) { account ->

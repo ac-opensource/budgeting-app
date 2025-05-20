@@ -1,5 +1,6 @@
 package dev.pandesal.sbp.presentation.categories
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -382,35 +383,37 @@ private fun ChildListContent(
                                 color = MaterialTheme.colorScheme.onTertiary
                             )
 
+                            Row {
+                                AnimatedVisibility(
+                                    visible = editMode
+                                ) {
+                                    IconButton(onClick = { onEditCategory(item.category) }) {
+                                        Icon(
+                                            Icons.Filled.Edit, contentDescription = "Edit Category",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+
+                                AnimatedVisibility(
+                                    visible = editMode
+                                ) {
+                                    IconButton(onClick = { onDeleteCategory(item.category) }) {
+                                        Icon(
+                                            Icons.Filled.Delete,
+                                            contentDescription = "Delete Category",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+
                             Spacer(Modifier.weight(1f))
 
-                            if (editMode) {
-                                if (item.budget != null) {
-                                    IconButton(onClick = {
-                                        onEditBudget(
-                                            item.budget.allocated,
-                                            item.category.id
-                                        )
-                                    }) {
-                                        Icon(Icons.Filled.Edit, contentDescription = "Edit Budget")
-                                    }
-                                } else {
-                                    IconButton(onClick = { onAddBudgetClick(item.category.id) }) {
-                                        Icon(Icons.Filled.Edit, contentDescription = "Set Budget")
-                                    }
-                                }
-                                IconButton(onClick = { onEditCategory(item.category) }) {
-                                    Icon(Icons.Filled.Edit, contentDescription = "Edit Category")
-                                }
-                                IconButton(onClick = { onDeleteCategory(item.category) }) {
-                                    Icon(
-                                        Icons.Filled.Delete,
-                                        contentDescription = "Delete Category"
-                                    )
-                                }
-                            } else {
-                                if (item.budget != null) {
-                                    item.budget.let {
+                            if (item.budget != null) {
+                                item.budget.let {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
                                         val symbol = it.currency.currencySymbol()
                                         Column(horizontalAlignment = Alignment.End) {
                                             Text("$symbol${it.spent.format()} / $symbol${it.allocated.format()}")
@@ -424,31 +427,50 @@ private fun ChildListContent(
                                                 modifier = Modifier.fillMaxWidth(0.5f)
                                             )
                                         }
-                                    }
-                                } else {
-                                    val goal = goalMap[item.category.id]
-                                    if (goal != null) {
-                                        Column(horizontalAlignment = Alignment.End) {
-                                            goal.dueDate?.let {
-                                                val months = ChronoUnit.MONTHS.between(
-                                                    LocalDate.now().withDayOfMonth(1),
-                                                    it.withDayOfMonth(1)
-                                                ).toInt()
-                                                Text("Due: ${it}")
-                                                Text("$months months left")
+
+                                        AnimatedVisibility(
+                                            visible = editMode
+                                        ) {
+                                            IconButton(onClick = {
+                                                onEditBudget(
+                                                    item.budget.allocated,
+                                                    item.category.id
+                                                )
+                                            }) {
+                                                Icon(
+                                                    Icons.Filled.Edit,
+                                                    contentDescription = "Edit Budget",
+                                                    modifier = Modifier.size(16.dp)
+                                                )
                                             }
                                         }
-                                    } else {
-                                        TextButton(
-                                            onClick = {
-                                                onAddBudgetClick(item.category.id)
-                                            },
-                                            colors = ButtonDefaults.textButtonColors(
-                                                contentColor = MaterialTheme.colorScheme.onTertiary
-                                            )
-                                        ) {
-                                            Text("Set Budget")
+
+                                    }
+
+                                }
+                            } else {
+                                val goal = goalMap[item.category.id]
+                                if (goal != null) {
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        goal.dueDate?.let {
+                                            val months = ChronoUnit.MONTHS.between(
+                                                LocalDate.now().withDayOfMonth(1),
+                                                it.withDayOfMonth(1)
+                                            ).toInt()
+                                            Text("Due: ${it}")
+                                            Text("$months months left")
                                         }
+                                    }
+                                } else {
+                                    TextButton(
+                                        onClick = {
+                                            onAddBudgetClick(item.category.id)
+                                        },
+                                        colors = ButtonDefaults.textButtonColors(
+                                            contentColor = MaterialTheme.colorScheme.onTertiary
+                                        )
+                                    ) {
+                                        Text("Set Budget")
                                     }
                                 }
                             }
@@ -552,13 +574,13 @@ fun CategoriesScreen(
                         Text("Categories", style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.weight(1f))
                         TextButton(onClick = { editMode = !editMode }) {
-                            Text(if (editMode) "Done" else "Edit")
+                            Text(if (editMode) "Done" else "Edit Mode")
                         }
                         val navManager = LocalNavigationManager.current
                         TextButton(onClick = {
                             navManager.navigate(NavigationDestination.NewCategoryGroup)
                         }) {
-                            Text("Add Category Group")
+                            Text("New Group")
                         }
                         IconButton(
                             onClick = {

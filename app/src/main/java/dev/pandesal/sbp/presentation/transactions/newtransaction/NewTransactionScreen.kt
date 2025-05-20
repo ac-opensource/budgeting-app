@@ -84,6 +84,7 @@ import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import java.math.BigDecimal
 import java.time.Instant
@@ -255,6 +256,7 @@ private fun NewTransactionScreen(
                         slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
             ) {
                 ElevatedCard(
+                    modifier = Modifier.wrapContentSize().padding(vertical = 8.dp),
                     shape = RoundedCornerShape(50),
                     elevation = CardDefaults.elevatedCardElevation(
                         defaultElevation = 16.dp
@@ -677,7 +679,7 @@ private fun NewTransactionScreen(
                                     .clickable(enabled = editable) { isRecurring = !isRecurring },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Checkbox(
+                                Switch(
                                     enabled = editable,
                                     checked = isRecurring,
                                     onCheckedChange = { isRecurring = it }

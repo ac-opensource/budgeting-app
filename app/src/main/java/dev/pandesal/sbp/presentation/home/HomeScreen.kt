@@ -22,6 +22,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.twotone.Notifications
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -271,7 +273,7 @@ private fun HomeScreenContent(
                     onViewNotifications()
                 }) {
                     Icon(
-                        painterResource(R.drawable.ic_notif),
+                        Icons.Outlined.Notifications,
                         contentDescription = "Notifications"
                     )
                 }

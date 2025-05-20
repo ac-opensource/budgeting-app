@@ -105,8 +105,7 @@ fun NewCategoryGroupScreen(
                 ElevatedCard(
                     modifier = Modifier
                         .padding(top = 4.dp)
-                        .fillMaxWidth(),
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+                        .fillMaxWidth()
                 ) {
                     BasicTextField(
                         value = name,

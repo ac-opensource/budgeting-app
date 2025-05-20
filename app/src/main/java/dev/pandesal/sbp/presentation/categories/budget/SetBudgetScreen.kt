@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -31,6 +32,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -74,7 +76,7 @@ fun SetBudgetScreen(
                 categoriesViewModel.setBudgetForCategory(categoryId, amount)
             }
         },
-        onCancel = {  },
+        onCancel = { },
         onDismissRequest = { nav.navigateUp() }
     )
 }
@@ -128,27 +130,52 @@ private fun SetBudgetContent(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp),
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                OutlinedTextField(
-                    value = amount.toString(),
-                    onValueChange = { amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
-                    label = { Text("Amount") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    singleLine = true
-                )
+
+
+                Column {
+                    Text(
+                        if (selectedTab == 0) "Budget" else "Target Amount",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    ElevatedCard(
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .fillMaxWidth()
+                    ) {
+                        BasicTextField(
+                            value = amount.toString(),
+                            onValueChange = { amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+                    }
+                }
 
                 if (selectedTab == 1) {
-                    Row(
+                    ElevatedCard(
                         modifier = Modifier
-                            .fillMaxWidth()
                             .padding(top = 16.dp)
+                            .fillMaxWidth()
                             .clickable { showDatePicker = true },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(selectedDate?.toString() ?: "Select Due Date")
-                        Icon(Icons.TwoTone.DateRange, contentDescription = null)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = selectedDate?.toString() ?: "Select Target Date",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(16.dp)
+                            )
+
+                            Icon(
+                                Icons.TwoTone.DateRange, contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -188,7 +215,10 @@ private fun SetBudgetContent(
                                 else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                             }
                         ) {
-                            Text(label, color = if (selectedTab == index) Color.White else Color.Black)
+                            Text(
+                                label,
+                                color = if (selectedTab == index) Color.White else Color.Black
+                            )
                         }
                     }
                 }
@@ -201,13 +231,20 @@ private fun SetBudgetContent(
                 confirmButton = {
                     IconButton(onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
-                            selectedDate = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+                            selectedDate =
+                                Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
                         }
                         showDatePicker = false
                     }) { Icon(Icons.Default.Check, contentDescription = null) }
                 },
                 dismissButton = {
-                    IconButton(onClick = { showDatePicker = false }) { Icon(Icons.Default.Close, contentDescription = null) }
+                    IconButton(onClick = { showDatePicker = false }) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = null
+                        )
+                    }
                 }
             ) {
                 DatePicker(state = datePickerState)
