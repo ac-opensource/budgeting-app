@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.pandesal.sbp.domain.model.Settings
 import dev.pandesal.sbp.domain.usecase.SettingsUseCase
+import dev.pandesal.sbp.notification.SmsTransactionScanner
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val useCase: SettingsUseCase
+    private val useCase: SettingsUseCase,
+    private val smsScanner: SmsTransactionScanner
 ) : ViewModel() {
 
     val settings: StateFlow<Settings> = useCase.getSettings()
@@ -30,5 +32,9 @@ class SettingsViewModel @Inject constructor(
 
     fun setCurrency(currency: String) {
         viewModelScope.launch { useCase.setCurrency(currency) }
+    }
+
+    fun scanSms() {
+        viewModelScope.launch { smsScanner.scan() }
     }
 }
