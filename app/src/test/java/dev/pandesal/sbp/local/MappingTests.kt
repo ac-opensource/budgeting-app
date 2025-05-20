@@ -90,7 +90,8 @@ class MappingTests {
             ),
             interval = dev.pandesal.sbp.domain.model.RecurringInterval.MONTHLY,
             cutoffDays = 15,
-            startDate = LocalDate.now()
+            startDate = LocalDate.now(),
+            reminderEnabled = true
         )
 
         val entity = domain.toEntity()

@@ -37,6 +37,9 @@
         <service
             android:name=".notification.FinancialAppUsageService"
             android:exported="false" />
+        <service
+            android:name=".notification.RecurringReminderService"
+            android:exported="false" />
     </application>
 
 </manifest>

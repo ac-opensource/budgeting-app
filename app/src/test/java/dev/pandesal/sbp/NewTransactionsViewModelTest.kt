@@ -62,7 +62,7 @@ class NewTransactionsViewModelTest {
         vm.updateTransaction(
             Transaction(name = "Test", category = Category(id = 1, name = "C", description = "", icon = "", categoryGroupId = 1, categoryType = TransactionType.OUTFLOW, weight = 0), from = 1, fromAccountName = "1", amount = "100.00".toBigDecimal(), createdAt = LocalDate.now(), updatedAt = LocalDate.now(), transactionType = TransactionType.OUTFLOW)
         )
-        vm.saveTransaction(false, interval = RecurringInterval.MONTHLY, cutoffDays = 1)
+        vm.saveTransaction(false, interval = RecurringInterval.MONTHLY, cutoffDays = 1, reminderEnabled = true)
         advanceUntilIdle()
         assertEquals(1, transactionRepo.insertedTransactions.size)
     }
@@ -86,7 +86,7 @@ class NewTransactionsViewModelTest {
             )
         )
 
-        vm.saveTransaction(false, RecurringInterval.MONTHLY, 1)
+        vm.saveTransaction(false, RecurringInterval.MONTHLY, 1, true)
         advanceUntilIdle()
         assertEquals(account.balance - BigDecimal.TEN, accountRepo.insertedAccounts.last().balance)
     }
