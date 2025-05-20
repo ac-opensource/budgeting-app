@@ -108,8 +108,9 @@ fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewMo
                         notification = notif,
                         onMarkRead = { InAppNotificationCenter.markAsRead(notif.id) },
                         onCreateTransaction = {
+                            val tx = viewModel.parseTransaction(notif.message)
                             InAppNotificationCenter.markAsRead(notif.id)
-                            navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction)
+                            navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction(tx))
                         }
                     )
                 }

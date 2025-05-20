@@ -136,7 +136,7 @@ fun AccountsScreen(
         sheetContent = {
             TransactionsContent(
                 transactions = transactions,
-                onNewTransactionClick = { navigationManager.navigate(NavigationDestination.NewTransaction) },
+                onNewTransactionClick = { navigationManager.navigate(NavigationDestination.NewTransaction()) },
                 onTransactionClick = { navigationManager.navigate(NavigationDestination.TransactionDetails(it.id)) }
             )
         },

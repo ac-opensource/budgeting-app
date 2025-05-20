@@ -34,7 +34,11 @@ class SmsTransactionScanner @Inject constructor(
     }
 
     private fun isFinancialSms(text: String): Boolean {
-        val pattern = Regex("(?i)(\\bpaid\\b|\\bpurchase\\b|\\bdeposit\\b|\\bspent\\b|\\bpayment\\b|₱|PHP)")
+        val pattern = Regex(
+            "(?i)(\\bpaid\\b|\\bpurchase\\b|\\bdeposit\\b|\\bspent\\b|\\bpayment\\b|\\bdebit\\b|" +
+                "\\bcredited\\b|\\bbalance\\b|\\bwithdraw\\b|\\bsent\\b|\\btransfer\\b|\\bcash\\s?in\\b|" +
+                "\\bcashout\\b|\\binstapay\\b|\\bpesonet\\b|\\bpay\\b|\\bcharge\\b|\\breceived\\b|₱|PHP)"
+        )
         return pattern.containsMatchIn(text)
     }
 }
