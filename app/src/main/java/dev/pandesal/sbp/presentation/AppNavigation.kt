@@ -6,10 +6,10 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.toRoute
-import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
 import dev.pandesal.sbp.presentation.accounts.AccountsScreen
 import dev.pandesal.sbp.presentation.accounts.NewAccountScreen
@@ -27,8 +27,10 @@ import dev.pandesal.sbp.presentation.categories.budget.SetBudgetScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
 import dev.pandesal.sbp.presentation.goals.NewGoalScreen
+import dev.pandesal.sbp.presentation.nav.parcelableTypeMap
 import java.math.BigDecimal
 import kotlinx.serialization.Serializable
+import kotlin.reflect.typeOf
 
 @Serializable
 sealed class NavigationDestination() {
@@ -137,7 +139,8 @@ fun AppNavigation(navController: NavHostController) {
             }
 
             dialog<NavigationDestination.NewTransaction>(
-                dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+                dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+                typeMap          = parcelableTypeMap<Transaction>(isNullableAllowed = true),
             ) { backStackEntry ->
                 val args = backStackEntry.toRoute<NavigationDestination.NewTransaction>()
                 NewTransactionScreen(initialTransaction = args.transaction)

@@ -2,7 +2,6 @@ package dev.pandesal.sbp.domain.service
 
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
-import dev.pandesal.sbp.BuildConfig
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import java.math.BigDecimal
@@ -16,7 +15,7 @@ import kotlinx.serialization.decodeFromString
 class GeminiService @Inject constructor() {
     private val model = GenerativeModel(
         modelName = "models/gemini-pro",
-        apiKey = BuildConfig.GEMINI_API_KEY
+        apiKey = ""
     )
     private val json = Json { ignoreUnknownKeys = true }
     private val systemPrompt = """
@@ -26,7 +25,9 @@ class GeminiService @Inject constructor() {
 
     suspend fun parseSms(text: String): Transaction {
         return try {
-            val response = model.generateContent(content(systemPrompt + "\n" + text))
+            val response = model.generateContent(content("app") {
+                systemPrompt + "\n" + text
+            })
             val result = response.text ?: return fallbackParse(text)
             json.decodeFromString(result)
         } catch (_: Exception) {

@@ -39,6 +39,7 @@ import dev.pandesal.sbp.domain.model.NotificationType
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

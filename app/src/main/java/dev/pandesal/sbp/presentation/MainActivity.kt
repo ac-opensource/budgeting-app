@@ -49,7 +49,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import dev.pandesal.sbp.domain.model.Transaction
+import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
+import java.math.BigDecimal
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @AndroidEntryPoint
@@ -111,7 +115,7 @@ class MainActivity : ComponentActivity() {
                             floatingActionButton = {
                                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                                     onClick = {
-                                        navController.navigate(NavigationDestination.NewTransaction()) {
+                                        navController.navigate(NavigationDestination.NewTransaction(null)) {
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = true
                                             }
