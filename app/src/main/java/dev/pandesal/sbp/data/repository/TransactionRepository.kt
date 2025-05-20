@@ -2,6 +2,7 @@ package dev.pandesal.sbp.data.repository
 
 import dev.pandesal.sbp.data.dao.TransactionDao
 import dev.pandesal.sbp.data.dao.CategoryDao
+import dev.pandesal.sbp.data.dao.AccountDao
 import dev.pandesal.sbp.data.local.toDomainModel
 import dev.pandesal.sbp.data.local.toEntity
 import dev.pandesal.sbp.data.local.MonthlyBudgetEntity
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 class TransactionRepository @Inject constructor(
     private val dao: TransactionDao,
-    private val categoryDao: CategoryDao
+    private val categoryDao: CategoryDao,
+    private val accountDao: AccountDao
 ) : TransactionRepositoryInterface {
 
     override fun getAllTransactions(): Flow<List<Transaction>> =
@@ -121,6 +123,32 @@ class TransactionRepository @Inject constructor(
 
     override suspend fun insert(transaction: Transaction) {
         dao.insert(transaction.toEntity())
+
+        when (transaction.transactionType) {
+            TransactionType.INFLOW -> transaction.to?.let { id ->
+                accountDao.getAccountById(id)?.let {
+                    accountDao.update(it.copy(balance = it.balance + transaction.amount))
+                }
+            }
+            TransactionType.OUTFLOW -> transaction.from?.let { id ->
+                accountDao.getAccountById(id)?.let {
+                    accountDao.update(it.copy(balance = it.balance - transaction.amount))
+                }
+            }
+            TransactionType.TRANSFER -> {
+                transaction.from?.let { id ->
+                    accountDao.getAccountById(id)?.let {
+                        accountDao.update(it.copy(balance = it.balance - transaction.amount))
+                    }
+                }
+                transaction.to?.let { id ->
+                    accountDao.getAccountById(id)?.let {
+                        accountDao.update(it.copy(balance = it.balance + transaction.amount))
+                    }
+                }
+            }
+            else -> {}
+        }
 
         val category = transaction.category ?: return
         val month = YearMonth.from(transaction.createdAt)

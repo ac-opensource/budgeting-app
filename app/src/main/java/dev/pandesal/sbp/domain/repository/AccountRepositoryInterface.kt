@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface AccountRepositoryInterface {
     fun getAccounts(): Flow<List<Account>>
+    suspend fun getAccountById(id: Int): Account?
     suspend fun insertAccount(account: Account)
+    suspend fun updateAccount(account: Account)
     suspend fun deleteAccount(account: Account)
 }

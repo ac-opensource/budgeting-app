@@ -80,9 +80,10 @@ object DataModule {
     @Provides
     fun provideTransactionRepository(
         transactionDao: TransactionDao,
-        categoryDao: CategoryDao
+        categoryDao: CategoryDao,
+        accountDao: AccountDao
     ): TransactionRepositoryInterface {
-        return TransactionRepository(transactionDao, categoryDao)
+        return TransactionRepository(transactionDao, categoryDao, accountDao)
     }
 
     @Singleton

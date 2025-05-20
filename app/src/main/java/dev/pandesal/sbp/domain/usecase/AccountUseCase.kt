@@ -10,7 +10,11 @@ class AccountUseCase @Inject constructor(
 ) {
     fun getAccounts(): Flow<List<Account>> = repository.getAccounts()
 
+    suspend fun getAccountById(id: Int): Account? = repository.getAccountById(id)
+
     suspend fun insertAccount(account: Account) = repository.insertAccount(account)
+
+    suspend fun updateAccount(account: Account) = repository.updateAccount(account)
 
     suspend fun deleteAccount(account: Account) = repository.deleteAccount(account)
 }

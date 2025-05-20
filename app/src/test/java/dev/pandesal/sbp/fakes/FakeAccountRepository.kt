@@ -11,8 +11,17 @@ class FakeAccountRepository : AccountRepositoryInterface {
 
     override fun getAccounts(): Flow<List<Account>> = accountsFlow
 
+    override suspend fun getAccountById(id: Int): Account? =
+        accountsFlow.value.firstOrNull { it.id == id }
+
     override suspend fun insertAccount(account: Account) {
         insertedAccounts.add(account)
+    }
+
+    override suspend fun updateAccount(account: Account) {
+        accountsFlow.value = accountsFlow.value.map {
+            if (it.id == account.id) account else it
+        }
     }
 
     override suspend fun deleteAccount(account: Account) { /* no-op */ }

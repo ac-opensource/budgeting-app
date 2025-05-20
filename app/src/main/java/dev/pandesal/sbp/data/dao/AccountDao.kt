@@ -12,8 +12,14 @@ interface AccountDao {
     @Query("SELECT * FROM accounts")
     fun getAccounts(): Flow<List<AccountEntity>>
 
+    @Query("SELECT * FROM accounts WHERE id = :id")
+    suspend fun getAccountById(id: Int): AccountEntity?
+
     @Upsert
     suspend fun insert(value: AccountEntity)
+
+    @Upsert
+    suspend fun update(value: AccountEntity)
 
     @Delete
     suspend fun delete(value: AccountEntity)

@@ -16,8 +16,14 @@ class AccountRepository @Inject constructor(
     override fun getAccounts(): Flow<List<Account>> =
         dao.getAccounts().map { entities -> entities.map { it.toDomainModel() } }
 
+    override suspend fun getAccountById(id: Int): Account? =
+        dao.getAccountById(id)?.toDomainModel()
+
     override suspend fun insertAccount(account: Account) =
         dao.insert(account.toEntity())
+
+    override suspend fun updateAccount(account: Account) =
+        dao.update(account.toEntity())
 
     override suspend fun deleteAccount(account: Account) =
         dao.delete(account.toEntity())
