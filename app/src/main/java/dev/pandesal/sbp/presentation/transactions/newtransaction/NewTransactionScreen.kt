@@ -120,8 +120,8 @@ fun NewTransactionScreen(
             editable = editable,
             onEdit = { editable = true },
             onDelete = { showDelete = true },
-            onSave = { _, recur, interval, cutoff ->
-                viewModel.saveTransaction(recur, interval, cutoff) {
+            onSave = { _, recur, interval, cutoff, reminder ->
+                viewModel.saveTransaction(recur, interval, cutoff, reminder) {
                     navManager.navigateUp()
                 }
             },
@@ -167,7 +167,7 @@ private fun NewTransactionScreen(
     editable: Boolean,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    onSave: (Transaction, Boolean, RecurringInterval, Int) -> Unit,
+    onSave: (Transaction, Boolean, RecurringInterval, Int, Boolean) -> Unit,
     onCancel: () -> Unit,
     onUpdate: (Transaction) -> Unit
 ) {
@@ -215,6 +215,7 @@ private fun NewTransactionScreen(
     var recurringExpanded by remember { mutableStateOf(false) }
     var selectedInterval by remember { mutableStateOf(RecurringInterval.MONTHLY) }
     var cutoffDays by remember { mutableIntStateOf(21) }
+    var reminderEnabled by remember { mutableStateOf(false) }
 
     // Transaction Type Tabs
     val transactionTypes =
@@ -753,6 +754,24 @@ private fun NewTransactionScreen(
                                             .fillMaxWidth()
                                     )
                                 }
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Switch(
+                                        enabled = editable,
+                                        checked = reminderEnabled,
+                                        onCheckedChange = { reminderEnabled = it }
+                                    )
+                                    Text(
+                                        text = "Reminders",
+                                        modifier = Modifier.padding(start = 8.dp),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
                             }
                         }
                     }
@@ -771,7 +790,7 @@ private fun NewTransactionScreen(
                     floatingActionButton = {
                         FloatingToolbarDefaults.VibrantFloatingActionButton(
                             onClick = {
-                                onSave(transaction, isRecurring, selectedInterval, cutoffDays)
+                                onSave(transaction, isRecurring, selectedInterval, cutoffDays, reminderEnabled)
                             },
                         ) {
                             Icon(Icons.Default.Check, "Localized description")

@@ -35,7 +35,8 @@ class RecurringTransactionDetailsViewModelTest {
                 transactionType = TransactionType.OUTFLOW
             ),
             interval = RecurringInterval.MONTHLY,
-            startDate = LocalDate.now()
+            startDate = LocalDate.now(),
+            reminderEnabled = true
         )
         repository.transactionsFlow.value = listOf(tx)
 
@@ -56,7 +57,8 @@ class RecurringTransactionDetailsViewModelTest {
                 transactionType = TransactionType.OUTFLOW
             ),
             interval = RecurringInterval.MONTHLY,
-            startDate = LocalDate.now()
+            startDate = LocalDate.now(),
+            reminderEnabled = true
         )
         repository.transactionsFlow.value = listOf(tx)
         val vm = RecurringTransactionDetailsViewModel(useCase)

@@ -35,6 +35,7 @@ data class RecurringTransactionEntity(
     val interval: String,
     val cutoffDays: Int = 21,
     val startDate: String,
+    val reminderEnabled: Boolean = false,
 )
 
 fun RecurringTransactionEntity.toDomainModel(): RecurringTransaction {
@@ -63,7 +64,8 @@ fun RecurringTransactionEntity.toDomainModel(): RecurringTransaction {
         transaction = transaction,
         interval = RecurringInterval.valueOf(interval),
         cutoffDays = cutoffDays,
-        startDate = LocalDate.parse(startDate)
+        startDate = LocalDate.parse(startDate),
+        reminderEnabled = reminderEnabled
     )
 }
 
@@ -89,5 +91,6 @@ fun RecurringTransaction.toEntity(): RecurringTransactionEntity {
         interval = interval.name,
         cutoffDays = cutoffDays,
         startDate = startDate.toString(),
+        reminderEnabled = reminderEnabled,
     )
 }
