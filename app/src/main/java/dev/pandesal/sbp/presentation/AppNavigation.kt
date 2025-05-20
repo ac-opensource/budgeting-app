@@ -20,7 +20,6 @@ import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewRecurringTransactionScreen
-import dev.pandesal.sbp.presentation.transactions.details.TransactionDetailsScreen
 import dev.pandesal.sbp.presentation.transactions.recurringdetails.RecurringTransactionDetailsScreen
 import dev.pandesal.sbp.presentation.transactions.recurring.RecurringTransactionsScreen
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetScreen

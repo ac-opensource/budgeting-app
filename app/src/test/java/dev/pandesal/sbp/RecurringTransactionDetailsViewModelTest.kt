@@ -61,6 +61,7 @@ class RecurringTransactionDetailsViewModelTest {
         repository.transactionsFlow.value = listOf(tx)
         val vm = RecurringTransactionDetailsViewModel(useCase)
         vm.loadTransaction(tx.transaction.id)
+        advanceUntilIdle()
         vm.delete()
         advanceUntilIdle()
         assertEquals(listOf(tx), repository.deleted)

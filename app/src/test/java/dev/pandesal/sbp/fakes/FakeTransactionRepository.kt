@@ -22,7 +22,7 @@ class FakeTransactionRepository : TransactionRepositoryInterface {
     override fun getTransactionsByTypeAndAccountIdAndCategoryId(type: TransactionType, accountId: String, categoryId: String): Flow<List<Transaction>> = flowOf(emptyList())
     override fun getTransactionsByTypeAndDateRange(type: TransactionType, startDate: LocalDate, endDate: LocalDate): Flow<List<Transaction>> = flowOf(emptyList())
     override fun getTransactionsByTypeAndAccountIdAndDateRange(type: TransactionType, accountId: String, startDate: LocalDate, endDate: LocalDate): Flow<List<Transaction>> = flowOf(emptyList())
-    override fun getTransactionById(id: String): Flow<Transaction> = flowOf(transactionsFlow.value.first { it.id == id })
+    override fun getTransactionById(id: String): Flow<Transaction?> = flowOf(transactionsFlow.value.firstOrNull { it.id == id })
     override fun getTransactionsByAccountId(accountId: String): Flow<List<Transaction>> = flowOf(emptyList())
     override fun getTransactionsByCategoryId(categoryId: String): Flow<List<Transaction>> = flowOf(emptyList())
     override fun getTransactionsByDateRange(startDate: LocalDate, endDate: LocalDate): Flow<List<Transaction>> = flowOf(emptyList())

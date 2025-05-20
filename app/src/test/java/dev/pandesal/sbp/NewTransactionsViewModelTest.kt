@@ -5,6 +5,7 @@ import dev.pandesal.sbp.domain.model.AccountType
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.RecurringInterval
+import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
@@ -23,6 +24,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NewTransactionsViewModelTest {
@@ -56,6 +58,9 @@ class NewTransactionsViewModelTest {
     @Test
     fun saveTransactionCallsInsert() = runTest {
         val vm = NewTransactionsViewModel(transactionUseCase, categoryUseCase, accountUseCase, recurringTransactionUseCase)
+        vm.updateTransaction(
+            Transaction(name = "Test", category = Category(id = 1, name = "C", description = "", icon = "", categoryGroupId = 1, categoryType = TransactionType.OUTFLOW, weight = 0), from = 1, fromAccountName = "1", amount = "100.00".toBigDecimal(), createdAt = LocalDate.now(), updatedAt = LocalDate.now(), transactionType = TransactionType.OUTFLOW)
+        )
         vm.saveTransaction(false, interval = RecurringInterval.MONTHLY, cutoffDays = 1)
         advanceUntilIdle()
         assertEquals(1, transactionRepo.insertedTransactions.size)

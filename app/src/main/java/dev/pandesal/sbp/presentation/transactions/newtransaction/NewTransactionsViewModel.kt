@@ -137,8 +137,8 @@ class NewTransactionsViewModel @Inject constructor(
 
         _transaction.value = newTransaction
         _uiState.value = NewTransactionUiState.Success(
-            groupedCategories = (_uiState.value as NewTransactionUiState.Success).groupedCategories,
-            accounts = (_uiState.value as NewTransactionUiState.Success).accounts,
+            groupedCategories = (_uiState.value as? NewTransactionUiState.Success)?.groupedCategories ?: mapOf(),
+            accounts = (_uiState.value as? NewTransactionUiState.Success)?.accounts ?: listOf(),
             transaction = newTransaction,
             merchants = _merchants.value
         )

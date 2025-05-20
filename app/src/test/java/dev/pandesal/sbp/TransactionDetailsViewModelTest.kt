@@ -34,7 +34,7 @@ class TransactionDetailsViewModelTest {
             fromAccountName = "1",
             transactionType = TransactionType.OUTFLOW
         )
-        vm.setTransaction(tx.id)
+        vm.updateTransaction(tx)
         advanceUntilIdle()
         assertEquals(tx, vm.transaction.value)
     }
@@ -51,7 +51,8 @@ class TransactionDetailsViewModelTest {
             fromAccountName = "1",
             transactionType = TransactionType.OUTFLOW
         )
-        vm.setTransaction(tx.id)
+        vm.updateTransaction(tx)
+        advanceUntilIdle()
         vm.save()
         advanceUntilIdle()
         assertEquals(listOf(tx), repository.insertedTransactions)
