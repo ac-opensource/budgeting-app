@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.AccountType
+import dev.pandesal.sbp.domain.model.LenderType
 import java.math.BigDecimal
 
 @Entity(tableName = "accounts")
@@ -15,6 +16,8 @@ data class AccountEntity(
     val currency: String = "PHP",
     val contractValue: BigDecimal? = null,
     val monthlyPayment: BigDecimal? = null,
+    val creditLimit: BigDecimal? = null,
+    val lenderType: String? = null,
     val startDate: String? = null,
     val endDate: String? = null,
 )
@@ -28,6 +31,8 @@ fun AccountEntity.toDomainModel(): Account {
         currency = currency,
         contractValue = contractValue,
         monthlyPayment = monthlyPayment,
+        creditLimit = creditLimit,
+        lenderType = lenderType?.let { LenderType.valueOf(it) },
         startDate = startDate,
         endDate = endDate,
     )
@@ -42,6 +47,8 @@ fun Account.toEntity(): AccountEntity {
         currency = currency,
         contractValue = contractValue,
         monthlyPayment = monthlyPayment,
+        creditLimit = creditLimit,
+        lenderType = lenderType?.name,
         startDate = startDate,
         endDate = endDate,
     )

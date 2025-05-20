@@ -286,5 +286,5 @@ private fun getAccountIcon(type: AccountType): ImageVector = when (type) {
     AccountType.MOBILE_DIGITAL_WALLET -> Icons.Outlined.AccountBalanceWallet
     AccountType.BANK_ACCOUNT -> Icons.Outlined.AccountBalance
     AccountType.CREDIT_CARD -> Icons.Outlined.CreditCard
-    AccountType.LOAN -> Icons.Outlined.AttachMoney
+    AccountType.LOAN_FOR_ASSET, AccountType.LOAN_FOR_SPENDING -> Icons.Outlined.AttachMoney
 }

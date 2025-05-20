@@ -27,6 +27,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - Display allocated and unallocated summary above budgets pie chart in Categories screen.
 
+## [0.29.0] - 2025-05-19
+### Added
+- New loan account types for assets and spending.
+- Accounts can record whether a loan is from an institution or a person.
+- Credit card accounts now include an optional credit limit.
+
 ## [0.28.0] - 2025-05-19
 ### Added
 - Set Budget now opens as a dialog similar to New Transaction.
