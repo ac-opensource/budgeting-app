@@ -19,6 +19,7 @@ import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.insights.InsightsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
+import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewRecurringTransactionScreen
 import dev.pandesal.sbp.presentation.transactions.recurringdetails.RecurringTransactionDetailsScreen
 import dev.pandesal.sbp.presentation.transactions.recurring.RecurringTransactionsScreen
@@ -44,7 +45,7 @@ sealed class NavigationDestination() {
     @Serializable
     data object Transactions : NavigationDestination()
     @Serializable
-    data object NewTransaction : NavigationDestination()
+    data class NewTransaction(val transaction: Transaction? = null) : NavigationDestination()
     @Serializable
     data object Notifications : NavigationDestination()
     @Serializable
@@ -137,8 +138,9 @@ fun AppNavigation(navController: NavHostController) {
 
             dialog<NavigationDestination.NewTransaction>(
                 dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-            ) {
-                NewTransactionScreen()
+            ) { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationDestination.NewTransaction>()
+                NewTransactionScreen(initialTransaction = args.transaction)
             }
 
             dialog<NavigationDestination.NewRecurringTransaction>(

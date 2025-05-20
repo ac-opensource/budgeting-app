@@ -30,6 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import dev.pandesal.sbp.presentation.notifications.NotificationCenterViewModel
 @Composable
 fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewModel()) {
     val navController = LocalNavigationManager.current
+    val coroutineScope = rememberCoroutineScope()
     val notifications by viewModel.notifications.collectAsState()
     val tabTitles = listOf(
         "All",
@@ -108,8 +110,11 @@ fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewMo
                         notification = notif,
                         onMarkRead = { InAppNotificationCenter.markAsRead(notif.id) },
                         onCreateTransaction = {
-                            InAppNotificationCenter.markAsRead(notif.id)
-                            navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction)
+                            coroutineScope.launch {
+                                val tx = viewModel.parseTransaction(notif.message)
+                                InAppNotificationCenter.markAsRead(notif.id)
+                                navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction(tx))
+                            }
                         }
                     )
                 }

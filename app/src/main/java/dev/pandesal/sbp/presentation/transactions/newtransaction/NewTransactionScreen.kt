@@ -95,13 +95,15 @@ import kotlinx.coroutines.delay
 fun NewTransactionScreen(
     transactionId: String? = null,
     readOnly: Boolean = false,
+    initialTransaction: Transaction? = null,
     viewModel: NewTransactionsViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState()
     val navManager = LocalNavigationManager.current
 
-    LaunchedEffect(transactionId) {
+    LaunchedEffect(transactionId, initialTransaction) {
         transactionId?.let { viewModel.loadTransaction(it) }
+        initialTransaction?.let { viewModel.updateTransaction(it) }
     }
 
     if (uiState.value is NewTransactionUiState.Initial) {
