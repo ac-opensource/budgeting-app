@@ -25,6 +25,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,8 +36,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import dev.pandesal.sbp.domain.model.RecurringTransaction
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 
@@ -119,10 +125,25 @@ fun RecurringTransactionDetailsScreen(
                         .padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val context = LocalContext.current
+                    val permissionLauncher = rememberLauncherForActivityResult(
+                        ActivityResultContracts.RequestPermission()
+                    ) { granted ->
+                        viewModel.update(rec.copy(reminderEnabled = granted))
+                    }
                     Switch(
                         checked = rec.reminderEnabled,
-                        onCheckedChange = {
-                            viewModel.update(rec.copy(reminderEnabled = it))
+                        onCheckedChange = { checked ->
+                            if (checked && android.os.Build.VERSION.SDK_INT >= 33) {
+                                val permission = Manifest.permission.POST_NOTIFICATIONS
+                                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                                    viewModel.update(rec.copy(reminderEnabled = true))
+                                } else {
+                                    permissionLauncher.launch(permission)
+                                }
+                            } else {
+                                viewModel.update(rec.copy(reminderEnabled = checked))
+                            }
                         },
                         enabled = editable
                     )
