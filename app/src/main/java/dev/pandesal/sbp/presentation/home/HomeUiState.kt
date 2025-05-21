@@ -4,6 +4,7 @@ import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
+import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 
 sealed interface HomeUiState {
     data object Initial : HomeUiState
@@ -12,6 +13,7 @@ sealed interface HomeUiState {
         val favoriteBudgets: List<BudgetCategoryUiModel>,
         val accounts: List<AccountSummaryUiModel>,
         val netWorthData: List<NetWorthUiModel>,
+        val dailySpent: List<DailySpendUiModel>,
         val budgetSummary: BudgetSummaryUiModel
     ) : HomeUiState
     data class Error(val errorMessage: String) : HomeUiState

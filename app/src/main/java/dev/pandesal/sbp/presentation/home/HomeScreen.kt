@@ -58,9 +58,11 @@ import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.components.TransactionItem
 import dev.pandesal.sbp.presentation.home.components.AccountCard
+import dev.pandesal.sbp.presentation.home.components.DailySpendBarChart
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
+import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
@@ -123,7 +125,7 @@ private fun HomeScreenContent(
     val lazyListState = rememberLazyListState()
     LazyColumn(state = lazyListState) {
         stickyHeader {
-            HeaderSection(totalAmount, onViewNotifications)
+            HeaderSection(totalAmount, state.dailySpent, onViewNotifications)
         }
 
         if (othersPercentage != 100.0) {
@@ -196,6 +198,7 @@ private fun LazyListScope.transactionsSection(
 @Composable
 private fun HeaderSection(
     totalAmount: BigDecimal,
+    dailySpent: List<DailySpendUiModel>,
     onViewNotifications: () -> Unit
 ) {
     ElevatedCard(
@@ -216,11 +219,18 @@ private fun HeaderSection(
             defaultElevation = 16.dp
         )
     ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            AccountSummarySection(totalAmount)
-            HomeToolbar(onViewNotifications)
+        Column {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                AccountSummarySection(totalAmount)
+                HomeToolbar(onViewNotifications)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            DailySpendBarChart(entries = dailySpent, modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
@@ -386,6 +396,13 @@ fun HomeScreenPreview() {
                     AccountSummaryUiModel("Main", BigDecimal("1200.00"), true, false, "USD")
                 ),
                 netWorthData = emptyList(),
+                dailySpent = listOf(
+                    DailySpendUiModel("MON", 10.0),
+                    DailySpendUiModel("TUE", 20.0),
+                    DailySpendUiModel("WED", 0.0),
+                    DailySpendUiModel("THU", 15.0),
+                    DailySpendUiModel("FRI", 5.0)
+                ),
                 budgetSummary = BudgetSummaryUiModel(0.0, 0.0)
             ),
             transactions = listOf(
