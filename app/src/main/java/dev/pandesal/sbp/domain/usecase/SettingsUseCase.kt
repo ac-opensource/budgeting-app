@@ -12,5 +12,6 @@ class SettingsUseCase @Inject constructor(
 
     suspend fun setDarkMode(enabled: Boolean) = repository.setDarkMode(enabled)
     suspend fun setNotificationsEnabled(enabled: Boolean) = repository.setNotificationsEnabled(enabled)
+    suspend fun setDetectFinanceAppUsage(enabled: Boolean) = repository.setDetectFinanceAppUsage(enabled)
     suspend fun setCurrency(currency: String) = repository.setCurrency(currency)
 }
