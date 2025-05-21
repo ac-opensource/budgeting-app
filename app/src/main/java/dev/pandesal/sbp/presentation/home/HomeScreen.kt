@@ -1,18 +1,32 @@
 package dev.pandesal.sbp.presentation.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,7 +34,9 @@ import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,7 +45,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.Category
@@ -38,19 +56,18 @@ import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
+import dev.pandesal.sbp.presentation.components.TransactionItem
 import dev.pandesal.sbp.presentation.home.components.AccountCard
-import dev.pandesal.sbp.presentation.home.components.BudgetSummaryHeader
-import dev.pandesal.sbp.presentation.home.components.NetWorthBarChart
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
-import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
 import dev.pandesal.sbp.presentation.transactions.TransactionsViewModel
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
@@ -96,25 +113,115 @@ private fun HomeScreenContent(
         if (othersPercentage > 0) add("Others" to othersPercentage)
     }
 
-    LazyColumn {
-        item { HomeToolbar(onViewNotifications) }
-        item { AccountSummarySection(totalAmount) }
-        item {
-            BudgetBreakdownSection(
-                categories = displayCategories,
-                unassigned = state.budgetSummary.unassigned,
-                assigned = state.budgetSummary.assigned
-            )
+    fun LazyListState.isSticking(index: Int): State<Boolean> {
+        return derivedStateOf {
+            val firstVisible = layoutInfo.visibleItemsInfo.firstOrNull()
+            firstVisible?.index == index && firstVisible.offset == -layoutInfo.beforeContentPadding
         }
+    }
+
+    val lazyListState = rememberLazyListState()
+    LazyColumn(state = lazyListState) {
+        stickyHeader {
+            HeaderSection(totalAmount, onViewNotifications)
+        }
+
+        if (othersPercentage != 100.0) {
+            item {
+                BudgetBreakdownSection(
+                    categories = displayCategories,
+                    unassigned = state.budgetSummary.unassigned,
+                    assigned = state.budgetSummary.assigned
+                )
+            }
+        }
+
         item { AccountsSection(state.accounts) }
-        item { NetWorthSection(state.netWorthData) }
+
         item {
-            TransactionsSection(
-                transactions = transactions,
-                onTransactionClicked = onTransactionClicked
+
+            Spacer(Modifier.height(16.dp))
+
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                Text("Transactions", style = MaterialTheme.typography.titleMedium)
+            }
+
+        }
+
+        transactionsSection(transactions, onTransactionClicked)
+
+        item { Spacer(Modifier.height(600.dp)) }
+    }
+}
+
+private fun LazyListScope.transactionsSection(
+    transactions: List<Transaction>,
+    onTransactionClicked: (String) -> Unit
+) {
+    val groupedTransactions = transactions.groupBy {
+        when (it.createdAt) {
+            LocalDate.now() -> "Today"
+            LocalDate.now().minusDays(1) -> "Yesterday"
+            else -> it.createdAt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+        }
+    }
+
+    groupedTransactions.forEach { (dateLabel, txList) ->
+        item {
+            Column {
+                Text(
+                    text = dateLabel,
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+
+        }
+        items(txList) { transaction ->
+            TransactionItem(
+                tx = transaction,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 8.dp)
+                    .clickable { onTransactionClicked(transaction.id) }
             )
         }
-        item { Spacer(Modifier.height(16.dp)) }
+
+        item {
+            Spacer(Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun HeaderSection(
+    totalAmount: BigDecimal,
+    onViewNotifications: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize()
+            .padding(bottom = 16.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
+        shape = RoundedCornerShape(
+            topStart = 0.dp,
+            topEnd = 0.dp,
+            bottomStart = 24.dp,
+            bottomEnd = 24.dp
+        ),
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = 16.dp
+        )
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            AccountSummarySection(totalAmount)
+            HomeToolbar(onViewNotifications)
+        }
     }
 }
 
@@ -133,13 +240,14 @@ private fun HomeToolbar(onViewNotifications: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun AccountSummarySection(totalAmount: Double) {
+private fun AccountSummarySection(totalAmount: BigDecimal) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text("Consolidated Account", style = MaterialTheme.typography.labelLarge)
         Text(
             text = "$${"%,.2f".format(totalAmount)}",
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.headlineLargeEmphasized,
             modifier = Modifier.padding(bottom = 8.dp)
         )
     }
@@ -159,6 +267,7 @@ private fun AccountsSection(accounts: List<AccountSummaryUiModel>) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun BudgetBreakdownSection(
     categories: List<Pair<String, Double>>,
@@ -166,24 +275,38 @@ private fun BudgetBreakdownSection(
     assigned: Double
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-        BudgetSummaryHeader(unassigned = unassigned, assigned = assigned)
+
+        Text("Budget Allocation Breakdown", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        val strokeWidth = with(androidx.compose.ui.platform.LocalDensity.current) { 8.dp.toPx() }
-        val stroke = remember(strokeWidth) { Stroke(width = strokeWidth, cap = StrokeCap.Round) }
+
+        val thickStrokeWidth = with(LocalDensity.current) { 8.dp.toPx() }
+        val thickStroke =
+            remember(thickStrokeWidth) {
+                Stroke(
+                    width = thickStrokeWidth,
+                    cap = StrokeCap.Round
+                )
+            }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(32.dp),
             horizontalArrangement = Arrangement.spacedBy(1.dp)
         ) {
-            categories.forEachIndexed { index, (_, percent) ->
+
+            categories.forEachIndexed { index, (label, percent) ->
+                if (percent < 0) return@forEachIndexed
                 LinearWavyProgressIndicator(
-                    progress = { 1f },
+                    progress = {
+                        1f
+                    },
                     modifier = Modifier
-                        .weight(percent.coerceAtLeast(0.1).toFloat())
-                        .fillMaxWidth(),
-                    amplitude = { 1f },
-                    stroke = stroke,
+                        .weight( percent.coerceAtLeast(0.1).toFloat())
+                        .fillMaxHeight(),
+                    amplitude = {
+                        1f
+                    },
+                    stroke = thickStroke,
                     color = getCategoryColor(index),
                     trackColor = Color.LightGray,
                     wavelength = 12.dp,
@@ -191,7 +314,10 @@ private fun BudgetBreakdownSection(
                 )
             }
         }
+
+
         Spacer(modifier = Modifier.height(8.dp))
+
         categories.forEachIndexed { index, (label, percent) ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -201,7 +327,7 @@ private fun BudgetBreakdownSection(
                 Box(
                     modifier = Modifier
                         .size(16.dp)
-                        .clip(androidx.compose.foundation.shape.RoundedCornerShape(50))
+                        .clip(RoundedCornerShape(50))
                         .background(getCategoryColor(index))
                 )
                 Text(label, style = MaterialTheme.typography.labelLarge)
@@ -213,15 +339,8 @@ private fun BudgetBreakdownSection(
                 Text("${percent.toInt()}%", style = MaterialTheme.typography.labelLarge)
             }
         }
-    }
-}
 
-@Composable
-private fun NetWorthSection(data: List<NetWorthUiModel>) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Text("Net Worth", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        NetWorthBarChart(data)
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -264,7 +383,7 @@ fun HomeScreenPreview() {
                     BudgetCategoryUiModel("Self Reward", 15.0, 0.0, "PHP")
                 ),
                 accounts = listOf(
-                    AccountSummaryUiModel("Main", 1200.0, true, false, "USD")
+                    AccountSummaryUiModel("Main", BigDecimal("1200.00"), true, false, "USD")
                 ),
                 netWorthData = emptyList(),
                 budgetSummary = BudgetSummaryUiModel(0.0, 0.0)
@@ -302,8 +421,8 @@ fun AccountsSectionPreview() {
     StopBeingPoorTheme {
         AccountsSection(
             accounts = listOf(
-                AccountSummaryUiModel("Wallet", 200.0, true, false, "USD"),
-                AccountSummaryUiModel("Bank", 500.0, false, true, "USD")
+                AccountSummaryUiModel("Wallet", BigDecimal("200.00"), true, false, "USD"),
+                AccountSummaryUiModel("Bank", BigDecimal("500.00"), false, true, "USD")
             )
         )
     }

@@ -29,13 +29,12 @@ fun TransactionItem(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
                 Text(
-                    text = tx.name,
+                    text = tx.toAccountName ?: tx.merchantName ?: tx.fromAccountName ?: tx.name,
                     style = MaterialTheme.typography.titleMedium
                 )
                 if (tx.category != null) {

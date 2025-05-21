@@ -74,7 +74,7 @@ private fun dev.pandesal.sbp.domain.model.Account.toUiModel(): AccountSummaryUiM
     val isFundingWallet = type == dev.pandesal.sbp.domain.model.AccountType.BANK_ACCOUNT
     return AccountSummaryUiModel(
         name = name,
-        balance = balance.toDouble(),
+        balance = balance,
         isSpendingWallet = isSpendingWallet,
         isFundingWallet = isFundingWallet,
         currency = currency
