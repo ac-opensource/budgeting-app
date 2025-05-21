@@ -18,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -100,14 +101,11 @@ fun TravelTagScreen(
                 HorizontalFloatingToolbar(
                     expanded = true,
                     floatingActionButton = {
-                        FloatingActionButton(
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
                             onClick = {
                                 viewModel.save()
                                 onDismissRequest()
                             },
-                            shape = FloatingActionButtonDefaults.shape,
-                            containerColor = FloatingActionButtonDefaults.containerColor,
-                            contentColor = FloatingActionButtonDefaults.contentColor
                         ) {
                             Icon(Icons.Default.Check, contentDescription = null)
                         }

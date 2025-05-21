@@ -4,13 +4,22 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
@@ -100,21 +109,27 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .nestedScroll(exitAlwaysScrollBehavior)
                         .background(backgroundDiagonalGradient),
-                    containerColor = Color.Transparent
+                    containerColor = Color.Transparent,
+                    topBar = {
+                        AnimatedVisibility(
+                            visible = settings.isTravelMode,
+                            modifier = Modifier.fillMaxWidth(),
+                            enter = expandVertically(expandFrom = Alignment.Top) + slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                        ) {
+                            TravelModeBanner(
+                                tag = settings.travelTag,
+                                currency = settings.travelCurrency,
+                                total = travelSpent,
+                            )
+                        }
+                    }
                 ) { innerPadding ->
                     Box(
                         Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        if (settings.isTravelMode) {
-                            TravelModeBanner(
-                                tag = settings.travelTag,
-                                currency = settings.travelCurrency,
-                                total = travelSpent,
-                                modifier = Modifier.align(Alignment.TopCenter)
-                            )
-                        }
 
                         AppNavigation(navController)
 

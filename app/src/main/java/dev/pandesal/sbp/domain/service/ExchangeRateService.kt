@@ -5,8 +5,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
 import java.net.HttpURLConnection
 import java.net.URL
+import javax.inject.Inject
 
-class ExchangeRateService {
+class ExchangeRateService @Inject constructor() {
     @Serializable
     private data class Response(val rates: Map<String, Float>)
 

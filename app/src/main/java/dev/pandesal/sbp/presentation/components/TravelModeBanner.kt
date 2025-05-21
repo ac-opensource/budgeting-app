@@ -1,7 +1,14 @@
 package dev.pandesal.sbp.presentation.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,14 +26,27 @@ fun TravelModeBanner(tag: String, currency: String, total: BigDecimal, modifier:
         tonalElevation = 2.dp,
         modifier = modifier.fillMaxWidth()
     ) {
-        val text = "Travel: $tag | $currency ${"%,.2f".format(total)}"
-        Text(
-            text = text,
-            modifier = Modifier.padding(8.dp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium
-        )
+        val text = "Travel Mode | Total spent on $tag: $currency ${"%,.2f".format(total)}"
+        Row(
+            modifier = Modifier.statusBarsPadding().padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelMedium
+            )
+
+            IconButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = "Info",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
+        }
+        
     }
 }
 

@@ -24,6 +24,7 @@ import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
 import dev.pandesal.sbp.domain.repository.GoalRepositoryInterface
 import dev.pandesal.sbp.domain.repository.SettingsRepositoryInterface
 import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
+import dev.pandesal.sbp.domain.service.ExchangeRateService
 import dev.pandesal.sbp.notification.SmsTransactionScanner
 import javax.inject.Singleton
 
