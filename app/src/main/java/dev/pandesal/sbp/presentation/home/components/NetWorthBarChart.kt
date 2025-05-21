@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
@@ -106,13 +107,21 @@ fun NetWorthBarChart(
                             val liabilitiesHeight = chartHeight * (entry.liabilities / maxY).toFloat()
                             val xOffset = spacing + index * groupWidth
                             drawRoundRect(
-                                color = primaryColor,
+                                brush = Brush.verticalGradient(
+                                    listOf(primaryColor.copy(alpha = 0.8f), primaryColor.copy(alpha = 0.4f)),
+                                    startY = size.height - assetsHeight,
+                                    endY = size.height
+                                ),
                                 topLeft = Offset(xOffset, size.height - assetsHeight),
                                 size = Size(barWidth.toPx(), assetsHeight),
                                 cornerRadius = CornerRadius(4.dp.toPx())
                             )
                             drawRoundRect(
-                                color = errorColor,
+                                brush = Brush.verticalGradient(
+                                    listOf(errorColor.copy(alpha = 0.8f), errorColor.copy(alpha = 0.4f)),
+                                    startY = size.height - liabilitiesHeight,
+                                    endY = size.height
+                                ),
                                 topLeft = Offset(xOffset + barWidth.toPx() + 4.dp.toPx(), size.height - liabilitiesHeight),
                                 size = Size(barWidth.toPx(), liabilitiesHeight),
                                 cornerRadius = CornerRadius(4.dp.toPx())
