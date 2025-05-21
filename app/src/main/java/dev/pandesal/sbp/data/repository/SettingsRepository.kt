@@ -21,6 +21,7 @@ class SettingsRepository @Inject constructor(
     private object Keys {
         val DARK_MODE = booleanPreferencesKey("dark_mode")
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
+        val DETECT_FINANCE_APP_USAGE = booleanPreferencesKey("detect_finance_app_usage")
         val CURRENCY = stringPreferencesKey("currency")
     }
 
@@ -29,6 +30,7 @@ class SettingsRepository @Inject constructor(
             Settings(
                 darkMode = prefs[Keys.DARK_MODE] ?: false,
                 notificationsEnabled = prefs[Keys.NOTIFICATIONS_ENABLED] ?: true,
+                detectFinanceAppUsage = prefs[Keys.DETECT_FINANCE_APP_USAGE] ?: false,
                 currency = prefs[Keys.CURRENCY] ?: "PHP"
             )
         }
@@ -39,6 +41,10 @@ class SettingsRepository @Inject constructor(
 
     override suspend fun setNotificationsEnabled(enabled: Boolean) {
         context.settingsDataStore.edit { it[Keys.NOTIFICATIONS_ENABLED] = enabled }
+    }
+
+    override suspend fun setDetectFinanceAppUsage(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.DETECT_FINANCE_APP_USAGE] = enabled }
     }
 
     override suspend fun setCurrency(currency: String) {
