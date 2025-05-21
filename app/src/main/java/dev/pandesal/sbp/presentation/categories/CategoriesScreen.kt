@@ -241,7 +241,7 @@ private fun CategoriesListContent(
                             },
                             onEditCategory = { editCategory = it },
                             onViewCategoryTransactions = { categoryId ->
-                                navManager.navigate(NavigationDestination.CategoryTransactions(categoryId))
+//                                navManager.navigate(NavigationDestination.CategoryTransactions(categoryId))
                             },
                             onDeleteCategory = { onDeleteCategory(it) },
                             onEditBudget = { amount, id ->

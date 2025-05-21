@@ -2,35 +2,26 @@ package dev.pandesal.sbp.presentation.transactions.newtransaction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.mlkit.vision.common.InputImage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.pandesal.sbp.domain.model.Category
-import dev.pandesal.sbp.domain.model.CategoryGroup
-import dev.pandesal.sbp.domain.model.Account
-import dev.pandesal.sbp.domain.model.MonthlyBudget
+import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
-import dev.pandesal.sbp.domain.usecase.ReceiptUseCase
-import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
-import dev.pandesal.sbp.domain.usecase.TransactionUseCase
+import dev.pandesal.sbp.domain.usecase.CategoryUseCase
+import dev.pandesal.sbp.domain.usecase.ReceiptUseCase
 import dev.pandesal.sbp.domain.usecase.RecurringTransactionUseCase
-import dev.pandesal.sbp.domain.model.RecurringInterval
-import dev.pandesal.sbp.presentation.categories.CategoriesUiState
-import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
+import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.YearMonth
 import javax.inject.Inject
 
 @HiltViewModel
@@ -208,7 +199,7 @@ class NewTransactionsViewModel @Inject constructor(
                     to = toMissing
                 )
 
-                if (amountMissing || categoryMissing) {
+                if (amountMissing || categoryMissing || fromMissing || toMissing) {
                     val current = _uiState.value as? NewTransactionUiState.Success
                     if (current != null) {
                         _uiState.value = current.copy(errors = _validationErrors.value)
