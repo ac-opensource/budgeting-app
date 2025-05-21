@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.0] - 2025-05-21
+### Added
+- feat: Show travel mode banner with spending summary.
+- feat: Allow customizing travel tag name.
+
+## [0.37.0] - 2025-05-20
+### Added
+- feat: Introduce travel mode with currency conversion.
+
 ## [0.36.0] - 2025-05-20
 ### Added
 - feat: Add spending trends and forecast screen.
