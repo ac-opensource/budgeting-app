@@ -78,6 +78,8 @@ import dev.pandesal.sbp.extensions.format
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
+import dev.pandesal.sbp.presentation.categories.RenameCategoryGroupSheet
+import dev.pandesal.sbp.presentation.categories.RenameCategorySheet
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.categories.components.CategoryBudgetPieChart
 import dev.pandesal.sbp.presentation.goals.GoalsViewModel
@@ -88,6 +90,7 @@ import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.home.components.BudgetSummaryHeader
 import java.time.temporal.ChronoUnit
 import java.time.LocalDate
+import java.math.RoundingMode
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -259,11 +262,10 @@ private fun CategoriesListContent(
 
 
     if (editGroup != null) {
-        NewCategoryGroupScreen(
-            sheetState = sheetState,
-            initialName = editGroup!!.name,
-            onSubmit = { name ->
-                onEditGroup(editGroup!!, name)
+        RenameCategoryGroupSheet(
+            currentName = editGroup!!.name,
+            onSubmit = {
+                onEditGroup(editGroup!!, it)
                 editGroup = null
             },
             onCancel = { editGroup = null },
@@ -272,14 +274,10 @@ private fun CategoriesListContent(
     }
 
     if (editCategory != null) {
-        NewCategoryScreen(
-            sheetState = newCategorySheetState,
-            groupId = editCategory!!.categoryGroupId,
-            groupName = groupList.firstOrNull { it.id == editCategory!!.categoryGroupId }?.name
-                ?: "",
-            initialName = editCategory!!.name,
-            onSubmit = { name, _ ->
-                onEditCategory(editCategory!!, name)
+        RenameCategorySheet(
+            currentName = editCategory!!.name,
+            onSubmit = {
+                onEditCategory(editCategory!!, it)
                 editCategory = null
             },
             onCancel = { editCategory = null },
@@ -456,9 +454,11 @@ private fun ChildListContent(
                                             val months = ChronoUnit.MONTHS.between(
                                                 LocalDate.now().withDayOfMonth(1),
                                                 it.withDayOfMonth(1)
-                                            ).toInt()
+                                            ).toInt().coerceAtLeast(1)
                                             Text("Due: ${it}")
                                             Text("$months months left")
+                                            val monthly = goal.target.divide(BigDecimal(months), 2, RoundingMode.CEILING)
+                                            Text("Budget: ${monthly.format()}")
                                         }
                                     }
                                 } else {
