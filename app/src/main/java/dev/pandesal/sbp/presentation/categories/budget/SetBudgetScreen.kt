@@ -94,7 +94,11 @@ private fun SetBudgetContent(
     onCancel: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    var amount by remember { mutableStateOf(initialAmount) }
+    var amountText by remember {
+        mutableStateOf(
+            if (initialAmount == BigDecimal.ZERO) "" else initialAmount.toPlainString()
+        )
+    }
     var selectedTab by remember { mutableIntStateOf(0) }
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -149,8 +153,8 @@ private fun SetBudgetContent(
                             .fillMaxWidth()
                     ) {
                         BasicTextField(
-                            value = amount.toString(),
-                            onValueChange = { amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
+                            value = amountText,
+                            onValueChange = { amountText = it },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
@@ -194,6 +198,7 @@ private fun SetBudgetContent(
             floatingActionButton = {
                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                     onClick = {
+                        val amount = amountText.toBigDecimalOrNull() ?: BigDecimal.ZERO
                         onSubmit(amount, selectedTab == 1, selectedDate.takeIf { selectedTab == 1 })
                         onDismissRequest()
                     },
