@@ -34,6 +34,7 @@ class FinancialAppUsageService : Service() {
         detectedPackages.forEach { pkg ->
             val appName = try {
                 val info = packageManager.getApplicationInfo(pkg, 0)
+                info.category
                 packageManager.getApplicationLabel(info).toString()
             } catch (_: Exception) {
                 pkg
@@ -51,8 +52,15 @@ class FinancialAppUsageService : Service() {
     companion object {
         private const val CHECK_INTERVAL_MS = 5 * 60 * 1000L // 5 minutes
         val FINANCIAL_KEYWORDS = listOf(
-            "bpi", "bdo", "metrobank", "securitybank", "maybank",
-            "eastwest", "rcbc", "unionbank", "gcash", "maya"
+            "bank",
+                "bpi", "bdo", "metrobank", "securitybank", "maybank",
+                "eastwest", "rcbc", "unionbank", "pnb", "landbank",
+                "chinabank", "psbank",
+            "wallet",
+                "gcash", "maya", "coin", "tonik", "ing", "seabank", "gotyme", "diskartech",
+                "komo",
+            "shopping",
+                "mall", "grabpay", "chrome", "lazada", "shoppee", "grab", "food"
         )
     }
 }

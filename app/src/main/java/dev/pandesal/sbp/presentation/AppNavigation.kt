@@ -6,7 +6,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.toRoute
@@ -40,6 +39,8 @@ sealed class NavigationDestination() {
     data object Categories : NavigationDestination()
     @Serializable
     data object Insights : NavigationDestination()
+    @Serializable
+    data object Trends : NavigationDestination()
     @Serializable
     data object More : NavigationDestination()
     @Serializable
@@ -179,6 +180,10 @@ fun AppNavigation(navController: NavHostController) {
 
             composable<NavigationDestination.Insights> {
                 InsightsScreen()
+            }
+
+            composable<NavigationDestination.Trends> {
+                dev.pandesal.sbp.presentation.trends.TrendsScreen()
             }
 
             composable<NavigationDestination.More> {

@@ -172,6 +172,7 @@ private fun HomeScreenContent(
     BottomSheetScaffold(
         containerColor = Color.Transparent,
         scaffoldState = scaffoldState,
+        sheetSwipeEnabled = scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded,
         sheetPeekHeight = with(density) {
             val heightWithPadding = sheetHeightPx.floatValue.toDp() - navigationBarHeight - 24.dp
             if (heightWithPadding > 0.dp) {

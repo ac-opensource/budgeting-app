@@ -1,6 +1,5 @@
 package dev.pandesal.sbp.presentation.transactions.newtransaction
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +9,7 @@ import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
+import dev.pandesal.sbp.domain.usecase.ReceiptUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
@@ -22,9 +22,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import com.google.mlkit.vision.common.InputImage
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -35,7 +37,9 @@ class NewTransactionsViewModel @Inject constructor(
     private val transactionUseCase: TransactionUseCase,
     private val categoryUseCase: CategoryUseCase,
     private val accountUseCase: AccountUseCase,
-    private val recurringTransactionUseCase: RecurringTransactionUseCase
+    private val recurringTransactionUseCase: RecurringTransactionUseCase,
+    private val receiptUseCase: ReceiptUseCase,
+    private val travelModeUseCase: dev.pandesal.sbp.domain.usecase.TravelModeUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NewTransactionUiState>(NewTransactionUiState.Initial)
@@ -95,6 +99,20 @@ class NewTransactionsViewModel @Inject constructor(
                         _uiState.value = current.copy(merchants = merchants)
                     }
                 }
+        }
+    }
+
+    fun attachReceipt(uri: android.net.Uri, context: android.content.Context) {
+        viewModelScope.launch {
+            val image = InputImage.fromFilePath(context, uri)
+            val data = receiptUseCase.parse(image)
+            val updated = _transaction.value.copy(
+                merchantName = data.merchantName ?: _transaction.value.merchantName,
+                amount = data.amount ?: _transaction.value.amount,
+                createdAt = data.date ?: _transaction.value.createdAt,
+                attachment = uri.toString()
+            )
+            updateTransaction(updated)
         }
     }
 
@@ -164,10 +182,18 @@ class NewTransactionsViewModel @Inject constructor(
                     return@launch
                 }
 
-                transactionUseCase.insert(_transaction.value)
+                val settings = travelModeUseCase.getSettings().first()
+                var tx = _transaction.value
+                if (settings.isTravelMode) {
+                    tx = tx.copy(
+                        currency = settings.travelCurrency,
+                        tags = (tx.tags + settings.travelTag).distinct()
+                    )
+                }
+                transactionUseCase.insert(tx)
                 if (isRecurring) {
                     val recurring = dev.pandesal.sbp.domain.model.RecurringTransaction(
-                        transaction = _transaction.value,
+                        transaction = tx,
                         interval = interval,
                         cutoffDays = cutoffDays,
                         reminderEnabled = reminderEnabled
