@@ -354,7 +354,7 @@ private fun NewTransactionScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = amountText.ifEmpty { "0" },
+                                        text = amountText,
                                         style = MaterialTheme.typography.headlineLarge.copy(
                                             textAlign = TextAlign.Center,
                                             fontSize = 48.sp,
