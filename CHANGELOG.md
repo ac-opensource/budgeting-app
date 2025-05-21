@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - feat: Import only financial SMS and pre-fill transactions via Gemini.
 
+## [0.33.1] - 2025-05-20
+### Fixed
+- fix: give priority to transaction list scrolling when sheet is expanded.
+
 ## [0.32.0] - 2025-05-20
 ### Added
 - feat: Toggle reminders for recurring transactions.
