@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PieChart
@@ -198,6 +199,18 @@ class MainActivity : ComponentActivity() {
                                     Icon(
                                         Icons.Filled.BarChart,
                                         contentDescription = "Localized description"
+                                    )
+                                }
+                                IconButton(onClick = {
+                                    navController.navigate(NavigationDestination.Trends) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }) {
+                                    Icon(
+                                        Icons.Filled.TrendingUp,
+                                        contentDescription = "Trends"
                                     )
                                 }
                                 IconButton(onClick = {

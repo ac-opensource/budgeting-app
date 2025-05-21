@@ -17,6 +17,7 @@ import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.insights.InsightsScreen
+import dev.pandesal.sbp.presentation.trends.TrendsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import dev.pandesal.sbp.domain.model.Transaction
@@ -40,6 +41,8 @@ sealed class NavigationDestination() {
     data object Categories : NavigationDestination()
     @Serializable
     data object Insights : NavigationDestination()
+    @Serializable
+    data object Trends : NavigationDestination()
     @Serializable
     data object More : NavigationDestination()
     @Serializable
@@ -179,6 +182,10 @@ fun AppNavigation(navController: NavHostController) {
 
             composable<NavigationDestination.Insights> {
                 InsightsScreen()
+            }
+
+            composable<NavigationDestination.Trends> {
+                dev.pandesal.sbp.presentation.trends.TrendsScreen()
             }
 
             composable<NavigationDestination.More> {
