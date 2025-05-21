@@ -143,5 +143,18 @@ object DataModule {
     ): dev.pandesal.sbp.domain.usecase.ReceiptUseCase =
         dev.pandesal.sbp.domain.usecase.ReceiptUseCase(service)
 
+    @Singleton
+    @Provides
+    fun provideTravelModeUseCase(
+        settingsRepository: SettingsRepositoryInterface,
+        transactionRepository: TransactionRepositoryInterface,
+        exchangeRateService: ExchangeRateService
+    ): dev.pandesal.sbp.domain.usecase.TravelModeUseCase =
+        dev.pandesal.sbp.domain.usecase.TravelModeUseCase(
+            settingsRepository,
+            transactionRepository,
+            exchangeRateService
+        )
+
 
 }

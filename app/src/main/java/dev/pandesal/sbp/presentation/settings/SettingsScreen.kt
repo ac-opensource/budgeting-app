@@ -40,6 +40,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val settings by viewModel.settings.collectAsState()
+    val travelSpent by viewModel.travelSpent.collectAsState()
     val nav = LocalNavigationManager.current
     SettingsContent(
         settings = settings,
@@ -48,10 +49,13 @@ fun SettingsScreen(
         onDetectFinanceAppUsageChange = viewModel::setDetectFinanceAppUsage,
         onDetectFinanceApps = viewModel::detectFinanceApps,
         onCurrencyChange = viewModel::setCurrency,
+        onTravelModeChange = viewModel::setTravelMode,
+        onTravelCurrencyChange = viewModel::setTravelCurrency,
         onRecurringTransactionsClick = {
             nav.navigate(dev.pandesal.sbp.presentation.NavigationDestination.RecurringTransactions)
         },
-        onScanSms = viewModel::scanSms
+        onScanSms = viewModel::scanSms,
+        travelSpent = travelSpent
     )
 }
 
@@ -71,13 +75,18 @@ private fun SettingsContent(
     onDetectFinanceAppUsageChange: (Boolean) -> Unit,
     onDetectFinanceApps: () -> Unit,
     onCurrencyChange: (String) -> Unit,
+    onTravelModeChange: (Boolean) -> Unit,
+    onTravelCurrencyChange: (String) -> Unit,
     onRecurringTransactionsClick: () -> Unit,
-    onScanSms: () -> Unit
+    onScanSms: () -> Unit,
+    travelSpent: java.math.BigDecimal
 ) {
     var darkMode by remember { mutableStateOf(settings.darkMode) }
     var notificationsEnabled by remember { mutableStateOf(settings.notificationsEnabled) }
     var detectFinanceAppUsage by remember { mutableStateOf(settings.detectFinanceAppUsage) }
     var showCurrencySheet by remember { mutableStateOf(false) }
+    var showTravelCurrencySheet by remember { mutableStateOf(false) }
+    var showTravelTagSheet by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         notificationsEnabled = granted
         onNotificationsChange(granted)
@@ -87,14 +96,19 @@ private fun SettingsContent(
             onScanSms()
         }
     }
-    val items = listOf(
-        SettingItem("Dark mode", SettingType.SWITCH),
-        SettingItem("Enable notifications", SettingType.SWITCH),
-        SettingItem("Detect Finance App Usage", SettingType.SWITCH),
-        SettingItem("Currency", SettingType.TEXT),
-        SettingItem("Recurring Transactions", SettingType.TEXT),
-        SettingItem("Import SMS Transactions", SettingType.TEXT)
-    )
+    val items = buildList {
+        add(SettingItem("Dark mode", SettingType.SWITCH))
+        add(SettingItem("Enable notifications", SettingType.SWITCH))
+        add(SettingItem("Detect Finance App Usage", SettingType.SWITCH))
+        add(SettingItem("Currency", SettingType.TEXT))
+        add(SettingItem("Travel mode", SettingType.SWITCH))
+        if (settings.isTravelMode) {
+            add(SettingItem("Travel currency", SettingType.TEXT))
+            add(SettingItem("Travel tag", SettingType.TEXT))
+        }
+        add(SettingItem("Recurring Transactions", SettingType.TEXT))
+        add(SettingItem("Import SMS Transactions", SettingType.TEXT))
+    }
 
     val context = LocalContext.current
 
@@ -107,6 +121,14 @@ private fun SettingsContent(
                 text = "Settings",
                 style = MaterialTheme.typography.titleLargeEmphasized
             )
+        }
+        if (settings.isTravelMode) {
+            item {
+                Text(
+                    text = "Travel spend: ${settings.travelCurrency} $travelSpent (${settings.currency})",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
         items(items) { item ->
             Card(
@@ -152,6 +174,15 @@ private fun SettingsContent(
                     "Currency" -> SettingText(item.title, settings.currency) {
                         showCurrencySheet = true
                     }
+                    "Travel mode" -> SettingSwitch(item.title, settings.isTravelMode) {
+                        onTravelModeChange(it)
+                    }
+                    "Travel currency" -> SettingText(item.title, settings.travelCurrency) {
+                        showTravelCurrencySheet = true
+                    }
+                    "Travel tag" -> SettingText(item.title, settings.travelTag) {
+                        showTravelTagSheet = true
+                    }
                     "Recurring Transactions" -> SettingText(item.title, "") {
                         onRecurringTransactionsClick()
                     }
@@ -184,6 +215,28 @@ private fun SettingsContent(
                 }
             }
         }
+    }
+
+    if (showTravelCurrencySheet) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val currencies = listOf("PHP", "USD", "EUR", "JPY")
+        ModalBottomSheet(onDismissRequest = { showTravelCurrencySheet = false }, sheetState = sheetState) {
+            LazyColumn(modifier = Modifier.padding(16.dp).imePadding()) {
+                items(currencies) { currency ->
+                    ListItem(
+                        headlineContent = { Text(currency) },
+                        modifier = Modifier.clickable {
+                            onTravelCurrencyChange(currency)
+                            showTravelCurrencySheet = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    if (showTravelTagSheet) {
+        TravelTagScreen(onDismissRequest = { showTravelTagSheet = false })
     }
 }
 

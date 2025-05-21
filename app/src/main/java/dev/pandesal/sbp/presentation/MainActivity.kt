@@ -38,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pandesal.sbp.presentation.components.TravelModeBanner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -67,6 +68,7 @@ class MainActivity : ComponentActivity() {
                 FloatingToolbarDefaults.exitAlwaysScrollBehavior(exitDirection = Bottom)
             val settingsViewModel: dev.pandesal.sbp.presentation.settings.SettingsViewModel = androidx.hilt.navigation.compose.hiltViewModel()
             val settings by settingsViewModel.settings.collectAsState()
+            val travelSpent by settingsViewModel.travelSpent.collectAsState()
             StopBeingPoorTheme(darkTheme = settings.darkMode) {
                 val navController = rememberNavController()
                 var fabVisible by remember { mutableStateOf(true) }
@@ -104,8 +106,16 @@ class MainActivity : ComponentActivity() {
                         Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-//                            .nestedScroll(scrollConnection)
                     ) {
+                        if (settings.isTravelMode) {
+                            TravelModeBanner(
+                                tag = settings.travelTag,
+                                currency = settings.travelCurrency,
+                                total = travelSpent,
+                                modifier = Modifier.align(Alignment.TopCenter)
+                            )
+                        }
+
                         AppNavigation(navController)
 
                         HorizontalFloatingToolbar(

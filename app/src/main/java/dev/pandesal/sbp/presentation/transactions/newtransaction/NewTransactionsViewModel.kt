@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -37,7 +38,8 @@ class NewTransactionsViewModel @Inject constructor(
     private val categoryUseCase: CategoryUseCase,
     private val accountUseCase: AccountUseCase,
     private val recurringTransactionUseCase: RecurringTransactionUseCase,
-    private val receiptUseCase: ReceiptUseCase
+    private val receiptUseCase: ReceiptUseCase,
+    private val travelModeUseCase: dev.pandesal.sbp.domain.usecase.TravelModeUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NewTransactionUiState>(NewTransactionUiState.Initial)
@@ -180,10 +182,18 @@ class NewTransactionsViewModel @Inject constructor(
                     return@launch
                 }
 
-                transactionUseCase.insert(_transaction.value)
+                val settings = travelModeUseCase.getSettings().first()
+                var tx = _transaction.value
+                if (settings.isTravelMode) {
+                    tx = tx.copy(
+                        currency = settings.travelCurrency,
+                        tags = (tx.tags + settings.travelTag).distinct()
+                    )
+                }
+                transactionUseCase.insert(tx)
                 if (isRecurring) {
                     val recurring = dev.pandesal.sbp.domain.model.RecurringTransaction(
-                        transaction = _transaction.value,
+                        transaction = tx,
                         interval = interval,
                         cutoffDays = cutoffDays,
                         reminderEnabled = reminderEnabled
