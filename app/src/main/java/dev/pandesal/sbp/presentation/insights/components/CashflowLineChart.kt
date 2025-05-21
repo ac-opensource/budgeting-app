@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
@@ -80,10 +82,36 @@ fun CashflowLineChart(
                                 outflowPath.lineTo(x, outflowY)
                             }
                         }
+                        val inflowFillPath = Path().apply {
+                            addPath(inflowPath)
+                            lineTo(spacing + stepX * (entries.lastIndex), chartHeight)
+                            lineTo(spacing, chartHeight)
+                            close()
+                        }
+                        val outflowFillPath = Path().apply {
+                            addPath(outflowPath)
+                            lineTo(spacing + stepX * (entries.lastIndex), chartHeight)
+                            lineTo(spacing, chartHeight)
+                            close()
+                        }
+                        drawPath(
+                            path = inflowFillPath,
+                            brush = Brush.verticalGradient(
+                                listOf(primaryColor.copy(alpha = 0.4f), primaryColor.copy(alpha = 0f))
+                            ),
+                            style = Fill
+                        )
                         drawPath(
                             path = inflowPath,
                             color = primaryColor,
                             style = Stroke(width = strokeWidth.toPx())
+                        )
+                        drawPath(
+                            path = outflowFillPath,
+                            brush = Brush.verticalGradient(
+                                listOf(errorColor.copy(alpha = 0.4f), errorColor.copy(alpha = 0f))
+                            ),
+                            style = Fill
                         )
                         drawPath(
                             path = outflowPath,

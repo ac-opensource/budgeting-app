@@ -1,7 +1,6 @@
 package dev.pandesal.sbp.presentation.insights.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +29,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
@@ -108,13 +108,21 @@ fun BudgetVsOutflowChart(
                             val outflowHeight = chartHeight * (entry.outflow / maxY).toFloat()
                             val xOffset = spacing + index * groupWidth
                             drawRoundRect(
-                                color = primaryColor,
+                                brush = Brush.verticalGradient(
+                                    listOf(primaryColor.copy(alpha = 0.8f), primaryColor.copy(alpha = 0.4f)),
+                                    startY = size.height - budgetHeight,
+                                    endY = size.height
+                                ),
                                 topLeft = Offset(xOffset, size.height - budgetHeight),
                                 size = Size(barWidth.toPx(), budgetHeight),
                                 cornerRadius = CornerRadius(4.dp.toPx())
                             )
                             drawRoundRect(
-                                color = errorColor,
+                                brush = Brush.verticalGradient(
+                                    listOf(errorColor.copy(alpha = 0.8f), errorColor.copy(alpha = 0.4f)),
+                                    startY = size.height - outflowHeight,
+                                    endY = size.height
+                                ),
                                 topLeft = Offset(xOffset + barWidth.toPx() + 4.dp.toPx(), size.height - outflowHeight),
                                 size = Size(barWidth.toPx(), outflowHeight),
                                 cornerRadius = CornerRadius(4.dp.toPx())
