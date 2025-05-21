@@ -24,6 +24,7 @@ import dev.pandesal.sbp.presentation.transactions.newtransaction.NewRecurringTra
 import dev.pandesal.sbp.presentation.transactions.recurringdetails.RecurringTransactionDetailsScreen
 import dev.pandesal.sbp.presentation.transactions.recurring.RecurringTransactionsScreen
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetScreen
+import dev.pandesal.sbp.presentation.categories.CategoryTransactionsScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
 import dev.pandesal.sbp.presentation.goals.NewGoalScreen
@@ -66,6 +67,8 @@ sealed class NavigationDestination() {
     data class SetBudget(val categoryId: Int, val amount: String? = null) : NavigationDestination()
     @Serializable
     data class NewCategory(val groupId: Int, val groupName: String) : NavigationDestination()
+    @Serializable
+    data class CategoryTransactions(val categoryId: Int) : NavigationDestination()
     @Serializable
     data class TransactionDetails(val transactionId: String) : NavigationDestination()
     @Serializable
@@ -127,6 +130,11 @@ fun AppNavigation(navController: NavHostController) {
                     categoryId = args.categoryId,
                     initialAmount = args.amount?.toBigDecimalOrNull() ?: BigDecimal.ZERO
                 )
+            }
+
+            composable<NavigationDestination.CategoryTransactions> { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationDestination.CategoryTransactions>()
+                CategoryTransactionsScreen(categoryId = args.categoryId)
             }
 
 
