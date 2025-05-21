@@ -56,6 +56,37 @@ import dev.pandesal.sbp.domain.model.LenderType
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.extensions.label
 
+
+private val PH_BANKS = listOf(
+    "Banco de Oro (BDO)",
+    "Bank of the Philippine Islands (BPI)",
+    "Metropolitan Bank and Trust Company (Metrobank)",
+    "Land Bank of the Philippines (Landbank)",
+    "Philippine National Bank (PNB)",
+    "Security Bank",
+    "China Banking Corporation (Chinabank)",
+    "Rizal Commercial Banking Corporation (RCBC)",
+    "UnionBank of the Philippines",
+    "Development Bank of the Philippines (DBP)",
+    "Asia United Bank (AUB)",
+    "Philippine Bank of Communications (PBCOM)",
+    "Robinsons Bank",
+    "Maybank Philippines",
+    "EastWest Bank",
+    "Bank of Commerce",
+    "Philippine Savings Bank (PSBank)",
+    "Citibank Philippines",
+    "HSBC Philippines",
+    "Sterling Bank of Asia",
+    "BDO Network Bank",
+    "United Coconut Planters Bank (UCPB)",
+    "Veterans Bank",
+    "Cathay United Bank",
+    "CTBC Bank",
+    "ING Bank",
+    "Standard Chartered Bank"
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewAccountScreen(
@@ -101,7 +132,7 @@ private fun NewAccountScreen(
     onDismissRequest: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
-    var selectedType by remember { mutableStateOf(AccountType.CASH_WALLET) }
+    var selectedType by remember { mutableStateOf(AccountType.BANK_ACCOUNT) }
     var currency by remember { mutableStateOf("PHP") }
     var contractValue by remember { mutableStateOf("") }
     var monthlyPayment by remember { mutableStateOf("") }
@@ -111,6 +142,7 @@ private fun NewAccountScreen(
     var showCurrencySheet by remember { mutableStateOf(false) }
     var showTypeSheet by remember { mutableStateOf(false) }
     var showLenderSheet by remember { mutableStateOf(false) }
+    var showBankNameSheet by remember { mutableStateOf(false) }
     var paidAmount by remember { mutableStateOf(true) }
 
     Column(
@@ -153,13 +185,27 @@ private fun NewAccountScreen(
                         .padding(top = 4.dp)
                         .fillMaxWidth()
                 ) {
-                    BasicTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        BasicTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(16.dp)
+                        )
+                        if (selectedType == AccountType.BANK_ACCOUNT) {
+                            Icon(
+                                Icons.TwoTone.ArrowDropDown,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .clickable { showBankNameSheet = true }
+                            )
+                        }
+                    }
                 }
 
                 val balanceLabel = when {
@@ -334,6 +380,26 @@ private fun NewAccountScreen(
                             modifier = Modifier.clickable {
                                 currency = currencyOption
                                 showCurrencySheet = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        if (showBankNameSheet) {
+            val bankSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ModalBottomSheet(
+                onDismissRequest = { showBankNameSheet = false },
+                sheetState = bankSheetState
+            ) {
+                LazyColumn(modifier = Modifier.padding(16.dp)) {
+                    items(PH_BANKS) { bank ->
+                        ListItem(
+                            headlineContent = { Text(bank) },
+                            modifier = Modifier.clickable {
+                                name = bank
+                                showBankNameSheet = false
                             }
                         )
                     }

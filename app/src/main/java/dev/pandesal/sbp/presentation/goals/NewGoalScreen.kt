@@ -73,7 +73,7 @@ private fun NewGoalScreen(
     onDismissRequest: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
-    var amount by remember { mutableStateOf(BigDecimal.ZERO) }
+    var amountText by remember { mutableStateOf("") }
     var selectedTab by remember { mutableIntStateOf(0) }
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -119,8 +119,8 @@ private fun NewGoalScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = amount.toString(),
-                    onValueChange = { amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO },
+                    value = amountText,
+                    onValueChange = { amountText = it },
                     label = { Text("Target Amount") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -177,6 +177,7 @@ private fun NewGoalScreen(
             floatingActionButton = {
                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                     onClick = {
+                        val amount = amountText.toBigDecimalOrNull() ?: BigDecimal.ZERO
                         onSubmit(name, amount, selectedDate.takeIf { selectedTab == 1 })
                         onDismissRequest()
                     }

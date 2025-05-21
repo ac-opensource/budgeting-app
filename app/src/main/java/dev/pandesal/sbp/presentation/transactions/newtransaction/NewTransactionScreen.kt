@@ -74,6 +74,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.Transaction
@@ -86,10 +90,14 @@ import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.compose.material.icons.twotone.Camera
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.delay
+import androidx.core.content.ContextCompat
 
 @Composable
 fun NewTransactionScreen(
@@ -112,6 +120,14 @@ fun NewTransactionScreen(
         val state = uiState.value as NewTransactionUiState.Success
         var editable by remember { mutableStateOf(!readOnly) }
         var showDelete by remember { mutableStateOf(false) }
+        val context = LocalContext.current
+        val attachmentLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri ->
+            uri?.let {
+                viewModel.attachReceipt(it, context)
+            }
+        }
         NewTransactionScreen(
             groupedCategories = state.groupedCategories,
             accounts = state.accounts,
@@ -131,7 +147,8 @@ fun NewTransactionScreen(
             },
             onUpdate = {
                 viewModel.updateTransaction(it)
-            }
+            },
+            onAttach = { attachmentLauncher.launch("image/*") }
         )
 
         if (showDelete) {
@@ -171,7 +188,8 @@ private fun NewTransactionScreen(
     onDelete: () -> Unit,
     onSave: (Transaction, Boolean, RecurringInterval, Int, Boolean) -> Unit,
     onCancel: () -> Unit,
-    onUpdate: (Transaction) -> Unit
+    onUpdate: (Transaction) -> Unit,
+    onAttach: () -> Unit
 ) {
     val navManager = LocalNavigationManager.current
 
@@ -336,7 +354,7 @@ private fun NewTransactionScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = amountText.ifEmpty { "0" },
+                                        text = amountText,
                                         style = MaterialTheme.typography.headlineLarge.copy(
                                             textAlign = TextAlign.Center,
                                             fontSize = 48.sp,
@@ -605,6 +623,45 @@ private fun NewTransactionScreen(
                             }
                         }
 
+                        Column(modifier = Modifier.padding(top = 16.dp)) {
+                            Text("Receipt Photo", style = MaterialTheme.typography.bodyMedium)
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable(enabled = editable) { onAttach() },
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    if (transaction.attachment != null) {
+                                        AsyncImage(
+                                            model = transaction.attachment,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(64.dp)
+                                                .padding(8.dp)
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "Add Receipt",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            modifier = Modifier.padding(16.dp)
+                                        )
+                                    }
+                                    Icon(
+                                        Icons.TwoTone.Camera,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .padding(end = 8.dp)
+                                            .size(24.dp)
+                                    )
+                                }
+                            }
+                        }
+
                         AnimatedVisibility(
                             visible = transactionTypes[selectedIndex] == TransactionType.INFLOW || transactionTypes[selectedIndex] == TransactionType.TRANSFER
                         ) {
@@ -780,10 +837,27 @@ private fun NewTransactionScreen(
                                         .padding(top = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
+                                    val context = LocalContext.current
+                                    val permissionLauncher = rememberLauncherForActivityResult(
+                                        ActivityResultContracts.RequestPermission()
+                                    ) { granted ->
+                                        reminderEnabled = granted
+                                    }
                                     Switch(
                                         enabled = editable,
                                         checked = reminderEnabled,
-                                        onCheckedChange = { reminderEnabled = it }
+                                        onCheckedChange = { checked ->
+                                            if (checked && android.os.Build.VERSION.SDK_INT >= 33) {
+                                                val permission = Manifest.permission.POST_NOTIFICATIONS
+                                                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                                                    reminderEnabled = true
+                                                } else {
+                                                    permissionLauncher.launch(permission)
+                                                }
+                                            } else {
+                                                reminderEnabled = checked
+                                            }
+                                        }
                                     )
                                     Text(
                                         text = "Reminders",
