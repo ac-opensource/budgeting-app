@@ -92,14 +92,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.compose.material.icons.twotone.Camera
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.delay
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun NewTransactionScreen(
