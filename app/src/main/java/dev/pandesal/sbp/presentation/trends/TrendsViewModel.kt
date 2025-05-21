@@ -40,9 +40,11 @@ class TrendsViewModel @Inject constructor(
                 useCase.getYearlySpending(),
                 useCase.forecastNextMonth()
             ) { weekly, monthly, yearly, forecast ->
+                val monthlyList = monthly.map { TrendUiModel(it.first, it.second) } +
+                    TrendUiModel("Forecast", forecast, true)
                 val map = mapOf(
                     TimePeriod.WEEKLY to weekly.map { TrendUiModel(it.first, it.second) },
-                    TimePeriod.MONTHLY to monthly.map { TrendUiModel(it.first, it.second) },
+                    TimePeriod.MONTHLY to monthlyList,
                     TimePeriod.YEARLY to yearly.map { TrendUiModel(it.first, it.second) }
                 )
                 TrendsUiState.Ready(map, forecast)
