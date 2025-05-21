@@ -328,7 +328,13 @@ private fun ChildListContent(
                 ReorderableItem(reorderableLazyCategoriesColumnState, item.category.id) {
                     val interactionSource = remember { MutableInteractionSource() }
                     Card(
-                        onClick = {},
+                        onClick = {
+                            navManager.navigate(
+                                NavigationDestination.CategoryTransactions(
+                                    item.category.id
+                                )
+                            )
+                        },
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
