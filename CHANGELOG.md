@@ -2,15 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.36.0] - 2025-05-20
+### Added
+- feat: Add spending trends and forecast screen.
+
+## [0.35.0] - 2025-05-20
+### Added
+- feat: Attach receipt photos and OCR details for quick entry.
 
 ## [0.34.0] - 2025-05-20
 ### Added
-- feat: Add spending trends and forecast screen.
+- feat: Bank accounts are now the default account type.
+- feat: Quick bank name options for PH banks when creating a bank account.
+- feat: Detect finance app usage with permission toggle.
+- feat: Request notification permission on Notifications screen and recurring transactions.
 
 ## [0.33.0] - 2025-05-20
 ### Added
 - feat: Import only financial SMS and pre-fill transactions via Gemini.
+
+## [0.33.1] - 2025-05-20
+### Fixed
+- fix: give priority to transaction list scrolling when sheet is expanded.
 
 ## [0.32.0] - 2025-05-20
 ### Added

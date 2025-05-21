@@ -129,5 +129,19 @@ object DataModule {
         @ApplicationContext context: Context
     ): SmsTransactionScanner = SmsTransactionScanner(context)
 
+    @Singleton
+    @Provides
+    fun provideReceiptOcrService(
+        @ApplicationContext context: Context
+    ): dev.pandesal.sbp.domain.service.ReceiptOcrService =
+        dev.pandesal.sbp.domain.service.ReceiptOcrService(context)
+
+    @Singleton
+    @Provides
+    fun provideReceiptUseCase(
+        service: dev.pandesal.sbp.domain.service.ReceiptOcrService
+    ): dev.pandesal.sbp.domain.usecase.ReceiptUseCase =
+        dev.pandesal.sbp.domain.usecase.ReceiptUseCase(service)
+
 
 }
