@@ -28,6 +28,7 @@ googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 reorderable = "2.4.3"
 material3 = "1.4.0-alpha14"
 datastore = "1.1.0"
+mlkitText = "16.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -75,6 +76,7 @@ mockito-kotlin = { module = "org.mockito:mockito-kotlin", version.ref = "mockito
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "mlkitText" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -2,7 +2,55 @@
 
 All notable changes to this project will be documented in this file.
 
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.41.1] - 2025-05-21
+### Fixed
+- fix: include default Transfer categories when seeding data.
+
+## [0.41.0] - 2025-05-21
+### Added
+- feat: Inline validation errors for New Transaction dialog.
+
+## [0.40.0] - 2025-05-21
+### Added
+- feat: Show monthly budget suggestion for categories with goals.
+### Fixed
+- fix: Edit buttons on Categories screen now open working rename sheets.
+
+## [0.39.0] - 2025-05-21
+### Added
+- feat: Display forecasted trend with dashed line and gradient fill.
+- feat: Add Y-axis and clickable points to spending trend chart.
+
+## [0.38.0] - 2025-05-21
+### Added
+- feat: Show travel mode banner with spending summary.
+- feat: Allow customizing travel tag name.
+
+## [0.37.0] - 2025-05-20
+### Added
+- feat: Introduce travel mode with currency conversion.
+
+## [0.36.1] - 2025-05-20
+### Fixed
+- fix: allow blank amount fields and validate on submit.
+
+## [0.36.0] - 2025-05-20
+### Added
+- feat: Add spending trends and forecast screen.
+
+## [0.35.0] - 2025-05-20
+### Added
+- feat: Attach receipt photos and OCR details for quick entry.
+
+## [0.34.0] - 2025-05-20
+### Added
+- feat: Bank accounts are now the default account type.
+- feat: Quick bank name options for PH banks when creating a bank account.
+- feat: Detect finance app usage with permission toggle.
+- feat: Request notification permission on Notifications screen and recurring transactions.
 
 ## [0.33.0] - 2025-05-20
 ### Added
@@ -10,7 +58,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [0.33.1] - 2025-05-20
 ### Fixed
-- fix: include default Transfer categories when seeding data.
+- fix: give priority to transaction list scrolling when sheet is expanded.
 
 ## [0.32.0] - 2025-05-20
 ### Added

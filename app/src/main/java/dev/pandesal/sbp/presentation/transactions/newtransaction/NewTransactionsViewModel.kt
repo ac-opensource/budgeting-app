@@ -1,6 +1,5 @@
 package dev.pandesal.sbp.presentation.transactions.newtransaction
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +9,7 @@ import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
+import dev.pandesal.sbp.domain.usecase.ReceiptUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
@@ -22,9 +22,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import com.google.mlkit.vision.common.InputImage
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -35,7 +37,9 @@ class NewTransactionsViewModel @Inject constructor(
     private val transactionUseCase: TransactionUseCase,
     private val categoryUseCase: CategoryUseCase,
     private val accountUseCase: AccountUseCase,
-    private val recurringTransactionUseCase: RecurringTransactionUseCase
+    private val recurringTransactionUseCase: RecurringTransactionUseCase,
+    private val receiptUseCase: ReceiptUseCase,
+    private val travelModeUseCase: dev.pandesal.sbp.domain.usecase.TravelModeUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NewTransactionUiState>(NewTransactionUiState.Initial)
@@ -43,6 +47,9 @@ class NewTransactionsViewModel @Inject constructor(
 
     private val _merchants = MutableStateFlow<List<String>>(emptyList())
     private var merchantJob: kotlinx.coroutines.Job? = null
+
+    private val _validationErrors =
+        MutableStateFlow(NewTransactionUiState.ValidationErrors())
 
 
     private val _transaction = MutableStateFlow(
@@ -68,15 +75,17 @@ class NewTransactionsViewModel @Inject constructor(
                 categoryUseCase.getCategories(),
                 accountUseCase.getAccounts(),
                 _transaction,
-                _merchants
-            ) { groups, categories, accounts, transaction, merchants ->
+                _merchants,
+                _validationErrors,
+            ) { groups, categories, accounts, transaction, merchants, errors ->
                 NewTransactionUiState.Success(
                     groupedCategories = groups.associateWith { group ->
                         categories.filter { it.categoryGroupId == group.id }
                     },
                     accounts = accounts,
                     transaction = transaction,
-                    merchants = merchants
+                    merchants = merchants,
+                    errors = errors,
                 )
             }.collect { state ->
                 _uiState.value = state
@@ -92,9 +101,26 @@ class NewTransactionsViewModel @Inject constructor(
                     _merchants.value = merchants
                     val current = _uiState.value
                     if (current is NewTransactionUiState.Success) {
-                        _uiState.value = current.copy(merchants = merchants)
+                        _uiState.value = current.copy(
+                            merchants = merchants,
+                            errors = _validationErrors.value,
+                        )
                     }
                 }
+        }
+    }
+
+    fun attachReceipt(uri: android.net.Uri, context: android.content.Context) {
+        viewModelScope.launch {
+            val image = InputImage.fromFilePath(context, uri)
+            val data = receiptUseCase.parse(image)
+            val updated = _transaction.value.copy(
+                merchantName = data.merchantName ?: _transaction.value.merchantName,
+                amount = data.amount ?: _transaction.value.amount,
+                createdAt = data.date ?: _transaction.value.createdAt,
+                attachment = uri.toString()
+            )
+            updateTransaction(updated)
         }
     }
 
@@ -136,11 +162,18 @@ class NewTransactionsViewModel @Inject constructor(
         }
 
         _transaction.value = newTransaction
+
+        _validationErrors.value = _validationErrors.value.copy(
+            amount = if (newTransaction.amount > BigDecimal.ZERO) false else _validationErrors.value.amount,
+            category = if (newTransaction.category != null) false else _validationErrors.value.category,
+        )
+
         _uiState.value = NewTransactionUiState.Success(
             groupedCategories = (_uiState.value as? NewTransactionUiState.Success)?.groupedCategories ?: mapOf(),
             accounts = (_uiState.value as? NewTransactionUiState.Success)?.accounts ?: listOf(),
             transaction = newTransaction,
-            merchants = _merchants.value
+            merchants = _merchants.value,
+            errors = _validationErrors.value,
         )
     }
 
@@ -153,27 +186,42 @@ class NewTransactionsViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                if (_transaction.value.amount <= BigDecimal.ZERO) {
-                    _uiState.value = NewTransactionUiState.Error("Amount is required")
-                    onResult(false)
-                    return@launch
-                }
-                if (_transaction.value.category == null) {
-                    _uiState.value = NewTransactionUiState.Error("Category is required")
+                val amountMissing = _transaction.value.amount <= BigDecimal.ZERO
+                val categoryMissing = _transaction.value.category == null
+
+                _validationErrors.value = NewTransactionUiState.ValidationErrors(
+                    amount = amountMissing,
+                    category = categoryMissing,
+                )
+
+                if (amountMissing || categoryMissing) {
+                    val current = _uiState.value as? NewTransactionUiState.Success
+                    if (current != null) {
+                        _uiState.value = current.copy(errors = _validationErrors.value)
+                    }
                     onResult(false)
                     return@launch
                 }
 
-                transactionUseCase.insert(_transaction.value)
+                val settings = travelModeUseCase.getSettings().first()
+                var tx = _transaction.value
+                if (settings.isTravelMode) {
+                    tx = tx.copy(
+                        currency = settings.travelCurrency,
+                        tags = (tx.tags + settings.travelTag).distinct()
+                    )
+                }
+                transactionUseCase.insert(tx)
                 if (isRecurring) {
                     val recurring = dev.pandesal.sbp.domain.model.RecurringTransaction(
-                        transaction = _transaction.value,
+                        transaction = tx,
                         interval = interval,
                         cutoffDays = cutoffDays,
                         reminderEnabled = reminderEnabled
                     )
                     recurringTransactionUseCase.addRecurringTransaction(recurring)
                 }
+                _validationErrors.value = NewTransactionUiState.ValidationErrors()
                 onResult(true)
             } catch (e: Exception) {
                 _uiState.value = NewTransactionUiState.Error("Save failed: ${e.localizedMessage}")

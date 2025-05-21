@@ -24,6 +24,7 @@ import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
 import dev.pandesal.sbp.domain.repository.GoalRepositoryInterface
 import dev.pandesal.sbp.domain.repository.SettingsRepositoryInterface
 import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
+import dev.pandesal.sbp.domain.service.ExchangeRateService
 import dev.pandesal.sbp.notification.SmsTransactionScanner
 import javax.inject.Singleton
 
@@ -128,6 +129,33 @@ object DataModule {
     fun provideSmsTransactionScanner(
         @ApplicationContext context: Context
     ): SmsTransactionScanner = SmsTransactionScanner(context)
+
+    @Singleton
+    @Provides
+    fun provideReceiptOcrService(
+        @ApplicationContext context: Context
+    ): dev.pandesal.sbp.domain.service.ReceiptOcrService =
+        dev.pandesal.sbp.domain.service.ReceiptOcrService(context)
+
+    @Singleton
+    @Provides
+    fun provideReceiptUseCase(
+        service: dev.pandesal.sbp.domain.service.ReceiptOcrService
+    ): dev.pandesal.sbp.domain.usecase.ReceiptUseCase =
+        dev.pandesal.sbp.domain.usecase.ReceiptUseCase(service)
+
+    @Singleton
+    @Provides
+    fun provideTravelModeUseCase(
+        settingsRepository: SettingsRepositoryInterface,
+        transactionRepository: TransactionRepositoryInterface,
+        exchangeRateService: ExchangeRateService
+    ): dev.pandesal.sbp.domain.usecase.TravelModeUseCase =
+        dev.pandesal.sbp.domain.usecase.TravelModeUseCase(
+            settingsRepository,
+            transactionRepository,
+            exchangeRateService
+        )
 
 
 }

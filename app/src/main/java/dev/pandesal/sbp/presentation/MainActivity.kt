@@ -4,17 +4,27 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PieChart
@@ -37,6 +47,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pandesal.sbp.presentation.components.TravelModeBanner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -66,6 +77,7 @@ class MainActivity : ComponentActivity() {
                 FloatingToolbarDefaults.exitAlwaysScrollBehavior(exitDirection = Bottom)
             val settingsViewModel: dev.pandesal.sbp.presentation.settings.SettingsViewModel = androidx.hilt.navigation.compose.hiltViewModel()
             val settings by settingsViewModel.settings.collectAsState()
+            val travelSpent by settingsViewModel.travelSpent.collectAsState()
             StopBeingPoorTheme(darkTheme = settings.darkMode) {
                 val navController = rememberNavController()
                 var fabVisible by remember { mutableStateOf(true) }
@@ -97,14 +109,28 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .nestedScroll(exitAlwaysScrollBehavior)
                         .background(backgroundDiagonalGradient),
-                    containerColor = Color.Transparent
+                    containerColor = Color.Transparent,
+                    topBar = {
+                        AnimatedVisibility(
+                            visible = settings.isTravelMode,
+                            modifier = Modifier.fillMaxWidth(),
+                            enter = expandVertically(expandFrom = Alignment.Top) + slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                        ) {
+                            TravelModeBanner(
+                                tag = settings.travelTag,
+                                currency = settings.travelCurrency,
+                                total = travelSpent,
+                            )
+                        }
+                    }
                 ) { innerPadding ->
                     Box(
                         Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-//                            .nestedScroll(scrollConnection)
                     ) {
+
                         AppNavigation(navController)
 
                         HorizontalFloatingToolbar(
@@ -198,6 +224,18 @@ class MainActivity : ComponentActivity() {
                                     Icon(
                                         Icons.Filled.BarChart,
                                         contentDescription = "Localized description"
+                                    )
+                                }
+                                IconButton(onClick = {
+                                    navController.navigate(NavigationDestination.Trends) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }) {
+                                    Icon(
+                                        Icons.Filled.TrendingUp,
+                                        contentDescription = "Trends"
                                     )
                                 }
                                 IconButton(onClick = {
