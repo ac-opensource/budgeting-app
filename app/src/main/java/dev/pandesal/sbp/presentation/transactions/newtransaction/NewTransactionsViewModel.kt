@@ -48,6 +48,9 @@ class NewTransactionsViewModel @Inject constructor(
     private val _merchants = MutableStateFlow<List<String>>(emptyList())
     private var merchantJob: kotlinx.coroutines.Job? = null
 
+    private val _validationErrors =
+        MutableStateFlow(NewTransactionUiState.ValidationErrors())
+
 
     private val _transaction = MutableStateFlow(
         Transaction(
@@ -72,15 +75,17 @@ class NewTransactionsViewModel @Inject constructor(
                 categoryUseCase.getCategories(),
                 accountUseCase.getAccounts(),
                 _transaction,
-                _merchants
-            ) { groups, categories, accounts, transaction, merchants ->
+                _merchants,
+                _validationErrors,
+            ) { groups, categories, accounts, transaction, merchants, errors ->
                 NewTransactionUiState.Success(
                     groupedCategories = groups.associateWith { group ->
                         categories.filter { it.categoryGroupId == group.id }
                     },
                     accounts = accounts,
                     transaction = transaction,
-                    merchants = merchants
+                    merchants = merchants,
+                    errors = errors,
                 )
             }.collect { state ->
                 _uiState.value = state
@@ -96,7 +101,10 @@ class NewTransactionsViewModel @Inject constructor(
                     _merchants.value = merchants
                     val current = _uiState.value
                     if (current is NewTransactionUiState.Success) {
-                        _uiState.value = current.copy(merchants = merchants)
+                        _uiState.value = current.copy(
+                            merchants = merchants,
+                            errors = _validationErrors.value,
+                        )
                     }
                 }
         }
@@ -154,11 +162,18 @@ class NewTransactionsViewModel @Inject constructor(
         }
 
         _transaction.value = newTransaction
+
+        _validationErrors.value = _validationErrors.value.copy(
+            amount = if (newTransaction.amount > BigDecimal.ZERO) false else _validationErrors.value.amount,
+            category = if (newTransaction.category != null) false else _validationErrors.value.category,
+        )
+
         _uiState.value = NewTransactionUiState.Success(
             groupedCategories = (_uiState.value as? NewTransactionUiState.Success)?.groupedCategories ?: mapOf(),
             accounts = (_uiState.value as? NewTransactionUiState.Success)?.accounts ?: listOf(),
             transaction = newTransaction,
-            merchants = _merchants.value
+            merchants = _merchants.value,
+            errors = _validationErrors.value,
         )
     }
 
@@ -171,13 +186,19 @@ class NewTransactionsViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                if (_transaction.value.amount <= BigDecimal.ZERO) {
-                    _uiState.value = NewTransactionUiState.Error("Amount is required")
-                    onResult(false)
-                    return@launch
-                }
-                if (_transaction.value.category == null) {
-                    _uiState.value = NewTransactionUiState.Error("Category is required")
+                val amountMissing = _transaction.value.amount <= BigDecimal.ZERO
+                val categoryMissing = _transaction.value.category == null
+
+                _validationErrors.value = NewTransactionUiState.ValidationErrors(
+                    amount = amountMissing,
+                    category = categoryMissing,
+                )
+
+                if (amountMissing || categoryMissing) {
+                    val current = _uiState.value as? NewTransactionUiState.Success
+                    if (current != null) {
+                        _uiState.value = current.copy(errors = _validationErrors.value)
+                    }
                     onResult(false)
                     return@launch
                 }
@@ -200,6 +221,7 @@ class NewTransactionsViewModel @Inject constructor(
                     )
                     recurringTransactionUseCase.addRecurringTransaction(recurring)
                 }
+                _validationErrors.value = NewTransactionUiState.ValidationErrors()
                 onResult(true)
             } catch (e: Exception) {
                 _uiState.value = NewTransactionUiState.Error("Save failed: ${e.localizedMessage}")

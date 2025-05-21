@@ -133,12 +133,13 @@ fun NewTransactionScreen(
             accounts = state.accounts,
             transaction = state.transaction,
             merchants = state.merchants,
+            errors = state.errors,
             editable = editable,
             onEdit = { editable = true },
             onDelete = { showDelete = true },
             onSave = { _, recur, interval, cutoff, reminder ->
-                viewModel.saveTransaction(recur, interval, cutoff, reminder) {
-                    navManager.navigateUp()
+                viewModel.saveTransaction(recur, interval, cutoff, reminder) { success ->
+                    if (success) navManager.navigateUp()
                 }
             },
             onCancel = {
@@ -181,6 +182,7 @@ private fun NewTransactionScreen(
     accounts: List<Account>,
     transaction: Transaction,
     merchants: List<String>,
+    errors: NewTransactionUiState.ValidationErrors,
     editable: Boolean,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -367,6 +369,14 @@ private fun NewTransactionScreen(
                         )
                     }
                 }
+                if (errors.amount) {
+                    Text(
+                        text = "Amount is required",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -411,6 +421,15 @@ private fun NewTransactionScreen(
                                         modifier = Modifier.padding(end = 8.dp)
                                     )
                                 }
+
+                            }
+                            if (errors.category) {
+                                Text(
+                                    text = "Category is required",
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                )
                             }
 
                             if (expanded) {
