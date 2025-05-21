@@ -12,6 +12,8 @@ sealed interface NewTransactionUiState {
     data class ValidationErrors(
         val amount: Boolean = false,
         val category: Boolean = false,
+        val from: Boolean = false,
+        val to: Boolean = false,
     )
 
     data class Success(

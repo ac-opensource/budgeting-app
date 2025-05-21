@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import com.google.mlkit.vision.common.InputImage
+import kotlinx.coroutines.flow.zip
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -48,9 +49,8 @@ class NewTransactionsViewModel @Inject constructor(
     private val _merchants = MutableStateFlow<List<String>>(emptyList())
     private var merchantJob: kotlinx.coroutines.Job? = null
 
-    private val _validationErrors =
+    private val _validationErrors: MutableStateFlow<NewTransactionUiState.ValidationErrors> =
         MutableStateFlow(NewTransactionUiState.ValidationErrors())
-
 
     private val _transaction = MutableStateFlow(
         Transaction(
@@ -76,28 +76,29 @@ class NewTransactionsViewModel @Inject constructor(
                 accountUseCase.getAccounts(),
                 _transaction,
                 _merchants,
-                _validationErrors,
-            ) { groups, categories, accounts, transaction, merchants, errors ->
+            ) { groups, categories, accounts, transaction, merchants ->
                 NewTransactionUiState.Success(
                     groupedCategories = groups.associateWith { group ->
                         categories.filter { it.categoryGroupId == group.id }
-                    },
-                    accounts = accounts,
-                    transaction = transaction,
-                    merchants = merchants,
-                    errors = errors,
+                    }, accounts = accounts, transaction = transaction, merchants = merchants
                 )
-            }.collect { state ->
-                _uiState.value = state
-            }
+            }.zip(
+                    _validationErrors
+                ) { uiState, validationErrors ->
+                    uiState.copy(errors = validationErrors)
+                }.catch { e ->
+                    _uiState.value =
+                        NewTransactionUiState.Error(e.localizedMessage ?: "Unknown error")
+                }.collect { state ->
+                    _uiState.value = state
+                }
         }
     }
 
     private fun loadMerchants(categoryId: String) {
         merchantJob?.cancel()
         merchantJob = viewModelScope.launch {
-            transactionUseCase.getMerchantsByCategoryId(categoryId)
-                .collect { merchants ->
+            transactionUseCase.getMerchantsByCategoryId(categoryId).collect { merchants ->
                     _merchants.value = merchants
                     val current = _uiState.value
                     if (current is NewTransactionUiState.Success) {
@@ -126,16 +127,16 @@ class NewTransactionsViewModel @Inject constructor(
 
     fun updateTransaction(newTransaction: Transaction) {
         var newTransaction = newTransaction.copy(
-            name = if ((_transaction.value.category != newTransaction.category || newTransaction.name.trim().isEmpty()) && newTransaction.category != null) {
+            name = if ((_transaction.value.category != newTransaction.category || newTransaction.name.trim()
+                    .isEmpty()) && newTransaction.category != null
+            ) {
                 newTransaction.category.name + " " + "Payment"
             } else {
                 newTransaction.name
             }
         )
 
-        if (_transaction.value.transactionType != newTransaction.transactionType &&
-            newTransaction.transactionType == TransactionType.INFLOW
-        ) {
+        if (_transaction.value.transactionType != newTransaction.transactionType && newTransaction.transactionType == TransactionType.INFLOW) {
             val current = _uiState.value
             if (current is NewTransactionUiState.Success) {
                 val salary = current.groupedCategories.values.flatten()
@@ -144,9 +145,7 @@ class NewTransactionsViewModel @Inject constructor(
                     newTransaction = newTransaction.copy(category = salary)
                 }
             }
-        } else if (_transaction.value.transactionType != newTransaction.transactionType &&
-            newTransaction.transactionType == TransactionType.TRANSFER
-        ) {
+        } else if (_transaction.value.transactionType != newTransaction.transactionType && newTransaction.transactionType == TransactionType.TRANSFER) {
             val current = _uiState.value
             if (current is NewTransactionUiState.Success) {
                 val adjustment = current.groupedCategories.values.flatten()
@@ -166,10 +165,17 @@ class NewTransactionsViewModel @Inject constructor(
         _validationErrors.value = _validationErrors.value.copy(
             amount = if (newTransaction.amount > BigDecimal.ZERO) false else _validationErrors.value.amount,
             category = if (newTransaction.category != null) false else _validationErrors.value.category,
+            from = if (newTransaction.transactionType == TransactionType.INFLOW) false else { if (newTransaction.from != null) false else _validationErrors.value.from },
+            to = if (newTransaction.transactionType == TransactionType.OUTFLOW) {
+                if (newTransaction.merchantName != null) false else _validationErrors.value.to
+            } else {
+                if (newTransaction.to != null) false else _validationErrors.value.to
+            },
         )
 
         _uiState.value = NewTransactionUiState.Success(
-            groupedCategories = (_uiState.value as? NewTransactionUiState.Success)?.groupedCategories ?: mapOf(),
+            groupedCategories = (_uiState.value as? NewTransactionUiState.Success)?.groupedCategories
+                ?: mapOf(),
             accounts = (_uiState.value as? NewTransactionUiState.Success)?.accounts ?: listOf(),
             transaction = newTransaction,
             merchants = _merchants.value,
@@ -188,10 +194,18 @@ class NewTransactionsViewModel @Inject constructor(
             try {
                 val amountMissing = _transaction.value.amount <= BigDecimal.ZERO
                 val categoryMissing = _transaction.value.category == null
+                val fromMissing = if (_transaction.value.transactionType == TransactionType.INFLOW) false else _transaction.value.from == null
+                val toMissing = if (_transaction.value.transactionType == TransactionType.OUTFLOW) {
+                    _transaction.value.merchantName == null
+                } else {
+                    _transaction.value.to == null
+                }
 
                 _validationErrors.value = NewTransactionUiState.ValidationErrors(
                     amount = amountMissing,
                     category = categoryMissing,
+                    from = fromMissing,
+                    to = toMissing
                 )
 
                 if (amountMissing || categoryMissing) {
@@ -242,10 +256,10 @@ class NewTransactionsViewModel @Inject constructor(
 
     fun deleteTransaction(transaction: Transaction, onResult: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
-            runCatching { transactionUseCase.delete(transaction) }
-                .onSuccess { onResult(true) }
+            runCatching { transactionUseCase.delete(transaction) }.onSuccess { onResult(true) }
                 .onFailure {
-                    _uiState.value = NewTransactionUiState.Error("Delete failed: ${it.localizedMessage}")
+                    _uiState.value =
+                        NewTransactionUiState.Error("Delete failed: ${it.localizedMessage}")
                     onResult(false)
                 }
         }

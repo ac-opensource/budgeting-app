@@ -93,6 +93,7 @@ import androidx.compose.material3.TextButton
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.material.icons.twotone.Camera
+import androidx.compose.ui.draw.alpha
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
@@ -279,7 +280,9 @@ private fun NewTransactionScreen(
                         slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
             ) {
                 ElevatedCard(
-                    modifier = Modifier.wrapContentSize().padding(vertical = 8.dp),
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .padding(vertical = 8.dp),
                     shape = RoundedCornerShape(50),
                     elevation = CardDefaults.elevatedCardElevation(
                         defaultElevation = 16.dp
@@ -322,60 +325,85 @@ private fun NewTransactionScreen(
                 enter = fadeIn(animationSpec = tween(300)) +
                         slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
             ) {
-                ElevatedCard(
-                    shape = RoundedCornerShape(50),
-                    elevation = CardDefaults.elevatedCardElevation(
-                        defaultElevation = 16.dp
-                    ),
-                ) {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        val amountText =
-                            if (transaction.amount == BigDecimal.ZERO) "" else transaction.amount.toPlainString()
-
-                        BasicTextField(
-                            enabled = editable,
-                            value = amountText,
-                            onValueChange = { input ->
-                                val newAmount = input.toBigDecimalOrNull() ?: BigDecimal.ZERO
-                                onUpdate(transaction.copy(amount = newAmount))
-                            },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
-                            textStyle = MaterialTheme.typography.headlineLarge.copy(
-                                textAlign = TextAlign.Center,
-                                fontSize = 48.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.Transparent
-                            ),
+                Column {
+                    ElevatedCard(
+                        shape = RoundedCornerShape(50),
+                        elevation = CardDefaults.elevatedCardElevation(
+                            defaultElevation = 16.dp
+                        ),
+                    ) {
+                        Box(
                             modifier = Modifier.fillMaxWidth(),
-                            decorationBox = { innerTextField ->
-                                Box(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = amountText,
-                                        style = MaterialTheme.typography.headlineLarge.copy(
-                                            textAlign = TextAlign.Center,
-                                            fontSize = 48.sp,
-                                            fontWeight = FontWeight.Medium
-                                        ),
-                                        maxLines = 1,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    innerTextField()
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val amountText =
+                                if (transaction.amount == BigDecimal.ZERO) "" else transaction.amount.toPlainString()
+
+                            BasicTextField(
+                                enabled = editable,
+                                value = amountText,
+                                onValueChange = { input ->
+                                    val newAmount = input.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                                    onUpdate(transaction.copy(amount = newAmount))
+                                },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true,
+                                textStyle = MaterialTheme.typography.headlineLarge.copy(
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 48.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.Transparent
+                                ),
+                                modifier = Modifier.fillMaxWidth().height(60.dp),
+                                decorationBox = { innerTextField ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = amountText,
+                                            style = MaterialTheme.typography.headlineLarge.copy(
+                                                textAlign = TextAlign.Center,
+                                                fontSize = 48.sp,
+                                                fontWeight = FontWeight.Medium
+                                            ),
+                                            maxLines = 1,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+
+                                        if (amountText.isEmpty()) {
+                                            Box(
+                                                modifier = Modifier.alpha(0f)
+                                            ) {
+                                                innerTextField()
+                                            }
+
+                                        } else {
+                                            innerTextField()
+                                        }
+
+
+                                    }
                                 }
-                            }
+                            )
+                        }
+                    }
+                    if (errors.amount) {
+                        Text(
+                            text = "Amount is required",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .background(
+                                    MaterialTheme.colorScheme.errorContainer,
+                                    RoundedCornerShape(50)
+                                )
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
                         )
                     }
-                }
-                if (errors.amount) {
-                    Text(
-                        text = "Amount is required",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-                    )
                 }
             }
 
@@ -533,6 +561,14 @@ private fun NewTransactionScreen(
                                         )
                                     }
                                 }
+                                if (errors.from) {
+                                    Text(
+                                        text = "Source account is required",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    )
+                                }
                             }
 
                             if (fromAccountExpanded) {
@@ -601,6 +637,15 @@ private fun NewTransactionScreen(
                                         )
                                     }
                                 }
+
+                                if (errors.to) {
+                                    Text(
+                                        text = "Payee is required",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    )
+                                }
                             }
 
                             if (merchantExpanded) {
@@ -619,45 +664,6 @@ private fun NewTransactionScreen(
                                             )
                                         }
                                     }
-                                }
-                            }
-                        }
-
-                        Column(modifier = Modifier.padding(top = 16.dp)) {
-                            Text("Receipt Photo", style = MaterialTheme.typography.bodyMedium)
-                            ElevatedCard(
-                                modifier = Modifier
-                                    .padding(top = 4.dp)
-                                    .fillMaxWidth()
-                                    .clickable(enabled = editable) { onAttach() },
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    if (transaction.attachment != null) {
-                                        AsyncImage(
-                                            model = transaction.attachment,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(64.dp)
-                                                .padding(8.dp)
-                                        )
-                                    } else {
-                                        Text(
-                                            text = "Add Receipt",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            modifier = Modifier.padding(16.dp)
-                                        )
-                                    }
-                                    Icon(
-                                        Icons.TwoTone.Camera,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .padding(end = 8.dp)
-                                            .size(24.dp)
-                                    )
                                 }
                             }
                         }
@@ -694,6 +700,15 @@ private fun NewTransactionScreen(
                                         )
                                     }
                                 }
+
+                                if (errors.to) {
+                                    Text(
+                                        text = "Destination account is required",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    )
+                                }
                             }
 
                             if (toAccountExpanded) {
@@ -717,6 +732,47 @@ private fun NewTransactionScreen(
                                             )
                                         }
                                     }
+                                }
+                            }
+                        }
+
+
+
+                        Column(modifier = Modifier.padding(top = 16.dp)) {
+                            Text("Receipt Photo", style = MaterialTheme.typography.bodyMedium)
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable(enabled = editable) { onAttach() },
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    if (transaction.attachment != null) {
+                                        AsyncImage(
+                                            model = transaction.attachment,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(64.dp)
+                                                .padding(8.dp)
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "Add Receipt",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            modifier = Modifier.padding(16.dp)
+                                        )
+                                    }
+                                    Icon(
+                                        Icons.TwoTone.Camera,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .padding(end = 8.dp)
+                                            .size(24.dp)
+                                    )
                                 }
                             }
                         }
@@ -796,24 +852,24 @@ private fun NewTransactionScreen(
                                             modifier = Modifier.padding(end = 8.dp)
                                         )
                                     }
-                                }
 
-                                DropdownMenu(
-                                    expanded = recurringExpanded,
-                                    onDismissRequest = { recurringExpanded = false }
-                                ) {
-                                    RecurringInterval.values().forEach { interval ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    interval.name.replace('_', ' ').lowercase()
-                                                        .replaceFirstChar { it.uppercaseChar() })
-                                            },
-                                            onClick = {
-                                                selectedInterval = interval
-                                                recurringExpanded = false
-                                            }
-                                        )
+                                    DropdownMenu(
+                                        expanded = recurringExpanded,
+                                        onDismissRequest = { recurringExpanded = false }
+                                    ) {
+                                        RecurringInterval.values().forEach { interval ->
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        interval.name.replace('_', ' ').lowercase()
+                                                            .replaceFirstChar { it.uppercaseChar() })
+                                                },
+                                                onClick = {
+                                                    selectedInterval = interval
+                                                    recurringExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
                                 }
 
@@ -848,8 +904,13 @@ private fun NewTransactionScreen(
                                         checked = reminderEnabled,
                                         onCheckedChange = { checked ->
                                             if (checked && android.os.Build.VERSION.SDK_INT >= 33) {
-                                                val permission = Manifest.permission.POST_NOTIFICATIONS
-                                                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                                                val permission =
+                                                    Manifest.permission.POST_NOTIFICATIONS
+                                                if (ContextCompat.checkSelfPermission(
+                                                        context,
+                                                        permission
+                                                    ) == PackageManager.PERMISSION_GRANTED
+                                                ) {
                                                     reminderEnabled = true
                                                 } else {
                                                     permissionLauncher.launch(permission)
@@ -883,7 +944,13 @@ private fun NewTransactionScreen(
                     floatingActionButton = {
                         FloatingToolbarDefaults.VibrantFloatingActionButton(
                             onClick = {
-                                onSave(transaction, isRecurring, selectedInterval, cutoffDays, reminderEnabled)
+                                onSave(
+                                    transaction,
+                                    isRecurring,
+                                    selectedInterval,
+                                    cutoffDays,
+                                    reminderEnabled
+                                )
                             },
                         ) {
                             Icon(Icons.Default.Check, "Localized description")

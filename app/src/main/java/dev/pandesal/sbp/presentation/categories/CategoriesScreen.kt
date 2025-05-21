@@ -240,6 +240,9 @@ private fun CategoriesListContent(
                                 reorderCategory(item.id, from, to)
                             },
                             onEditCategory = { editCategory = it },
+                            onViewCategoryTransactions = { categoryId ->
+                                navManager.navigate(NavigationDestination.CategoryTransactions(categoryId))
+                            },
                             onDeleteCategory = { onDeleteCategory(it) },
                             onEditBudget = { amount, id ->
                                 navManager.navigate(
@@ -293,6 +296,7 @@ private fun ChildListContent(
     onAddBudgetClick: (categoryId: Int) -> Unit,
     reorderCategory: (from: Int, to: Int) -> Unit,
     onEditCategory: (Category) -> Unit,
+    onViewCategoryTransactions: (categoryId: Int) -> Unit,
     onEditBudget: (
         budgetTargetAmount: BigDecimal,
         selectedCategoryId: Int
@@ -329,10 +333,8 @@ private fun ChildListContent(
                     val interactionSource = remember { MutableInteractionSource() }
                     Card(
                         onClick = {
-                            navManager.navigate(
-                                NavigationDestination.CategoryTransactions(
-                                    item.category.id
-                                )
+                            onViewCategoryTransactions(
+                                item.category.id
                             )
                         },
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary),
