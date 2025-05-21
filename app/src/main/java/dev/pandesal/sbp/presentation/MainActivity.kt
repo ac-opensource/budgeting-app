@@ -2,6 +2,7 @@ package dev.pandesal.sbp.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
@@ -14,12 +15,16 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
@@ -53,12 +58,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import dagger.hilt.android.AndroidEntryPoint
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
@@ -71,15 +80,26 @@ import java.time.LocalDate
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.Black.toArgb(),
+                darkScrim = Color.Black.toArgb()
+            ),
+            navigationBarStyle = SystemBarStyle.auto(
+                lightScrim = Color(0xFFCEEDDB).toArgb(),
+                darkScrim = Color.Black.toArgb()
+            )
+        )
         setContent {
             val exitAlwaysScrollBehavior =
                 FloatingToolbarDefaults.exitAlwaysScrollBehavior(exitDirection = Bottom)
-            val settingsViewModel: dev.pandesal.sbp.presentation.settings.SettingsViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+            val settingsViewModel: dev.pandesal.sbp.presentation.settings.SettingsViewModel =
+                androidx.hilt.navigation.compose.hiltViewModel()
             val settings by settingsViewModel.settings.collectAsState()
             val travelSpent by settingsViewModel.travelSpent.collectAsState()
+            val navController = rememberNavController()
+            val entries = navController.visibleEntries.collectAsState()
             StopBeingPoorTheme(darkTheme = settings.darkMode) {
-                val navController = rememberNavController()
                 var fabVisible by remember { mutableStateOf(true) }
                 var expanded by rememberSaveable { mutableStateOf(true) }
                 val scrollConnection = remember {
@@ -94,6 +114,9 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+
+                val systemBarInsets = WindowInsets.systemBars.asPaddingValues(LocalDensity.current)
+                val statusBarHeight = systemBarInsets.calculateTopPadding()
 
                 val backgroundDiagonalGradient = Brush.linearGradient(
                     colors = listOf(
@@ -111,11 +134,29 @@ class MainActivity : ComponentActivity() {
                         .background(backgroundDiagonalGradient),
                     containerColor = Color.Transparent,
                     topBar = {
+
+                        AnimatedVisibility(
+                            visible = entries.value.lastOrNull()?.destination?.route?.lowercase()
+                                ?.contains("home") == true,
+                            modifier = Modifier.fillMaxWidth(),
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(statusBarHeight)
+                                    .background(MaterialTheme.colorScheme.primaryContainer) // This shows *behind* the status bar
+                            ) {}
+                        }
+
                         AnimatedVisibility(
                             visible = settings.isTravelMode,
                             modifier = Modifier.fillMaxWidth(),
-                            enter = expandVertically(expandFrom = Alignment.Top) + slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-                            exit = shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                            enter = expandVertically(expandFrom = Alignment.Top) + slideInVertically(
+                                initialOffsetY = { -it }) + fadeIn(),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically(
+                                targetOffsetY = { -it }) + fadeOut()
                         ) {
                             TravelModeBanner(
                                 tag = settings.travelTag,
@@ -137,11 +178,15 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .offset(y = -ScreenOffset),
-                            expanded = expanded,
+                            expanded = true,
                             floatingActionButton = {
                                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                                     onClick = {
-                                        navController.navigate(NavigationDestination.NewTransaction(null)) {
+                                        navController.navigate(
+                                            NavigationDestination.NewTransaction(
+                                                null
+                                            )
+                                        ) {
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = true
                                             }
@@ -216,7 +261,9 @@ class MainActivity : ComponentActivity() {
 
                                 IconButton(onClick = {
                                     navController.navigate(NavigationDestination.Insights) {
-                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
                                         launchSingleTop = true
                                         restoreState = true
                                     }
@@ -228,7 +275,9 @@ class MainActivity : ComponentActivity() {
                                 }
                                 IconButton(onClick = {
                                     navController.navigate(NavigationDestination.Trends) {
-                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
                                         launchSingleTop = true
                                         restoreState = true
                                     }

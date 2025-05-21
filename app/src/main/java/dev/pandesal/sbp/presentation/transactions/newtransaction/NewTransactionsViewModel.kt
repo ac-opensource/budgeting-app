@@ -121,7 +121,7 @@ class NewTransactionsViewModel @Inject constructor(
             name = if ((_transaction.value.category != newTransaction.category || newTransaction.name.trim()
                     .isEmpty()) && newTransaction.category != null
             ) {
-                newTransaction.category.name + " " + "Payment"
+                newTransaction.category.name
             } else {
                 newTransaction.name
             }
