@@ -6,7 +6,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.toRoute
@@ -17,7 +16,6 @@ import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.insights.InsightsScreen
-import dev.pandesal.sbp.presentation.trends.TrendsScreen
 import dev.pandesal.sbp.presentation.transactions.TransactionsScreen
 import dev.pandesal.sbp.presentation.transactions.newtransaction.NewTransactionScreen
 import dev.pandesal.sbp.domain.model.Transaction

@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - feat: Introduce travel mode with currency conversion.
 
+## [0.36.1] - 2025-05-20
+### Fixed
+- fix: allow blank amount fields and validate on submit.
+
 ## [0.36.0] - 2025-05-20
 ### Added
 - feat: Add spending trends and forecast screen.

@@ -38,6 +38,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ListItem
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.vector.ImageVector
+import java.math.BigDecimal
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pandesal.sbp.domain.model.AccountType
+import dev.pandesal.sbp.domain.model.LenderType
+import dev.pandesal.sbp.presentation.LocalNavigationManager
+import dev.pandesal.sbp.extensions.label
+
 
 private val PH_BANKS = listOf(
     "Banco de Oro (BDO)",
@@ -68,23 +86,6 @@ private val PH_BANKS = listOf(
     "ING Bank",
     "Standard Chartered Bank"
 )
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.graphics.vector.ImageVector
-import java.math.BigDecimal
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import dev.pandesal.sbp.domain.model.AccountType
-import dev.pandesal.sbp.domain.model.LenderType
-import dev.pandesal.sbp.presentation.LocalNavigationManager
-import dev.pandesal.sbp.extensions.label
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
