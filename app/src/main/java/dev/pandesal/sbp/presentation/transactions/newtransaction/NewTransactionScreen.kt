@@ -90,10 +90,16 @@ import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
+import android.Manifest
+import android.content.pm.PackageManager
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.delay
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun NewTransactionScreen(
@@ -814,10 +820,27 @@ private fun NewTransactionScreen(
                                         .padding(top = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
+                                    val context = LocalContext.current
+                                    val permissionLauncher = rememberLauncherForActivityResult(
+                                        ActivityResultContracts.RequestPermission()
+                                    ) { granted ->
+                                        reminderEnabled = granted
+                                    }
                                     Switch(
                                         enabled = editable,
                                         checked = reminderEnabled,
-                                        onCheckedChange = { reminderEnabled = it }
+                                        onCheckedChange = { checked ->
+                                            if (checked && android.os.Build.VERSION.SDK_INT >= 33) {
+                                                val permission = Manifest.permission.POST_NOTIFICATIONS
+                                                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                                                    reminderEnabled = true
+                                                } else {
+                                                    permissionLauncher.launch(permission)
+                                                }
+                                            } else {
+                                                reminderEnabled = checked
+                                            }
+                                        }
                                     )
                                     Text(
                                         text = "Reminders",

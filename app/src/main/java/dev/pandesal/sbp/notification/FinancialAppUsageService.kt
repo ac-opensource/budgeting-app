@@ -52,7 +52,10 @@ class FinancialAppUsageService : Service() {
         private const val CHECK_INTERVAL_MS = 5 * 60 * 1000L // 5 minutes
         val FINANCIAL_KEYWORDS = listOf(
             "bpi", "bdo", "metrobank", "securitybank", "maybank",
-            "eastwest", "rcbc", "unionbank", "gcash", "maya"
+            "eastwest", "rcbc", "unionbank", "gcash", "maya",
+            "pnb", "landbank", "chinabank", "psbank", "coins",
+            "tonik", "ing", "seabank", "gotyme", "diskartech",
+            "komo", "grabpay"
         )
     }
 }
