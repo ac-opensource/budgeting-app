@@ -125,6 +125,14 @@ class CategoryUseCase @Inject constructor(
                 icon = "",
                 weight = 4,
                 isSystemSet = true
+            ),
+            CategoryGroup(
+                id = 2,
+                name = "Transfers",
+                description = "",
+                icon = "",
+                weight = 5,
+                isSystemSet = true
             )
         )
 
@@ -149,7 +157,10 @@ class CategoryUseCase @Inject constructor(
             Category(24, "Fun Money", "", "", 13, TransactionType.OUTFLOW, 2, isSystemSet = true),
             Category(25, "Credit Card", "", "", 14, TransactionType.OUTFLOW, 0, isSystemSet = true),
             Category(26, "Student Loan", "", "", 14, TransactionType.OUTFLOW, 1, isSystemSet = true),
-            Category(27, "Mortgage", "", "", 14, TransactionType.OUTFLOW, 2, isSystemSet = true)
+            Category(27, "Mortgage", "", "", 14, TransactionType.OUTFLOW, 2, isSystemSet = true),
+            Category(28, "Move Funds", "", "", 2, TransactionType.TRANSFER, 0, isSystemSet = true),
+            Category(29, "Goal Contribution", "", "", 2, TransactionType.TRANSFER, 1, isSystemSet = true),
+            Category(30, "Loan Payment", "", "", 2, TransactionType.TRANSFER, 2, isSystemSet = true)
         )
 
         groups.forEach { repository.insertCategoryGroup(it) }

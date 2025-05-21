@@ -5,11 +5,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.39.1] - 2025-05-22
+## [0.42.1] - 2025-05-22
 ### Changed
 - style: Add gradient styling to insights charts.
 
-## [0.39.0] - 2025-05-22
+## [0.42.0] - 2025-05-20
+### Added
+- feat: Show transactions when selecting a category.
+
+## [0.41.1] - 2025-05-21
+### Fixed
+- fix: include default Transfer categories when seeding data.
+
+## [0.41.0] - 2025-05-21
+### Added
+- feat: Inline validation errors for New Transaction dialog.
+
+## [0.40.0] - 2025-05-21
+### Added
+- feat: Show monthly budget suggestion for categories with goals.
+### Fixed
+- fix: Edit buttons on Categories screen now open working rename sheets.
+
+## [0.39.0] - 2025-05-21
 ### Added
 - feat: Display forecasted trend with dashed line and gradient fill.
 - feat: Add Y-axis and clickable points to spending trend chart.
