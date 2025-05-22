@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.45.0] - 2025-05-23
+### Added
+- feat: Merge Insights and Trends screen with improved charts.
+
+
+
+## [0.45.1] - 2025-05-23
+### Fixed
+- fix: Persist monthly budgets when setting a budget.
+
+## [0.45.0] - 2025-05-24
+### Added
+- feat: Show daily spending bar graph in home header.
 
 ## [0.44.1] - 2025-05-22
 ### Changed

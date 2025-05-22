@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -111,7 +113,31 @@ fun SpendingTrendLineChart(
                                 close()
                             }
 
+                            val color1 = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                            val elements = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+
                             Canvas(Modifier.fillMaxSize()) {
+                                val gridDashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                                for (i in 0..4) {
+                                    val y = chartHeight * (1f - i / 4f)
+                                    drawLine(
+                                        color = color1,
+                                        start = Offset(spacing, y),
+                                        end = Offset(size.width - spacing, y),
+                                        pathEffect = gridDashEffect,
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }
+
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        listOf(
+                                            elements,
+                                            Color.Transparent
+                                        )
+                                    )
+                                )
+
                                 drawPath(
                                     path = fillPath,
                                     brush = Brush.verticalGradient(

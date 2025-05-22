@@ -11,11 +11,17 @@ import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
+import dev.pandesal.sbp.presentation.model.DailySpend
+import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,11 +38,16 @@ class HomeViewModel @Inject constructor(
     init {
         _uiState.value = HomeUiState.Loading
 
-        val dummyBudgets = listOf(
-            BudgetCategoryUiModel("Groceries", java.math.BigDecimal("5000"), java.math.BigDecimal("3200"), "PHP"),
-            BudgetCategoryUiModel("Utilities", java.math.BigDecimal("3000"), java.math.BigDecimal("1200"), "PHP"),
-            BudgetCategoryUiModel("Transport", java.math.BigDecimal("2000"), java.math.BigDecimal("1800"), "PHP"),
-            BudgetCategoryUiModel("Dining Out", java.math.BigDecimal("1500"), java.math.BigDecimal("800"), "PHP"),
+        val sampleAmounts = listOf("20.0", "90.0", "40.0", "60.0", "30.0")
+        val dummyDailySpent = DailySpendUiModel(
+            entries = sampleAmounts.mapIndexed { index, amount ->
+                val date = LocalDate.now().minusDays((4 - index).toLong())
+                DailySpend(
+                    label = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(),
+                    amount = BigDecimal(amount)
+                )
+            },
+            changeFromLastWeek = 0.0
         )
 
         viewModelScope.launch {
@@ -54,6 +65,7 @@ class HomeViewModel @Inject constructor(
                     favoriteBudgets = budgets,
                     accounts = accountsUi,
                     netWorthData = netWorthUi,
+                    dailySpent = dummyDailySpent,
                     budgetSummary = summaryUi
                 )
             }.collect { state ->
