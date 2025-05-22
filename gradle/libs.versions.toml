@@ -77,7 +77,6 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "mlkitText" }
-androidx-pullrefresh = { group = "androidx.compose.material", name = "pullrefresh" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

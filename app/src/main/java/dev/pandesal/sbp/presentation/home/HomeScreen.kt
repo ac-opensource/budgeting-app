@@ -22,13 +22,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,6 +34,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -78,6 +78,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Currency
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -87,15 +88,17 @@ fun HomeScreen(
     val homeState by viewModel.uiState.collectAsState()
     val transactionsState by transactionsViewModel.uiState.collectAsState()
     val refreshing = homeState is HomeUiState.Loading || transactionsState is TransactionsUiState.Loading
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = refreshing,
+    val pullRefreshState = rememberPullToRefreshState()
+
+
+    PullToRefreshBox(
+        isRefreshing = refreshing,
+        state = pullRefreshState,
         onRefresh = {
             viewModel.refresh()
             transactionsViewModel.refresh()
         }
-    )
-
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    ) {
         when {
             homeState is HomeUiState.Initial || transactionsState is TransactionsUiState.Initial -> {
                 SkeletonLoader()
@@ -115,12 +118,6 @@ fun HomeScreen(
                 )
             }
         }
-
-        PullRefreshIndicator(
-            refreshing = refreshing,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
-        )
     }
 }
 

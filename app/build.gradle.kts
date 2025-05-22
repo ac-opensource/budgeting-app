@@ -90,7 +90,6 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.lottie.compose)
-    implementation(libs.androidx.pullrefresh)
     implementation(libs.reorderable)
     implementation(libs.mlkit.text.recognition)
 
