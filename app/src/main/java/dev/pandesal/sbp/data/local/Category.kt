@@ -3,6 +3,7 @@ package dev.pandesal.sbp.data.local
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
@@ -38,7 +39,10 @@ data class CategoryEntity(
     val isSystemSet: Boolean = false,
 )
 
-@Entity(tableName = "monthly_budgets")
+@Entity(
+    tableName = "monthly_budgets",
+    indices = [Index(value = ["categoryId", "yearMonth"], unique = true)]
+)
 data class MonthlyBudgetEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val categoryId: Int,
