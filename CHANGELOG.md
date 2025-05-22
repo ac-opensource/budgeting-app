@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.50.0] - 2025-05-22
+### Added
+- feat: Show tooltip with daily details and reminders on calendar dates
+
+## [0.50.1] - 2025-05-22
+### Fixed
+- fix: Refine tooltip anchor, styling, and calendar highlights
+
 
 ## [0.49.2] - 2025-05-25
 ### Fixed

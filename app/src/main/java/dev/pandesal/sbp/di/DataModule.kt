@@ -11,6 +11,7 @@ import dev.pandesal.sbp.data.dao.TransactionDao
 import dev.pandesal.sbp.data.dao.AccountDao
 import dev.pandesal.sbp.data.dao.GoalDao
 import dev.pandesal.sbp.data.dao.RecurringTransactionDao
+import dev.pandesal.sbp.data.dao.ReminderDao
 import dev.pandesal.sbp.data.local.SbpDatabase
 import dev.pandesal.sbp.data.repository.CategoryRepository
 import dev.pandesal.sbp.data.repository.TransactionRepository
@@ -18,12 +19,14 @@ import dev.pandesal.sbp.data.repository.AccountRepository
 import dev.pandesal.sbp.data.repository.GoalRepository
 import dev.pandesal.sbp.data.repository.SettingsRepository
 import dev.pandesal.sbp.data.repository.RecurringTransactionRepository
+import dev.pandesal.sbp.data.repository.ReminderRepository
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
 import dev.pandesal.sbp.domain.repository.GoalRepositoryInterface
 import dev.pandesal.sbp.domain.repository.SettingsRepositoryInterface
 import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
+import dev.pandesal.sbp.domain.repository.ReminderRepositoryInterface
 import dev.pandesal.sbp.domain.service.ExchangeRateService
 import dev.pandesal.sbp.notification.SmsTransactionScanner
 import javax.inject.Singleton
@@ -68,6 +71,12 @@ object DataModule {
     @Provides
     fun provideRecurringTransactionDao(database: SbpDatabase): RecurringTransactionDao {
         return database.recurringTransactionDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideReminderDao(database: SbpDatabase): ReminderDao {
+        return database.reminderDao()
     }
 
     @Singleton
@@ -117,6 +126,14 @@ object DataModule {
         dao: RecurringTransactionDao
     ): RecurringTransactionRepositoryInterface {
         return RecurringTransactionRepository(dao)
+    }
+
+    @Singleton
+    @Provides
+    fun provideReminderRepository(
+        dao: ReminderDao
+    ): ReminderRepositoryInterface {
+        return ReminderRepository(dao)
     }
 
     @Singleton
