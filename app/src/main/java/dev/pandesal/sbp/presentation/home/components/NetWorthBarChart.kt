@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
@@ -72,7 +75,7 @@ fun NetWorthBarChart(
             Spacer(modifier = Modifier.height(8.dp))
             Text("Assets vs Liabilities", style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.weight(1f))
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp)
@@ -82,61 +85,100 @@ fun NetWorthBarChart(
                         Text("No data available")
                     }
                 } else {
-                    var groupWidth by remember { mutableStateOf(0f) }
-                    var spacingPx by remember { mutableStateOf(0f) }
-                    Canvas(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .pointerInput(data) {
-                                detectTapGestures { offset ->
-                                    val index = ((offset.x - spacingPx) / groupWidth).toInt()
-                                    if (index in data.indices) {
-                                        dialogEntry.value = data[index]
+                    val maxY = data.maxOfOrNull { max(it.assets, it.liabilities) } ?: 0.0
+                    Row(Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .fillMaxHeight(),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            for (i in 4 downTo 0) {
+                                Text(
+                                    text = "${"%.0f".format(maxY * i / 4)}",
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            var groupWidth by remember { mutableStateOf(0f) }
+                            var spacingPx by remember { mutableStateOf(0f) }
+                            Canvas(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .pointerInput(data) {
+                                        detectTapGestures { offset ->
+                                            val index = ((offset.x - spacingPx) / groupWidth).toInt()
+                                            if (index in data.indices) {
+                                                dialogEntry.value = data[index]
+                                            }
+                                        }
                                     }
+                            ) {
+                                val spacing = barWidth.toPx()
+                                spacingPx = spacing
+                                if (maxY == 0.0) return@Canvas
+                                val chartHeight = size.height - spacing
+                                groupWidth = (size.width - spacing * 2) / data.size
+
+                                val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                                for (i in 0..4) {
+                                    val y = chartHeight * (1f - i / 4f)
+                                    drawLine(
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                        start = Offset(spacing, y),
+                                        end = Offset(size.width - spacing, y),
+                                        pathEffect = dashEffect,
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }
+
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        listOf(
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                            Color.Transparent
+                                        )
+                                    )
+                                )
+
+                                data.forEachIndexed { index, entry ->
+                                    val assetsHeight = chartHeight * (entry.assets / maxY).toFloat()
+                                    val liabilitiesHeight = chartHeight * (entry.liabilities / maxY).toFloat()
+                                    val xOffset = spacing + index * groupWidth
+                                    drawRoundRect(
+                                        brush = Brush.verticalGradient(
+                                            listOf(primaryColor.copy(alpha = 0.8f), primaryColor.copy(alpha = 0.4f)),
+                                            startY = size.height - assetsHeight,
+                                            endY = size.height
+                                        ),
+                                        topLeft = Offset(xOffset, size.height - assetsHeight),
+                                        size = Size(barWidth.toPx(), assetsHeight),
+                                        cornerRadius = CornerRadius(4.dp.toPx())
+                                    )
+                                    drawRoundRect(
+                                        brush = Brush.verticalGradient(
+                                            listOf(errorColor.copy(alpha = 0.8f), errorColor.copy(alpha = 0.4f)),
+                                            startY = size.height - liabilitiesHeight,
+                                            endY = size.height
+                                        ),
+                                        topLeft = Offset(xOffset + barWidth.toPx() + 4.dp.toPx(), size.height - liabilitiesHeight),
+                                        size = Size(barWidth.toPx(), liabilitiesHeight),
+                                        cornerRadius = CornerRadius(4.dp.toPx())
+                                    )
                                 }
                             }
-                    ) {
-                        val spacing = barWidth.toPx()
-                        spacingPx = spacing
-                        val maxY = data.maxOfOrNull { max(it.assets, it.liabilities) } ?: 0.0
-                        if (maxY == 0.0) return@Canvas
-                        val chartHeight = size.height - spacing
-                        groupWidth = (size.width - spacing * 2) / data.size
-                        data.forEachIndexed { index, entry ->
-                            val assetsHeight = chartHeight * (entry.assets / maxY).toFloat()
-                            val liabilitiesHeight = chartHeight * (entry.liabilities / maxY).toFloat()
-                            val xOffset = spacing + index * groupWidth
-                            drawRoundRect(
-                                brush = Brush.verticalGradient(
-                                    listOf(primaryColor.copy(alpha = 0.8f), primaryColor.copy(alpha = 0.4f)),
-                                    startY = size.height - assetsHeight,
-                                    endY = size.height
-                                ),
-                                topLeft = Offset(xOffset, size.height - assetsHeight),
-                                size = Size(barWidth.toPx(), assetsHeight),
-                                cornerRadius = CornerRadius(4.dp.toPx())
-                            )
-                            drawRoundRect(
-                                brush = Brush.verticalGradient(
-                                    listOf(errorColor.copy(alpha = 0.8f), errorColor.copy(alpha = 0.4f)),
-                                    startY = size.height - liabilitiesHeight,
-                                    endY = size.height
-                                ),
-                                topLeft = Offset(xOffset + barWidth.toPx() + 4.dp.toPx(), size.height - liabilitiesHeight),
-                                size = Size(barWidth.toPx(), liabilitiesHeight),
-                                cornerRadius = CornerRadius(4.dp.toPx())
-                            )
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(top = 4.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
-                    ) {
-                        data.forEach { entry ->
-                            Text(entry.label, style = MaterialTheme.typography.labelSmall)
+                            Row(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceAround
+                            ) {
+                                data.forEach { entry ->
+                                    Text(entry.label, style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
                         }
                     }
                 }
