@@ -22,6 +22,7 @@ import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.home.HomeUiState
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import java.math.BigDecimal
 
 @Composable
 fun BudgetCategoryCard(budget: BudgetCategoryUiModel) {
@@ -38,7 +39,7 @@ fun BudgetCategoryCard(budget: BudgetCategoryUiModel) {
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
                 progress = {
-                    (budget.spent / budget.allocated).coerceIn(0.0, 1.0).toFloat()
+                    (budget.spent / budget.allocated).coerceIn(BigDecimal.ZERO, BigDecimal.ONE).toFloat()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.primary,

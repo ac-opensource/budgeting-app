@@ -36,7 +36,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.pandesal.sbp.extensions.toLargeValueCurrency
 import dev.pandesal.sbp.presentation.model.TrendUiModel
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.util.Currency
 import kotlin.math.roundToInt
 
 @Composable
@@ -66,13 +70,21 @@ fun SpendingTrendLineChart(
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(
                     modifier = Modifier
-                        .width(40.dp)
+                        .width(50.dp)
                         .height(100.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     for (i in 4 downTo 0) {
+
+                        val label = maxY.setScale(0, RoundingMode.HALF_UP)
+                            .multiply(BigDecimal(i))
+                            .divide(BigDecimal(4))
+                            .toLargeValueCurrency(
+                                Currency.getInstance("PHP")
+                            )
+
                         Text(
-                            text = "${"%.0f".format(maxY.multiply(java.math.BigDecimal(i).divide(java.math.BigDecimal(4), java.math.MathContext.DECIMAL64)).toDouble())}",
+                            text = label,
                             fontSize = 10.sp,
                             style = MaterialTheme.typography.labelSmall
                         )
@@ -90,7 +102,7 @@ fun SpendingTrendLineChart(
                     } else {
                         val density = LocalDensity.current
                         val spacing = with(density) { 16.dp.toPx() }
-                        if (maxY > 0) {
+                        if (maxY > BigDecimal.ZERO) {
                             val chartHeight = constraints.maxHeight.toFloat() - spacing
                             val stepX =
                                 if (data.size > 1) (constraints.maxWidth.toFloat() - spacing * 2) / (data.size - 1) else 0f

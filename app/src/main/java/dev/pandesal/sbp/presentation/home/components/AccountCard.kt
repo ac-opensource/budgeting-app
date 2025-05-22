@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,11 +28,13 @@ import dev.pandesal.sbp.extensions.format
 import dev.pandesal.sbp.extensions.currencySymbol
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.domain.model.AccountType
+import dev.pandesal.sbp.extensions.toLargeValueCurrency
+import java.util.Currency
 
 @Composable
 fun AccountCard(account: AccountSummaryUiModel, modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().height(68.dp),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -55,8 +58,11 @@ fun AccountCard(account: AccountSummaryUiModel, modifier: Modifier = Modifier) {
                 )
             }
             Text(
-                "${account.currency.currencySymbol()}${account.balance.format()}",
-                style = MaterialTheme.typography.bodyMedium
+                account.balance.toLargeValueCurrency(
+                    Currency.getInstance(account.currency)
+                ),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleSmall
             )
         }
     }

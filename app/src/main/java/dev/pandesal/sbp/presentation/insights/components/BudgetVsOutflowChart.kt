@@ -38,7 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.pandesal.sbp.extensions.toLargeValueCurrency
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.util.Currency
 import kotlin.math.max
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -90,17 +94,23 @@ fun BudgetVsOutflowChart(
                         Text("No data available")
                     }
                 } else {
-                    val maxY = entries.maxOfOrNull { max(it.budget, it.outflow) } ?: 0.0
+                    val maxY = entries.maxOfOrNull { maxOf(it.budget, it.outflow) } ?: BigDecimal.ZERO
                     Row(Modifier.fillMaxSize()) {
                         Column(
                             modifier = Modifier
-                                .width(40.dp)
+                                .width(50.dp)
                                 .fillMaxHeight(),
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             for (i in 4 downTo 0) {
+                                val label = maxY.setScale(0, RoundingMode.HALF_UP)
+                                    .multiply(BigDecimal(i))
+                                    .divide(BigDecimal(4))
+                                    .toLargeValueCurrency(
+                                        Currency.getInstance("PHP")
+                                    )
                                 Text(
-                                    text = "${"%.0f".format(maxY * i / 4)}",
+                                    text = label,
                                     style = MaterialTheme.typography.labelSmall
                                 )
                             }
@@ -124,7 +134,7 @@ fun BudgetVsOutflowChart(
                             ) {
                                 val spacing = barWidth.toPx()
                                 spacingPx = spacing
-                                if (maxY == 0.0) return@Canvas
+                                if (maxY == BigDecimal.ZERO) return@Canvas
                                 val chartHeight = size.height - spacing
                                 groupWidth = (size.width - spacing * 2) / entries.size
 

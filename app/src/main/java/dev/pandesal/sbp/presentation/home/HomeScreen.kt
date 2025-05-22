@@ -109,13 +109,13 @@ private fun HomeScreenContent(
     val totalAmount = state.accounts.sumOf { it.balance }
     val totalAllocated = state.favoriteBudgets.sumOf { it.allocated }
     val categoryPercentages = state.favoriteBudgets.map { budget ->
-        val pct = if (totalAllocated != 0.0) (budget.allocated / totalAllocated) * 100.0 else 0.0
+        val pct = if (totalAllocated != BigDecimal.ZERO) (budget.allocated / totalAllocated) * BigDecimal("100") else BigDecimal.ZERO
         budget.name to pct
     }
     val topCategories = categoryPercentages.sortedByDescending { it.second }.take(3)
-    val othersPercentage = 100.0 - topCategories.sumOf { it.second }
+    val othersPercentage = BigDecimal("100") - topCategories.sumOf { it.second }
     val displayCategories = topCategories.toMutableList().apply {
-        if (othersPercentage > 0) add("Others" to othersPercentage)
+        if (othersPercentage > BigDecimal.ZERO) add("Others" to othersPercentage)
     }
 
     fun LazyListState.isSticking(index: Int): State<Boolean> {
@@ -151,7 +151,7 @@ private fun HomeScreenContent(
 
 private fun LazyListScope.transactionsSection(
     transactions: List<Transaction>,
-    onTransactionClicked: (String) -> Unit
+    onTransactionClicked: (Transaction) -> Unit
 ) {
     val groupedTransactions = transactions.groupBy {
         when (it.createdAt) {
@@ -178,7 +178,7 @@ private fun LazyListScope.transactionsSection(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .padding(bottom = 8.dp)
-                    .clickable { onTransactionClicked(transaction.id) }
+                    .clickable { onTransactionClicked(transaction) }
             )
         }
 
@@ -375,9 +375,9 @@ fun HomeScreenPreview() {
         HomeScreenContent(
             state = HomeUiState.Success(
                 favoriteBudgets = listOf(
-                    BudgetCategoryUiModel("Invest", 30.0, 0.0, "PHP"),
-                    BudgetCategoryUiModel("Healthcare", 20.0, 0.0, "PHP"),
-                    BudgetCategoryUiModel("Self Reward", 15.0, 0.0, "PHP")
+                    BudgetCategoryUiModel("Invest", BigDecimal("30.0"), BigDecimal.ZERO, "PHP"),
+                    BudgetCategoryUiModel("Healthcare", BigDecimal("20.0"), BigDecimal.ZERO, "PHP"),
+                    BudgetCategoryUiModel("Self Reward", BigDecimal("15.0"), BigDecimal.ZERO, "PHP")
                 ),
                 accounts = listOf(
                     AccountSummaryUiModel(
@@ -402,7 +402,7 @@ fun HomeScreenPreview() {
                     ),
                     changeFromLastWeek = 10.0
                 ),
-                budgetSummary = BudgetSummaryUiModel(0.0, 0.0)
+                budgetSummary = BudgetSummaryUiModel(BigDecimal.ZERO, BigDecimal.ZERO)
             ),
             transactions = listOf(
                 Transaction(
