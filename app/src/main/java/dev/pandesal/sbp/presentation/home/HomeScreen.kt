@@ -271,8 +271,8 @@ private fun AccountsSection(accounts: List<AccountSummaryUiModel>) {
 @Composable
 private fun BudgetBreakdownSection(
     categories: List<Pair<String, Double>>,
-    unassigned: Double,
-    assigned: Double
+    unassigned: java.math.BigDecimal,
+    assigned: java.math.BigDecimal
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
 

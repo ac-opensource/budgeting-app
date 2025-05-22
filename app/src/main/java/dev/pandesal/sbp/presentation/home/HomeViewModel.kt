@@ -33,10 +33,10 @@ class HomeViewModel @Inject constructor(
         _uiState.value = HomeUiState.Loading
 
         val dummyBudgets = listOf(
-            BudgetCategoryUiModel("Groceries", 5000.0, 3200.0, "PHP"),
-            BudgetCategoryUiModel("Utilities", 3000.0, 1200.0, "PHP"),
-            BudgetCategoryUiModel("Transport", 2000.0, 1800.0, "PHP"),
-            BudgetCategoryUiModel("Dining Out", 1500.0, 800.0, "PHP"),
+            BudgetCategoryUiModel("Groceries", java.math.BigDecimal("5000"), java.math.BigDecimal("3200"), "PHP"),
+            BudgetCategoryUiModel("Utilities", java.math.BigDecimal("3000"), java.math.BigDecimal("1200"), "PHP"),
+            BudgetCategoryUiModel("Transport", java.math.BigDecimal("2000"), java.math.BigDecimal("1800"), "PHP"),
+            BudgetCategoryUiModel("Dining Out", java.math.BigDecimal("1500"), java.math.BigDecimal("800"), "PHP"),
         )
 
         viewModelScope.launch {
@@ -85,8 +85,8 @@ private fun dev.pandesal.sbp.domain.model.NetWorthRecord.toUiModel(): NetWorthUi
     NetWorthUiModel(label, assets, liabilities)
 
 private fun dev.pandesal.sbp.domain.model.CategoryWithBudget.toBudgetUiModel(): BudgetCategoryUiModel {
-    val allocated = budget?.allocated?.toDouble() ?: 0.0
-    val spent = budget?.spent?.toDouble() ?: 0.0
+    val allocated = budget?.allocated ?: java.math.BigDecimal.ZERO
+    val spent = budget?.spent ?: java.math.BigDecimal.ZERO
     return BudgetCategoryUiModel(category.name, allocated, spent, budget?.currency ?: "PHP")
 }
 

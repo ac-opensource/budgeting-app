@@ -550,11 +550,11 @@ fun CategoriesScreen(
         }
 
         val budgets = state.categoriesWithBudget.mapNotNull {
-            it.budget?.allocated?.toDouble()?.let { amt -> it.category.name to amt }
+            it.budget?.allocated?.let { amt -> it.category.name to amt }
         }
-        val totalAllocated = budgets.sumOf { it.second }
+        val totalAllocated = budgets.fold(java.math.BigDecimal.ZERO) { acc, pair -> acc + pair.second }
         val percentages =
-            if (totalAllocated != 0.0) budgets.map { it.first to (it.second / totalAllocated) * 100 } else emptyList()
+            if (totalAllocated != java.math.BigDecimal.ZERO) budgets.map { it.first to (it.second.divide(totalAllocated, java.math.MathContext.DECIMAL64) * java.math.BigDecimal(100)) } else emptyList()
 
         BottomSheetScaffold(
             containerColor = Color.Transparent,
