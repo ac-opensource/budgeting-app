@@ -100,6 +100,22 @@ class TransactionUseCase @Inject constructor(
                     }
                 }
             }
+            TransactionType.ADJUSTMENT -> {
+                transaction.from?.let { fromId ->
+                    accounts.firstOrNull { it.id == fromId }?.let { account ->
+                        accountRepository.insertAccount(
+                            account.copy(balance = account.balance - transaction.amount)
+                        )
+                    }
+                }
+                transaction.to?.let { toId ->
+                    accounts.firstOrNull { it.id == toId }?.let { account ->
+                        accountRepository.insertAccount(
+                            account.copy(balance = account.balance + transaction.amount)
+                        )
+                    }
+                }
+            }
             else -> {}
         }
     }

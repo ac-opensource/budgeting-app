@@ -11,6 +11,7 @@ import dev.pandesal.sbp.domain.model.CategoryGroup
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
+import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import java.math.BigDecimal
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AccountsViewModel @Inject constructor(
     private val useCase: AccountUseCase,
-    private val categoryUseCase: CategoryUseCase
+    private val categoryUseCase: CategoryUseCase,
+    private val transactionUseCase: TransactionUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<AccountsUiState> =
@@ -90,6 +92,28 @@ class AccountsViewModel @Inject constructor(
     fun updateAccountName(account: Account, name: String) {
         viewModelScope.launch {
             useCase.insertAccount(account.copy(name = name))
+        }
+    }
+
+    fun adjustAccountBalance(account: Account, newBalance: BigDecimal) {
+        viewModelScope.launch {
+            val diff = newBalance - account.balance
+            if (diff == BigDecimal.ZERO) return@launch
+
+            val tx = dev.pandesal.sbp.domain.model.Transaction(
+                name = "Balance Adjustment",
+                amount = diff.abs(),
+                createdAt = LocalDate.now(),
+                updatedAt = LocalDate.now(),
+                currency = account.currency,
+                from = if (diff < BigDecimal.ZERO) account.id else null,
+                fromAccountName = if (diff < BigDecimal.ZERO) account.name else null,
+                to = if (diff > BigDecimal.ZERO) account.id else null,
+                toAccountName = if (diff > BigDecimal.ZERO) account.name else null,
+                transactionType = TransactionType.ADJUSTMENT
+            )
+
+            transactionUseCase.insert(tx)
         }
     }
 
