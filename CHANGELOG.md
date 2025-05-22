@@ -9,6 +9,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - feat: Merge Insights and Trends screen with improved charts.
 
 
+
+## [0.45.1] - 2025-05-23
+### Fixed
+- fix: Persist monthly budgets when setting a budget.
+
+## [0.45.0] - 2025-05-24
+### Added
+- feat: Show daily spending bar graph in home header.
+
 ## [0.43.0] - 2025-05-22
 ### Added
 - feat: Simplify Settings screen layout with section headers.

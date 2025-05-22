@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.YearMonth
@@ -119,18 +120,18 @@ class CategoriesViewModel @Inject constructor(
 
     fun setBudgetForCategory(categoryId: Int, targetAmount: BigDecimal, yearMonth: YearMonth = YearMonth.now()) {
         viewModelScope.launch {
-            useCase.getMonthlyBudgetByCategoryIdAndMonth(categoryId, yearMonth)
-                .collect {
-                    val budget = it?.copy(allocated = targetAmount)
-                        ?: MonthlyBudget(
-                            categoryId = categoryId,
-                            month = yearMonth,
-                            allocated = targetAmount,
-                            spent = BigDecimal.ZERO
-                        )
+            val existing = useCase
+                .getMonthlyBudgetByCategoryIdAndMonth(categoryId, yearMonth)
+                .first()
+            val budget = existing?.copy(allocated = targetAmount)
+                ?: MonthlyBudget(
+                    categoryId = categoryId,
+                    month = yearMonth,
+                    allocated = targetAmount,
+                    spent = BigDecimal.ZERO
+                )
 
-                    useCase.insertMonthlyBudget(budget)
-                }
+            useCase.insertMonthlyBudget(budget)
         }
     }
 
