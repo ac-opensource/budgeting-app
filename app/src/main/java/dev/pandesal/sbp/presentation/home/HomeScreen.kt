@@ -89,8 +89,10 @@ fun HomeScreen(
         HomeScreenContent(
             state = state,
             transactions = txState.transactions,
-            onTransactionClicked = { id ->
-                navController.navigate(NavigationDestination.TransactionDetails(id))
+            onTransactionClicked = { tx ->
+                navController.navigate(
+                    NavigationDestination.NewTransaction(tx)
+                )
             },
             onViewNotifications = { navController.navigate(NavigationDestination.Notifications) }
         )
@@ -101,7 +103,7 @@ fun HomeScreen(
 private fun HomeScreenContent(
     state: HomeUiState.Success,
     transactions: List<Transaction>,
-    onTransactionClicked: (String) -> Unit,
+    onTransactionClicked: (Transaction) -> Unit,
     onViewNotifications: () -> Unit
 ) {
     val totalAmount = state.accounts.sumOf { it.balance }
@@ -423,7 +425,7 @@ fun HomeScreenPreview() {
                     transactionType = TransactionType.OUTFLOW
                 )
             ),
-            onTransactionClicked = {},
+            onTransactionClicked = { _ -> },
             onViewNotifications = {}
         )
     }
