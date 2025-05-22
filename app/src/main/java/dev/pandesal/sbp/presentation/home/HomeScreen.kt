@@ -22,6 +22,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.CardDefaults
@@ -82,21 +85,40 @@ fun HomeScreen(
     val navController = LocalNavigationManager.current
     val homeState by viewModel.uiState.collectAsState()
     val transactionsState by transactionsViewModel.uiState.collectAsState()
+    val refreshing = homeState is HomeUiState.Loading || transactionsState is TransactionsUiState.Loading
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = refreshing,
+        onRefresh = {
+            viewModel.refresh()
+            transactionsViewModel.refresh()
+        }
+    )
 
-    if (homeState is HomeUiState.Initial || transactionsState is TransactionsUiState.Initial) {
-        SkeletonLoader()
-    } else if (homeState is HomeUiState.Success && transactionsState is TransactionsUiState.Success) {
-        val state = homeState as HomeUiState.Success
-        val txState = transactionsState as TransactionsUiState.Success
-        HomeScreenContent(
-            state = state,
-            transactions = txState.transactions,
-            onTransactionClicked = { tx ->
-                navController.navigate(
-                    NavigationDestination.NewTransaction(tx)
+    Box(Modifier.pullRefresh(pullRefreshState)) {
+        when {
+            homeState is HomeUiState.Initial || transactionsState is TransactionsUiState.Initial -> {
+                SkeletonLoader()
+            }
+            homeState is HomeUiState.Success && transactionsState is TransactionsUiState.Success -> {
+                val state = homeState as HomeUiState.Success
+                val txState = transactionsState as TransactionsUiState.Success
+                HomeScreenContent(
+                    state = state,
+                    transactions = txState.transactions,
+                    onTransactionClicked = { tx ->
+                        navController.navigate(
+                            NavigationDestination.NewTransaction(tx)
+                        )
+                    },
+                    onViewNotifications = { navController.navigate(NavigationDestination.Notifications) }
                 )
-            },
-            onViewNotifications = { navController.navigate(NavigationDestination.Notifications) }
+            }
+        }
+
+        PullRefreshIndicator(
+            refreshing = refreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
         )
     }
 }

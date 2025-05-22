@@ -39,10 +39,17 @@ class HomeViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Initial)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    init {
-        _uiState.value = HomeUiState.Loading
+    private var loadJob: kotlinx.coroutines.Job? = null
 
-        viewModelScope.launch {
+    init {
+        refresh()
+    }
+
+    fun refresh() {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            _uiState.value = HomeUiState.Loading
+
             val today = LocalDate.now()
             val start = today.minusDays(6)
             val prevStart = start.minusDays(7)
