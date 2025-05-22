@@ -25,8 +25,10 @@ import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.AttachMoney
 import androidx.compose.material.icons.outlined.Wallet
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -82,6 +84,7 @@ fun AccountsScreen(
     var selectedAccount by remember { mutableStateOf<dev.pandesal.sbp.domain.model.Account?>(null) }
     var showRename by remember { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
+    var showAdjust by remember { mutableStateOf(false) }
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     var isIconExpanded by remember { mutableStateOf(scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) }
@@ -110,21 +113,47 @@ fun AccountsScreen(
         )
     }
 
+    if (showAdjust && selectedAccount != null) {
+        AdjustBalanceSheet(
+            currentBalance = selectedAccount!!.balance,
+            onSubmit = { amount ->
+                viewModel.adjustAccountBalance(selectedAccount!!, amount)
+                showAdjust = false
+            },
+            onCancel = { showAdjust = false },
+            onDismissRequest = { showAdjust = false }
+        )
+    }
+
     if (showDelete && selectedAccount != null) {
+        var confirmText by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { showDelete = false },
             confirmButton = {
-                Button(onClick = {
-                    viewModel.deleteAccount(selectedAccount!!)
-                    showDelete = false
-                    selectedAccount = null
-                }) { Text("Delete") }
+                Button(
+                    onClick = {
+                        viewModel.deleteAccount(selectedAccount!!)
+                        showDelete = false
+                        selectedAccount = null
+                    },
+                    enabled = confirmText == "DELETE"
+                ) { Text("Delete") }
             },
             dismissButton = {
                 Button(onClick = { showDelete = false }) { Text("Cancel") }
             },
             title = { Text("Delete Account") },
-            text = { Text("Are you sure you want to delete this account?") }
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Type DELETE to confirm. This action cannot be undone.")
+                    OutlinedTextField(
+                        value = confirmText,
+                        onValueChange = { confirmText = it },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         )
     }
 
@@ -164,6 +193,9 @@ fun AccountsScreen(
                     Spacer(Modifier.weight(1f))
                     IconButton(onClick = { showRename = true }, enabled = selectedAccount != null) {
                         Icon(Icons.Default.Edit, contentDescription = null)
+                    }
+                    IconButton(onClick = { showAdjust = true }, enabled = selectedAccount != null) {
+                        Icon(Icons.Default.AttachMoney, contentDescription = null)
                     }
                     IconButton(onClick = { showDelete = true }, enabled = selectedAccount != null) {
                         Icon(Icons.Default.Delete, contentDescription = null)
