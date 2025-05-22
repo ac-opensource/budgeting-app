@@ -18,6 +18,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - feat: Show daily spending bar graph in home header.
 
+## [0.44.1] - 2025-05-22
+### Changed
+- refactor: replace Double with BigDecimal for monetary values.
+
 ## [0.43.0] - 2025-05-22
 ### Added
 - feat: Simplify Settings screen layout with section headers.
