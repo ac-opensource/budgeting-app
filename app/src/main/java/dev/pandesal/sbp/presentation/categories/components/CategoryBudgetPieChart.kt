@@ -20,10 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import java.math.BigDecimal
 
 @Composable
 fun CategoryBudgetPieChart(
-    data: List<Pair<String, Double>>,
+    data: List<Pair<String, BigDecimal>>,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -47,7 +48,7 @@ fun CategoryBudgetPieChart(
                     androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
                         var startAngle = -90f
                         data.forEachIndexed { index, (_, percent) ->
-                            val sweep = (percent / 100f) * 360f
+                            val sweep = (percent.divide(java.math.BigDecimal(100), java.math.MathContext.DECIMAL64).toFloat()) * 360f
                             drawArc(
                                 color = getCategoryColor(index),
                                 startAngle = startAngle,

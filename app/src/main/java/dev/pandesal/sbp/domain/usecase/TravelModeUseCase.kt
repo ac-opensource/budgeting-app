@@ -42,6 +42,6 @@ class TravelModeUseCase @Inject constructor(
     ) { settings, transactions ->
         val total = transactions.filter { it.tags.contains(settings.travelTag) }
             .fold(BigDecimal.ZERO) { acc, tx -> acc + tx.amount }
-        total.multiply(BigDecimal.valueOf(settings.exchangeRate.toDouble()))
+        total.multiply(BigDecimal(settings.exchangeRate.toString()))
     }
 }

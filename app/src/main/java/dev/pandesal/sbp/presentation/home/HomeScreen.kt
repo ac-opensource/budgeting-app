@@ -7,18 +7,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,7 +47,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.domain.model.Category
@@ -58,9 +57,13 @@ import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.components.TransactionItem
 import dev.pandesal.sbp.presentation.home.components.AccountCard
+import dev.pandesal.sbp.presentation.home.components.DailySpendBarChart
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
+import dev.pandesal.sbp.domain.model.AccountType
+import dev.pandesal.sbp.presentation.model.DailySpend
+import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
@@ -124,18 +127,8 @@ private fun HomeScreenContent(
 
     val lazyListState = rememberLazyListState()
     LazyColumn(state = lazyListState) {
-        stickyHeader {
-            HeaderSection(totalAmount, onViewNotifications)
-        }
-
-        if (othersPercentage != 100.0) {
-            item {
-                BudgetBreakdownSection(
-                    categories = displayCategories,
-                    unassigned = state.budgetSummary.unassigned,
-                    assigned = state.budgetSummary.assigned
-                )
-            }
+        item {
+            HeaderSection(totalAmount, state.dailySpent, onViewNotifications)
         }
 
         item { AccountsSection(state.accounts) }
@@ -198,6 +191,7 @@ private fun LazyListScope.transactionsSection(
 @Composable
 private fun HeaderSection(
     totalAmount: BigDecimal,
+    dailySpent: DailySpendUiModel,
     onViewNotifications: () -> Unit
 ) {
     ElevatedCard(
@@ -214,15 +208,18 @@ private fun HeaderSection(
             bottomStart = 24.dp,
             bottomEnd = 24.dp
         ),
-        elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 16.dp
-        )
     ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            AccountSummarySection(totalAmount)
-            HomeToolbar(onViewNotifications)
+        Column {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                AccountSummarySection(totalAmount)
+                HomeToolbar(onViewNotifications)
+            }
+            DailySpendBarChart(dailySpendUiModel = dailySpent, modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth())
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -250,7 +247,6 @@ private fun AccountSummarySection(totalAmount: BigDecimal) {
         Text(
             text = "$${"%,.2f".format(totalAmount)}",
             style = MaterialTheme.typography.headlineLargeEmphasized,
-            modifier = Modifier.padding(bottom = 8.dp)
         )
     }
 }
@@ -260,10 +256,9 @@ private fun AccountsSection(accounts: List<AccountSummaryUiModel>) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text("Accounts", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        accounts.forEachIndexed { index, account ->
-            AccountCard(account)
-            if (index != accounts.lastIndex) {
-                Spacer(modifier = Modifier.height(8.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(accounts) { account ->
+                AccountCard(account, modifier = Modifier.width(200.dp))
             }
         }
     }
@@ -273,8 +268,8 @@ private fun AccountsSection(accounts: List<AccountSummaryUiModel>) {
 @Composable
 private fun BudgetBreakdownSection(
     categories: List<Pair<String, Double>>,
-    unassigned: Double,
-    assigned: Double
+    unassigned: java.math.BigDecimal,
+    assigned: java.math.BigDecimal
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
 
@@ -385,9 +380,28 @@ fun HomeScreenPreview() {
                     BudgetCategoryUiModel("Self Reward", 15.0, 0.0, "PHP")
                 ),
                 accounts = listOf(
-                    AccountSummaryUiModel("Main", BigDecimal("1200.00"), true, false, "USD")
+                    AccountSummaryUiModel(
+                        "Main",
+                        BigDecimal("1200.00"),
+                        AccountType.CASH_WALLET,
+                        true,
+                        false,
+                        "USD"
+                    )
                 ),
                 netWorthData = emptyList(),
+                dailySpent = DailySpendUiModel(
+                    entries = listOf(
+                        DailySpend("MON", BigDecimal("10.0")),
+                        DailySpend("TUE", BigDecimal("20.0")),
+
+                        DailySpend("WED", BigDecimal("0.0")),
+
+                        DailySpend("THU", BigDecimal("15.0")),
+                        DailySpend("FRI", BigDecimal("5.0"))
+                    ),
+                    changeFromLastWeek = 10.0
+                ),
                 budgetSummary = BudgetSummaryUiModel(0.0, 0.0)
             ),
             transactions = listOf(
@@ -423,8 +437,22 @@ fun AccountsSectionPreview() {
     StopBeingPoorTheme {
         AccountsSection(
             accounts = listOf(
-                AccountSummaryUiModel("Wallet", BigDecimal("200.00"), true, false, "USD"),
-                AccountSummaryUiModel("Bank", BigDecimal("500.00"), false, true, "USD")
+                AccountSummaryUiModel(
+                    "Wallet",
+                    BigDecimal("200.00"),
+                    AccountType.CASH_WALLET,
+                    true,
+                    false,
+                    "USD"
+                ),
+                AccountSummaryUiModel(
+                    "Bank",
+                    BigDecimal("500.00"),
+                    AccountType.BANK_ACCOUNT,
+                    false,
+                    true,
+                    "USD"
+                )
             )
         )
     }

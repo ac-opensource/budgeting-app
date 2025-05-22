@@ -5,6 +5,7 @@ import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import java.math.BigDecimal
 import java.time.YearMonth
 import javax.inject.Inject
 
@@ -20,9 +21,9 @@ class ZeroBasedBudgetUseCase @Inject constructor(
             categoryRepository.getMonthlyBudgetsByYearMonth(month),
             accountRepository.getAccounts()
         ) { budgets, accounts ->
-            val assigned = budgets.sumOf { it.allocated.toDouble() }
-            val spent = budgets.sumOf { it.spent.toDouble() }
-            val totalFunds = accounts.sumOf { it.balance.toDouble() }
+            val assigned = budgets.fold(BigDecimal.ZERO) { acc, item -> acc + item.allocated }
+            val spent = budgets.fold(BigDecimal.ZERO) { acc, item -> acc + item.spent }
+            val totalFunds = accounts.fold(BigDecimal.ZERO) { acc, account -> acc + account.balance }
             BudgetSummary(
                 assigned = assigned,
                 unassigned = totalFunds + spent - assigned
