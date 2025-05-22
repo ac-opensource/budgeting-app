@@ -27,16 +27,25 @@ import dev.pandesal.sbp.presentation.home.components.NetWorthBarChart
 import dev.pandesal.sbp.presentation.insights.components.BudgetVsOutflowChart
 import dev.pandesal.sbp.presentation.insights.components.CalendarView
 import dev.pandesal.sbp.presentation.insights.components.CashflowLineChart
+import dev.pandesal.sbp.presentation.trends.TrendsViewModel
+import dev.pandesal.sbp.presentation.trends.TrendsUiState
+import dev.pandesal.sbp.presentation.trends.components.SpendingTrendLineChart
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun InsightsScreen(viewModel: InsightsViewModel = hiltViewModel()) {
+fun InsightsScreen(
+    viewModel: InsightsViewModel = hiltViewModel(),
+    trendsViewModel: TrendsViewModel = hiltViewModel()
+) {
     val state by viewModel.uiState.collectAsState()
     val period by viewModel.period.collectAsState()
+    val trendState by trendsViewModel.uiState.collectAsState()
+    val trendPeriod by trendsViewModel.period.collectAsState()
 
     var cashflowPeriod by remember { mutableStateOf(period) }
     var budgetPeriod by remember { mutableStateOf(period) }
     var netWorthPeriod by remember { mutableStateOf(period) }
+    var trendChartPeriod by remember { mutableStateOf(trendPeriod) }
     var calendarMonth by remember { mutableStateOf(YearMonth.now()) }
 
     if (state is InsightsUiState.Initial) {
@@ -89,6 +98,27 @@ fun InsightsScreen(viewModel: InsightsViewModel = hiltViewModel()) {
                 TimePeriodDropdown(
                     modifier = Modifier.align(Alignment.TopEnd),
                     period = netWorthPeriod, onPeriodChange = { netWorthPeriod = it }
+                )
+            }
+
+            if (trendState is TrendsUiState.Ready) {
+                Spacer(modifier = Modifier.height(16.dp))
+                val trendData = (trendState as TrendsUiState.Ready).trends[trendChartPeriod] ?: emptyList()
+                Box {
+                    SpendingTrendLineChart(trendData)
+                    TimePeriodDropdown(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        period = trendChartPeriod,
+                        onPeriodChange = {
+                            trendChartPeriod = it
+                            trendsViewModel.setPeriod(it)
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Next month forecast: ${"%.2f".format((trendState as TrendsUiState.Ready).forecast)}",
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             Spacer(modifier = Modifier.height(140.dp))
