@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import kotlin.random.Random
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -77,13 +78,22 @@ class HomeViewModel @Inject constructor(
                         amount = grouped[date]?.fold(BigDecimal.ZERO) { acc, tx -> acc + tx.amount } ?: BigDecimal.ZERO
                     )
                 }
+                val hasData = entries.any { it.amount > BigDecimal.ZERO }
                 val currentTotal = entries.fold(BigDecimal.ZERO) { acc, d -> acc + d.amount }
                 val prevTotal = prevTx.fold(BigDecimal.ZERO) { acc, tx -> acc + tx.amount }
                 val change = if (prevTotal == BigDecimal.ZERO) 0.0 else ((currentTotal - prevTotal)
                     .divide(prevTotal, java.math.MathContext.DECIMAL64)
                     .toDouble() * 100)
 
-                val dailySpent = DailySpendUiModel(entries, change)
+                val displayEntries = if (hasData) {
+                    entries
+                } else {
+                    entries.map {
+                        it.copy(amount = BigDecimal(Random.nextInt(10, 100)))
+                    }
+                }
+
+                val dailySpent = DailySpendUiModel(displayEntries, change, hasData)
 
                 HomeUiState.Success(
                     favoriteBudgets = budgets,

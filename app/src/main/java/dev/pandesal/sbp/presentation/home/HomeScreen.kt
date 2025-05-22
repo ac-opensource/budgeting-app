@@ -403,7 +403,8 @@ fun HomeScreenPreview() {
                         DailySpend("THU", BigDecimal("15.0")),
                         DailySpend("FRI", BigDecimal("5.0"))
                     ),
-                    changeFromLastWeek = 10.0
+                    changeFromLastWeek = 10.0,
+                    hasData = true
                 ),
                 budgetSummary = BudgetSummaryUiModel(BigDecimal.ZERO, BigDecimal.ZERO),
                 currency = "USD"
