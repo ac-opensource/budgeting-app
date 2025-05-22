@@ -14,7 +14,8 @@ sealed interface HomeUiState {
         val accounts: List<AccountSummaryUiModel>,
         val netWorthData: List<NetWorthUiModel>,
         val dailySpent: DailySpendUiModel,
-        val budgetSummary: BudgetSummaryUiModel
+        val budgetSummary: BudgetSummaryUiModel,
+        val currency: String
     ) : HomeUiState
     data class Error(val errorMessage: String) : HomeUiState
 }

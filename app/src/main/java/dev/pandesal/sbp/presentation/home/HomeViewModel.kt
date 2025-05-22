@@ -7,6 +7,8 @@ import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.NetWorthUseCase
 import dev.pandesal.sbp.domain.usecase.ZeroBasedBudgetUseCase
+import dev.pandesal.sbp.domain.usecase.SettingsUseCase
+import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
@@ -29,7 +31,9 @@ class HomeViewModel @Inject constructor(
     private val categoryUseCase: CategoryUseCase,
     private val accountUseCase: AccountUseCase,
     private val netWorthUseCase: NetWorthUseCase,
-    private val zeroBasedBudgetUseCase: ZeroBasedBudgetUseCase
+    private val zeroBasedBudgetUseCase: ZeroBasedBudgetUseCase,
+    private val transactionUseCase: TransactionUseCase,
+    private val settingsUseCase: SettingsUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Initial)
@@ -38,35 +42,56 @@ class HomeViewModel @Inject constructor(
     init {
         _uiState.value = HomeUiState.Loading
 
-        val sampleAmounts = listOf("20.0", "90.0", "40.0", "60.0", "30.0")
-        val dummyDailySpent = DailySpendUiModel(
-            entries = sampleAmounts.mapIndexed { index, amount ->
-                val date = LocalDate.now().minusDays((4 - index).toLong())
-                DailySpend(
-                    label = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(),
-                    amount = BigDecimal(amount)
-                )
-            },
-            changeFromLastWeek = 0.0
-        )
-
         viewModelScope.launch {
+            val today = LocalDate.now()
+            val start = today.minusDays(6)
+            val prevStart = start.minusDays(7)
+            val prevEnd = start.minusDays(1)
+
             combine(
                 categoryUseCase.getCategoriesWithLatestBudget(),
                 accountUseCase.getAccounts(),
                 netWorthUseCase.getCurrentNetWorth(),
-                zeroBasedBudgetUseCase.getBudgetSummary()
-            ) { categories, accounts, netWorth, summary ->
+                zeroBasedBudgetUseCase.getBudgetSummary(),
+                transactionUseCase.getTransactionsByTypeAndDateRange(
+                    dev.pandesal.sbp.domain.model.TransactionType.OUTFLOW,
+                    start,
+                    today
+                ),
+                transactionUseCase.getTransactionsByTypeAndDateRange(
+                    dev.pandesal.sbp.domain.model.TransactionType.OUTFLOW,
+                    prevStart,
+                    prevEnd
+                ),
+                settingsUseCase.getSettings()
+            ) { categories, accounts, netWorth, summary, currentTx, prevTx, settings ->
                 val budgets = categories.map { it.toBudgetUiModel() }
                 val accountsUi = accounts.map { it.toUiModel() }
                 val netWorthUi = netWorth.map { it.toUiModel() }
                 val summaryUi = summary.toUiModel()
+                val grouped = currentTx.groupBy { it.createdAt }
+                val entries = (0..6).map { i ->
+                    val date = start.plusDays(i.toLong())
+                    DailySpend(
+                        label = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(),
+                        amount = grouped[date]?.fold(BigDecimal.ZERO) { acc, tx -> acc + tx.amount } ?: BigDecimal.ZERO
+                    )
+                }
+                val currentTotal = entries.fold(BigDecimal.ZERO) { acc, d -> acc + d.amount }
+                val prevTotal = prevTx.fold(BigDecimal.ZERO) { acc, tx -> acc + tx.amount }
+                val change = if (prevTotal == BigDecimal.ZERO) 0.0 else ((currentTotal - prevTotal)
+                    .divide(prevTotal, java.math.MathContext.DECIMAL64)
+                    .toDouble() * 100)
+
+                val dailySpent = DailySpendUiModel(entries, change)
+
                 HomeUiState.Success(
                     favoriteBudgets = budgets,
                     accounts = accountsUi,
                     netWorthData = netWorthUi,
-                    dailySpent = dummyDailySpent,
-                    budgetSummary = summaryUi
+                    dailySpent = dailySpent,
+                    budgetSummary = summaryUi,
+                    currency = settings.currency
                 )
             }.collect { state ->
                 _uiState.value = state
