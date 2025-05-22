@@ -1,8 +1,8 @@
 package dev.pandesal.sbp.presentation.home.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +30,7 @@ import dev.pandesal.sbp.presentation.model.DailySpend
 import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Composable
 fun DailySpendBarChart(
@@ -41,10 +47,15 @@ fun DailySpendBarChart(
     Column(
         modifier = modifier
     ) {
-        val arrow = if (dailySpendUiModel.changeFromLastWeek >= 0) "\u2191" else "\u2193"
-        val changeText = String.format("%.0f", kotlin.math.abs(dailySpendUiModel.changeFromLastWeek))
+        val headerText = if (dailySpendUiModel.hasData) {
+            val arrow = if (dailySpendUiModel.changeFromLastWeek >= 0) "\u2191" else "\u2193"
+            val changeText = String.format("%.0f", kotlin.math.abs(dailySpendUiModel.changeFromLastWeek))
+            "Your spending this week $arrow$changeText%"
+        } else {
+            "Your data will show here"
+        }
         Text(
-            "Your spending this week $arrow$changeText%",
+            headerText,
             style = MaterialTheme.typography.labelMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -62,10 +73,10 @@ fun DailySpendBarChart(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Bottom
                 ) {
-                    val percentage = if (maxY == BigDecimal.ZERO) 0f else (entry.amount / maxY).toFloat()
+                    val percentage = if (maxY == BigDecimal.ZERO) 0f else (entry.amount.divide(maxY, 2, RoundingMode.HALF_UP)).toFloat()
                     val barFillHeight = chartHeight * percentage
 
-                    if (index == dailySpendUiModel.entries.lastIndex) {
+                    if (dailySpendUiModel.hasData && index == dailySpendUiModel.entries.lastIndex) {
                         val prev = dailySpendUiModel.entries.getOrNull(index - 1)?.amount ?: BigDecimal.ZERO
                         val diff = if (prev == BigDecimal.ZERO) 0.0 else ((entry.amount - prev)
                             .divide(prev, java.math.MathContext.DECIMAL64)
@@ -80,23 +91,34 @@ fun DailySpendBarChart(
                         )
                     }
 
-                    Box(
-                        modifier = Modifier
-                            .height(barFillHeight)
-                            .width(barWidth)
-                            .background(
-                                brush = if (index == dailySpendUiModel.entries.lastIndex) {
-                                    if (entry.amount > BigDecimal.ZERO) {
-                                        Brush.verticalGradient(listOf(primary, secondary))
-                                    } else {
-                                        Brush.verticalGradient(listOf(outline, outline))
-                                    }
+                    val barModifier = Modifier
+                        .height(barFillHeight)
+                        .width(barWidth)
+                        .clip(RoundedCornerShape(12.dp))
+
+                    val finalModifier = if (dailySpendUiModel.hasData) {
+                        barModifier.background(
+                            brush = if (index == dailySpendUiModel.entries.lastIndex) {
+                                if (entry.amount > BigDecimal.ZERO) {
+                                    Brush.verticalGradient(listOf(primary, secondary))
                                 } else {
-                                    Brush.verticalGradient(listOf(Color.LightGray, Color.LightGray))
-                                },
-                                shape = RoundedCornerShape(12.dp)
+                                    Brush.verticalGradient(listOf(outline, outline))
+                                }
+                            } else {
+                                Brush.verticalGradient(listOf(Color.LightGray, Color.LightGray))
+                            }
+                        )
+                    } else {
+                        barModifier.drawBehind {
+                            drawRoundRect(
+                                color = outline,
+                                cornerRadius = CornerRadius(12.dp.toPx()),
+                                style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f)))
                             )
-                    )
+                        }
+                    }
+
+                    Box(modifier = finalModifier)
 
                 }
             }
@@ -135,7 +157,8 @@ fun DailySpendBarChartPreview() {
                     DailySpend("THU", BigDecimal("15.0")),
                     DailySpend("FRI", BigDecimal("5.0"))
                 ),
-                changeFromLastWeek = 0.0
+                changeFromLastWeek = 0.0,
+                hasData = true
             )
         )
     }

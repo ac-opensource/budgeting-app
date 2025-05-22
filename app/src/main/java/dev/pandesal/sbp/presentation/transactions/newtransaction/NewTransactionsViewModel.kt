@@ -127,22 +127,34 @@ class NewTransactionsViewModel @Inject constructor(
             }
         )
 
-        if (_transaction.value.transactionType != newTransaction.transactionType && newTransaction.transactionType == TransactionType.INFLOW) {
-            val current = _uiState.value
-            if (current is NewTransactionUiState.Success) {
-                val salary = current.groupedCategories.values.flatten()
-                    .firstOrNull { it.name.equals("Salary", ignoreCase = true) }
-                if (salary != null) {
-                    newTransaction = newTransaction.copy(category = salary)
+        (_uiState.value as? NewTransactionUiState.Success)?.accounts?.let { accounts ->
+            if (newTransaction.fromAccountName == null && newTransaction.from != null) {
+                accounts.firstOrNull { it.id == newTransaction.from }?.let { account ->
+                    newTransaction = newTransaction.copy(fromAccountName = account.name)
                 }
             }
-        } else if (_transaction.value.transactionType != newTransaction.transactionType && newTransaction.transactionType == TransactionType.TRANSFER) {
+            if (newTransaction.toAccountName == null && newTransaction.to != null) {
+                accounts.firstOrNull { it.id == newTransaction.to }?.let { account ->
+                    newTransaction = newTransaction.copy(toAccountName = account.name)
+                }
+            }
+        }
+
+        if (_transaction.value.transactionType != newTransaction.transactionType) {
             val current = _uiState.value
             if (current is NewTransactionUiState.Success) {
-                val adjustment = current.groupedCategories.values.flatten()
-                    .firstOrNull { it.name.equals("Adjustment", ignoreCase = true) }
-                if (adjustment != null) {
-                    newTransaction = newTransaction.copy(category = adjustment)
+                val categories = current.groupedCategories.values.flatten()
+                    .filter { it.categoryType == newTransaction.transactionType }
+
+                val defaultCategory = when (newTransaction.transactionType) {
+                    TransactionType.INFLOW -> categories.firstOrNull { it.name.equals("Salary", ignoreCase = true) }
+                    TransactionType.TRANSFER -> categories.firstOrNull { it.name.equals("Adjustment", ignoreCase = true) }
+                    else -> null
+                } ?: categories.firstOrNull()
+
+                defaultCategory?.let { newCategory ->
+                    newTransaction = newTransaction.copy(category = newCategory)
+                    loadMerchants(newCategory.id.toString())
                 }
             }
         }
@@ -239,7 +251,19 @@ class NewTransactionsViewModel @Inject constructor(
         viewModelScope.launch {
             transactionUseCase.getTransactionById(id).collect { tx ->
                 if (tx != null) {
-                    _transaction.value = tx
+                    val accounts = accountUseCase.getAccounts().first()
+                    val fromName = tx.from?.let { accountId ->
+                        accounts.firstOrNull { it.id == accountId }?.name
+                    }
+                    val toName = tx.to?.let { accountId ->
+                        accounts.firstOrNull { it.id == accountId }?.name
+                    }
+                    tx.category?.let { loadMerchants(it.id.toString()) }
+
+                    _transaction.value = tx.copy(
+                        fromAccountName = fromName ?: tx.fromAccountName,
+                        toAccountName = toName ?: tx.toAccountName,
+                    )
                 }
             }
         }

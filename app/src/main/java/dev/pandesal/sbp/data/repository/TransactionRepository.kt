@@ -134,7 +134,6 @@ class TransactionRepository @Inject constructor(
 
         val current = categoryDao
             .getMonthlyBudgetByCategoryIdAndYearMonth(category.id, month.toString())
-            .firstOrNull()
 
         if (current != null) {
             categoryDao.insert(current.copy(spent = current.spent + amount))

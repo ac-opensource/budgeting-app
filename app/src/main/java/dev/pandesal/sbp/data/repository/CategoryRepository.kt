@@ -9,6 +9,7 @@ import dev.pandesal.sbp.domain.model.CategoryWithBudget
 import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.YearMonth
 import javax.inject.Inject
@@ -72,8 +73,11 @@ class CategoryRepository @Inject constructor(private val dao: CategoryDao): Cate
         categoryId: Int,
         yearMonth: YearMonth
     ): Flow<MonthlyBudget?> =
-        dao.getMonthlyBudgetByCategoryIdAndYearMonth(categoryId, yearMonth.toString())
-            .map { it?.toDomainModel() }
+        flow {
+            val entity = dao.getMonthlyBudgetByCategoryIdAndYearMonth(categoryId, yearMonth.toString())
+            emit(entity?.toDomainModel())
+        }
+
 
     override suspend fun insertMonthlyBudget(value: MonthlyBudget) =
         dao.insert(value.toEntity())

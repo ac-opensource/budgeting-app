@@ -60,7 +60,7 @@ interface CategoryDao {
     fun getMonthlyBudgetsByCategoryId(categoryId: String): Flow<List<MonthlyBudgetEntity>>
 
     @Query("SELECT * FROM monthly_budgets WHERE categoryId = :categoryId AND yearMonth = :yearMonth")
-    fun getMonthlyBudgetByCategoryIdAndYearMonth(categoryId: Int, yearMonth: String): Flow<MonthlyBudgetEntity?>
+    suspend fun getMonthlyBudgetByCategoryIdAndYearMonth(categoryId: Int, yearMonth: String): MonthlyBudgetEntity?
 
     @Upsert
     suspend fun insert(value: CategoryGroupEntity)

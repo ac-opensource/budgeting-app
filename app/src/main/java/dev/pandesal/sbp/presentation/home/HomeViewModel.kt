@@ -3,6 +3,12 @@ package dev.pandesal.sbp.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.pandesal.sbp.domain.model.Account
+import dev.pandesal.sbp.domain.model.BudgetSummary
+import dev.pandesal.sbp.domain.model.CategoryWithBudget
+import dev.pandesal.sbp.domain.model.NetWorthRecord
+import dev.pandesal.sbp.domain.model.Settings
+import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.NetWorthUseCase
@@ -21,6 +27,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import kotlin.random.Random
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -71,7 +78,14 @@ class HomeViewModel @Inject constructor(
                     prevEnd
                 ),
                 settingsUseCase.getSettings()
-            ) { categories, accounts, netWorth, summary, currentTx, prevTx, settings ->
+            ) { args ->
+                val categories = args[0] as List<CategoryWithBudget>
+                val accounts = args[1] as List<Account>
+                val netWorth = args[2] as List<NetWorthRecord>
+                val summary = args[3] as BudgetSummary
+                val currentTx = args[4] as List<Transaction>
+                val prevTx = args[5] as List<Transaction>
+                val settings = args [6] as Settings
                 val budgets = categories.map { it.toBudgetUiModel() }
                 val accountsUi = accounts.map { it.toUiModel() }
                 val netWorthUi = netWorth.map { it.toUiModel() }
@@ -84,13 +98,22 @@ class HomeViewModel @Inject constructor(
                         amount = grouped[date]?.fold(BigDecimal.ZERO) { acc, tx -> acc + tx.amount } ?: BigDecimal.ZERO
                     )
                 }
+                val hasData = entries.any { it.amount > BigDecimal.ZERO }
                 val currentTotal = entries.fold(BigDecimal.ZERO) { acc, d -> acc + d.amount }
                 val prevTotal = prevTx.fold(BigDecimal.ZERO) { acc, tx -> acc + tx.amount }
                 val change = if (prevTotal == BigDecimal.ZERO) 0.0 else ((currentTotal - prevTotal)
                     .divide(prevTotal, java.math.MathContext.DECIMAL64)
                     .toDouble() * 100)
 
-                val dailySpent = DailySpendUiModel(entries, change)
+                val displayEntries = if (hasData) {
+                    entries
+                } else {
+                    entries.map {
+                        it.copy(amount = BigDecimal(Random.nextInt(10, 100)))
+                    }
+                }
+
+                val dailySpent = DailySpendUiModel(displayEntries, change, hasData)
 
                 HomeUiState.Success(
                     favoriteBudgets = budgets,
@@ -109,7 +132,7 @@ class HomeViewModel @Inject constructor(
 
 }
 
-private fun dev.pandesal.sbp.domain.model.Account.toUiModel(): AccountSummaryUiModel {
+private fun Account.toUiModel(): AccountSummaryUiModel {
     val isSpendingWallet = when (type) {
         dev.pandesal.sbp.domain.model.AccountType.CASH_WALLET,
         dev.pandesal.sbp.domain.model.AccountType.MOBILE_DIGITAL_WALLET -> true

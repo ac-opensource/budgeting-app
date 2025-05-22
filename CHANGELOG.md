@@ -3,26 +3,41 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## [0.49.0] - 2025-05-25
+
+## [0.50.0] - 2025-05-25
 ### Added
 - feat: Enable pull to refresh on home screen
-## [0.48.0] - 2025-05-24
+
+## [0.49.2] - 2025-05-25
+### Fixed
+- fix: keep input values on validation errors
+- fix: auto select default category when switching type
+- fix: prefill dropdowns when editing transactions
+
+## [0.49.1] - 2025-05-26
+### Changed
+- refactor: Use layout-based rendering for insights bar charts
+
+## [0.49.0] - 2025-05-25
+### Added
+- feat: Show placeholder daily spending chart when no data is available
+
+## [0.48.0] - 2025-05-22
+
 ### Added
 - feat: Load real data for daily spending chart
 - feat: Show correct currency symbol on home screen
 - fix: Format amounts using locale-specific grouping
 
-## [0.45.0] - 2025-05-23
+## [0.46.0] - 2025-05-22
 ### Added
 - feat: Merge Insights and Trends screen with improved charts.
 
-
-
-## [0.45.1] - 2025-05-23
+## [0.45.1] - 2025-05-22
 ### Fixed
 - fix: Persist monthly budgets when setting a budget.
 
-## [0.45.0] - 2025-05-24
+## [0.45.0] - 2025-05-22
 ### Added
 - feat: Show daily spending bar graph in home header.
 
@@ -30,7 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Changed
 - refactor: replace Double with BigDecimal for monetary values.
 
-## [0.45.0] - 2025-05-23
+## [0.45.0] - 2025-05-22
 ### Added
 - feat: Carousel accounts on Home screen with account icons.
 
@@ -47,15 +62,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - feat: Simplify Settings screen layout with section headers.
 
+## [0.42.2] - 2025-05-22
+### Changed
+- refactor: Convert home screen to scrollable layout.
+
 ## [0.42.1] - 2025-05-22
 ### Changed
 - style: Add gradient styling to insights charts.
 
-## [0.42.2] - 2025-05-23
-### Changed
-- refactor: Convert home screen to scrollable layout.
-
-## [0.42.0] - 2025-05-20
+## [0.42.0] - 2025-05-21
 ### Added
 - feat: Show transactions when selecting a category.
 

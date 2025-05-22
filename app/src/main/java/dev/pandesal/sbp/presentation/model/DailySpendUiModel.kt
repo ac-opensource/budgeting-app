@@ -5,8 +5,8 @@ import java.math.BigDecimal
 /** Model for daily spending amounts */
 data class DailySpendUiModel(
     val entries: List<DailySpend>,
-    val changeFromLastWeek: Double
-
+    val changeFromLastWeek: Double,
+    val hasData: Boolean = true
 )
 
 data class DailySpend(
