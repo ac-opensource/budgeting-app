@@ -113,12 +113,15 @@ fun SpendingTrendLineChart(
                                 close()
                             }
 
+                            val color1 = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                            val elements = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+
                             Canvas(Modifier.fillMaxSize()) {
                                 val gridDashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
                                 for (i in 0..4) {
                                     val y = chartHeight * (1f - i / 4f)
                                     drawLine(
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                        color = color1,
                                         start = Offset(spacing, y),
                                         end = Offset(size.width - spacing, y),
                                         pathEffect = gridDashEffect,
@@ -129,7 +132,7 @@ fun SpendingTrendLineChart(
                                 drawRect(
                                     brush = Brush.verticalGradient(
                                         listOf(
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                            elements,
                                             Color.Transparent
                                         )
                                     )

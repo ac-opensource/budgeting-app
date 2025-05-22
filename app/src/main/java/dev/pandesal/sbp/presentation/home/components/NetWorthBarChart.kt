@@ -1,5 +1,6 @@
 package dev.pandesal.sbp.presentation.home.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -8,10 +9,12 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -38,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import kotlin.math.max
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun NetWorthBarChart(
     data: List<NetWorthUiModel>,
@@ -103,6 +107,8 @@ fun NetWorthBarChart(
                         Box(modifier = Modifier.weight(1f)) {
                             var groupWidth by remember { mutableStateOf(0f) }
                             var spacingPx by remember { mutableStateOf(0f) }
+                            val lineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                            val lineBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                             Canvas(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -125,7 +131,7 @@ fun NetWorthBarChart(
                                 for (i in 0..4) {
                                     val y = chartHeight * (1f - i / 4f)
                                     drawLine(
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                        color = lineColor,
                                         start = Offset(spacing, y),
                                         end = Offset(size.width - spacing, y),
                                         pathEffect = dashEffect,
@@ -136,7 +142,7 @@ fun NetWorthBarChart(
                                 drawRect(
                                     brush = Brush.verticalGradient(
                                         listOf(
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                            lineBackgroundColor,
                                             Color.Transparent
                                         )
                                     )

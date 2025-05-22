@@ -1,5 +1,6 @@
 package dev.pandesal.sbp.presentation.insights.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,10 +8,12 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -30,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import kotlin.math.max
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun CashflowLineChart(
     entries: List<CashflowUiModel>,
@@ -80,6 +85,8 @@ fun CashflowLineChart(
                             }
                         }
                         Box(modifier = Modifier.weight(1f)) {
+                            val lineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                            val elements = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                             Canvas(modifier = Modifier.fillMaxSize()) {
                                 val spacing = 16.dp.toPx()
                                 if (maxY == 0.0) return@Canvas
@@ -89,8 +96,9 @@ fun CashflowLineChart(
                                 val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
                                 for (i in 0..4) {
                                     val y = chartHeight * (1f - i / 4f)
+
                                     drawLine(
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                        color = lineColor,
                                         start = Offset(spacing, y),
                                         end = Offset(size.width - spacing, y),
                                         pathEffect = dashEffect,
@@ -101,7 +109,7 @@ fun CashflowLineChart(
                                 drawRect(
                                     brush = Brush.verticalGradient(
                                         listOf(
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                            elements,
                                             Color.Transparent
                                         )
                                     )
