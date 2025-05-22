@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,6 +63,7 @@ import dev.pandesal.sbp.presentation.home.components.AccountCard
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
+import dev.pandesal.sbp.domain.model.AccountType
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import dev.pandesal.sbp.presentation.transactions.TransactionsContent
 import dev.pandesal.sbp.presentation.transactions.TransactionsUiState
@@ -258,10 +261,9 @@ private fun AccountsSection(accounts: List<AccountSummaryUiModel>) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text("Accounts", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        accounts.forEachIndexed { index, account ->
-            AccountCard(account)
-            if (index != accounts.lastIndex) {
-                Spacer(modifier = Modifier.height(8.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(accounts) { account ->
+                AccountCard(account, modifier = Modifier.width(200.dp))
             }
         }
     }
@@ -383,7 +385,14 @@ fun HomeScreenPreview() {
                     BudgetCategoryUiModel("Self Reward", 15.0, 0.0, "PHP")
                 ),
                 accounts = listOf(
-                    AccountSummaryUiModel("Main", BigDecimal("1200.00"), true, false, "USD")
+                    AccountSummaryUiModel(
+                        "Main",
+                        BigDecimal("1200.00"),
+                        AccountType.CASH_WALLET,
+                        true,
+                        false,
+                        "USD"
+                    )
                 ),
                 netWorthData = emptyList(),
                 budgetSummary = BudgetSummaryUiModel(0.0, 0.0)
@@ -421,8 +430,22 @@ fun AccountsSectionPreview() {
     StopBeingPoorTheme {
         AccountsSection(
             accounts = listOf(
-                AccountSummaryUiModel("Wallet", BigDecimal("200.00"), true, false, "USD"),
-                AccountSummaryUiModel("Bank", BigDecimal("500.00"), false, true, "USD")
+                AccountSummaryUiModel(
+                    "Wallet",
+                    BigDecimal("200.00"),
+                    AccountType.CASH_WALLET,
+                    true,
+                    false,
+                    "USD"
+                ),
+                AccountSummaryUiModel(
+                    "Bank",
+                    BigDecimal("500.00"),
+                    AccountType.BANK_ACCOUNT,
+                    false,
+                    true,
+                    "USD"
+                )
             )
         )
     }

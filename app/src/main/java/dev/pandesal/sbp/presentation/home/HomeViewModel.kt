@@ -75,6 +75,7 @@ private fun dev.pandesal.sbp.domain.model.Account.toUiModel(): AccountSummaryUiM
     return AccountSummaryUiModel(
         name = name,
         balance = balance,
+        type = type,
         isSpendingWallet = isSpendingWallet,
         isFundingWallet = isFundingWallet,
         currency = currency
