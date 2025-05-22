@@ -11,12 +11,14 @@ import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
+import dev.pandesal.sbp.presentation.model.DailySpend
 import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -36,21 +38,17 @@ class HomeViewModel @Inject constructor(
     init {
         _uiState.value = HomeUiState.Loading
 
-        val dummyBudgets = listOf(
-            BudgetCategoryUiModel("Groceries", 5000.0, 3200.0, "PHP"),
-            BudgetCategoryUiModel("Utilities", 3000.0, 1200.0, "PHP"),
-            BudgetCategoryUiModel("Transport", 2000.0, 1800.0, "PHP"),
-            BudgetCategoryUiModel("Dining Out", 1500.0, 800.0, "PHP"),
+        val sampleAmounts = listOf("20.0", "90.0", "40.0", "60.0", "30.0")
+        val dummyDailySpent = DailySpendUiModel(
+            entries = sampleAmounts.mapIndexed { index, amount ->
+                val date = LocalDate.now().minusDays((4 - index).toLong())
+                DailySpend(
+                    label = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(),
+                    amount = BigDecimal(amount)
+                )
+            },
+            changeFromLastWeek = 0.0
         )
-
-        val sampleAmounts = listOf(120.0, 90.0, 0.0, 60.0, 30.0)
-        val dummyDailySpent = sampleAmounts.mapIndexed { index, amount ->
-            val date = LocalDate.now().minusDays((4 - index).toLong())
-            DailySpendUiModel(
-                label = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(),
-                amount = amount
-            )
-        }
 
         viewModelScope.launch {
             combine(

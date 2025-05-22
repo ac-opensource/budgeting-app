@@ -1,128 +1,111 @@
 package dev.pandesal.sbp.presentation.home.components
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import dev.pandesal.sbp.presentation.model.DailySpend
 import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
+import java.math.BigDecimal
 
 @Composable
 fun DailySpendBarChart(
-    entries: List<DailySpendUiModel>,
+    dailySpendUiModel: DailySpendUiModel,
     modifier: Modifier = Modifier,
-    barWidth: Dp = 16.dp
+    barWidth: Dp = 64.dp,
+    chartHeight: Dp = 200.dp
 ) {
-    Card(
+    val primary = Color(0xFF4BE263)// MaterialTheme.colorScheme.primary
+    val secondary = Color(0xFF4BE263) //MaterialTheme.colorScheme.secondary
+    val outline = MaterialTheme.colorScheme.outline
+    val maxY = dailySpendUiModel.entries.maxOfOrNull { it.amount } ?: BigDecimal.ZERO
+
+    Column(
         modifier = modifier
-            .fillMaxWidth()
-            .height(160.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(
+        Text("Your spending this week ↓-10%", style = MaterialTheme.typography.labelMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+                .fillMaxWidth()
+                .height(chartHeight),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            val primary = MaterialTheme.colorScheme.primary
-            val secondary = MaterialTheme.colorScheme.secondary
-            Text("Last 5 Days", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            val maxY = entries.maxOfOrNull { it.amount } ?: 0.0
-            Row(modifier = Modifier.fillMaxWidth()) {
+            dailySpendUiModel.entries.forEachIndexed { index, entry ->
                 Column(
-                    modifier = Modifier
-                        .width(40.dp)
-                        .height(100.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom
                 ) {
-                    for (i in 4 downTo 0) {
+                    val percentage = if (maxY == BigDecimal.ZERO) 0f else (entry.amount / maxY).toFloat()
+                    val barFillHeight = chartHeight * percentage
+
+                    if (index == dailySpendUiModel.entries.lastIndex) {
                         Text(
-                            text = "${"%.0f".format(maxY * i / 4)}",
-                            fontSize = 10.sp,
-                            style = MaterialTheme.typography.labelSmall
+                            "↓ -50%",
+                            color = primary,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Black
                         )
                     }
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(100.dp)
-                ) {
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        val spacing = barWidth.toPx()
-                        val chartHeight = size.height - spacing
-                        val groupWidth = (size.width - spacing * 2) / entries.size
 
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                listOf(
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                    MaterialTheme.colorScheme.surface
-                                )
-                            ),
-                            size = size
-                        )
-
-                        entries.forEachIndexed { index, entry ->
-                            val xOffset = spacing + index * groupWidth + (groupWidth - barWidth.toPx()) / 2
-                            if (entry.amount > 0) {
-                                val barHeight = if (maxY == 0.0) 0f else chartHeight * (entry.amount / maxY).toFloat()
-                                drawRoundRect(
-                                    brush = Brush.verticalGradient(listOf(primary, secondary)),
-                                    topLeft = Offset(xOffset, size.height - barHeight),
-                                    size = Size(barWidth.toPx(), barHeight),
-                                    cornerRadius = CornerRadius(4.dp.toPx())
-                                )
-                            } else {
-                                val dashHeight = chartHeight * 0.2f
-                                drawLine(
-                                    color = MaterialTheme.colorScheme.outline,
-                                    start = Offset(xOffset + barWidth.toPx() / 2, size.height),
-                                    end = Offset(xOffset + barWidth.toPx() / 2, size.height - dashHeight),
-                                    strokeWidth = barWidth.toPx(),
-                                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
-                                )
-                            }
-                        }
-                    }
-                    Row(
+                    Box(
                         modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(top = 4.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
-                    ) {
-                        entries.forEach { entry ->
-                            Text(entry.label, style = MaterialTheme.typography.labelSmall)
-                        }
-                    }
+                            .height(barFillHeight)
+                            .width(barWidth)
+                            .background(
+                                brush = if (index == dailySpendUiModel.entries.lastIndex) {
+                                    if (entry.amount > BigDecimal.ZERO) {
+                                        Brush.verticalGradient(listOf(primary, secondary))
+                                    } else {
+                                        Brush.verticalGradient(listOf(outline, outline))
+                                    }
+                                } else {
+                                    Brush.verticalGradient(listOf(Color.LightGray, Color.LightGray))
+                                },
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                    )
+
                 }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // X-axis labels
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            dailySpendUiModel.entries.forEachIndexed { index, entry ->
+                Text(
+                    text = if (index == dailySpendUiModel.entries.lastIndex) "Today" else entry.label,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
@@ -133,12 +116,15 @@ fun DailySpendBarChart(
 fun DailySpendBarChartPreview() {
     StopBeingPoorTheme {
         DailySpendBarChart(
-            entries = listOf(
-                DailySpendUiModel("MON", 10.0),
-                DailySpendUiModel("TUE", 20.0),
-                DailySpendUiModel("WED", 0.0),
-                DailySpendUiModel("THU", 15.0),
-                DailySpendUiModel("FRI", 5.0)
+            dailySpendUiModel = DailySpendUiModel(
+                entries = listOf(
+                    DailySpend("MON", BigDecimal("10.0")),
+                    DailySpend("TUE", BigDecimal("20.0")),
+                    DailySpend("WED", BigDecimal("0.0")),
+                    DailySpend("THU", BigDecimal("15.0")),
+                    DailySpend("FRI", BigDecimal("5.0"))
+                ),
+                changeFromLastWeek = 0.0
             )
         )
     }
