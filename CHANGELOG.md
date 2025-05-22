@@ -22,6 +22,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Changed
 - refactor: replace Double with BigDecimal for monetary values.
 
+## [0.45.0] - 2025-05-23
+### Added
+- feat: Carousel accounts on Home screen with account icons.
+
 ## [0.43.0] - 2025-05-22
 ### Added
 - feat: Simplify Settings screen layout with section headers.
