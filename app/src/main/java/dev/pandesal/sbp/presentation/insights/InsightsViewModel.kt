@@ -8,6 +8,8 @@ import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
+import dev.pandesal.sbp.domain.usecase.RecurringTransactionUseCase
+import dev.pandesal.sbp.domain.usecase.ReminderUseCase
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.CalendarEvent
@@ -15,6 +17,7 @@ import dev.pandesal.sbp.presentation.model.CalendarEventType
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import dev.pandesal.sbp.presentation.insights.TimePeriod
 import java.math.BigDecimal
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +30,9 @@ import javax.inject.Inject
 class InsightsViewModel @Inject constructor(
     private val transactionUseCase: TransactionUseCase,
     private val categoryUseCase: CategoryUseCase,
-    private val accountUseCase: AccountUseCase
+    private val accountUseCase: AccountUseCase,
+    private val recurringUseCase: RecurringTransactionUseCase,
+    private val reminderUseCase: ReminderUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<InsightsUiState>(InsightsUiState.Initial)
@@ -35,6 +40,9 @@ class InsightsViewModel @Inject constructor(
 
     private val _period = MutableStateFlow(TimePeriod.MONTHLY)
     val period: StateFlow<TimePeriod> = _period.asStateFlow()
+
+    private val _tooltipState = MutableStateFlow<DayTooltipUiState>(DayTooltipUiState.Loading)
+    val tooltipState: StateFlow<DayTooltipUiState> = _tooltipState.asStateFlow()
 
     init {
         observeData()
@@ -156,6 +164,21 @@ class InsightsViewModel @Inject constructor(
                         .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     CashflowUiModel(year.toString(), inflow, outflow)
                 }
+        }
+    }
+
+    fun loadDayDetails(date: java.time.LocalDate) {
+        _tooltipState.value = DayTooltipUiState.Loading
+        viewModelScope.launch {
+            combine(
+                transactionUseCase.getTransactionsByDateRange(date, date),
+                recurringUseCase.getRecurringTransactionsOn(date),
+                reminderUseCase.getRemindersByDate(date)
+            ) { txs, recs, rems ->
+                DayTooltipUiState.Ready(txs, recs, rems)
+            }.collect { state ->
+                _tooltipState.value = state
+            }
         }
     }
 }

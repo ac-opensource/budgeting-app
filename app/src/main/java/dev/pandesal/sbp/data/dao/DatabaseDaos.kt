@@ -6,4 +6,5 @@ interface DatabaseDaos {
     fun accountDao(): AccountDao
     fun goalDao(): GoalDao
     fun recurringTransactionDao(): RecurringTransactionDao
+    fun reminderDao(): ReminderDao
 }

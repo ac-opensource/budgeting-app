@@ -56,6 +56,27 @@ class RecurringTransactionUseCase @Inject constructor(
         return due
     }
 
+    fun occursOn(rec: RecurringTransaction, date: LocalDate): Boolean {
+        var due = rec.startDate
+        while (due.isBefore(date)) {
+            due = when (rec.interval) {
+                RecurringInterval.DAILY -> due.plusDays(1)
+                RecurringInterval.WEEKLY -> due.plusWeeks(1)
+                RecurringInterval.MONTHLY -> due.plusMonths(1)
+                RecurringInterval.AFTER_CUTOFF -> due.plusMonths(1).withDayOfMonth(rec.cutoffDays)
+                RecurringInterval.QUARTERLY -> due.plusMonths(3)
+                RecurringInterval.HALF_YEARLY -> due.plusMonths(6)
+                RecurringInterval.YEARLY -> due.plusYears(1)
+            }
+        }
+        return due == date
+    }
+
+    fun getRecurringTransactionsOn(date: LocalDate): Flow<List<RecurringTransaction>> =
+        repository.getRecurringTransactions().map { list ->
+            list.filter { occursOn(it, date) }
+        }
+
     suspend fun addRecurringTransaction(transaction: RecurringTransaction) {
         repository.addRecurringTransaction(transaction)
     }
