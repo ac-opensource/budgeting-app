@@ -159,8 +159,8 @@ fun NetWorthBarChart(
                                 )
 
                                 data.forEachIndexed { index, entry ->
-                                    val assetsHeight = chartHeight * (entry.assets / maxY).toFloat()
-                                    val liabilitiesHeight = chartHeight * (entry.liabilities / maxY).toFloat()
+                                    val assetsHeight = chartHeight * (entry.assets.divide(maxY, 2, RoundingMode.HALF_UP)).toFloat()
+                                    val liabilitiesHeight = chartHeight * (entry.liabilities.divide(maxY, 2, RoundingMode.HALF_UP)).toFloat()
                                     val xOffset = spacing + index * groupWidth
                                     drawRoundRect(
                                         brush = Brush.verticalGradient(

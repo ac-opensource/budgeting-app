@@ -25,6 +25,7 @@ import dev.pandesal.sbp.presentation.model.DailySpend
 import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Composable
 fun DailySpendBarChart(
@@ -62,7 +63,7 @@ fun DailySpendBarChart(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Bottom
                 ) {
-                    val percentage = if (maxY == BigDecimal.ZERO) 0f else (entry.amount / maxY).toFloat()
+                    val percentage = if (maxY == BigDecimal.ZERO) 0f else (entry.amount.divide(maxY, 2, RoundingMode.HALF_UP)).toFloat()
                     val barFillHeight = chartHeight * percentage
 
                     if (index == dailySpendUiModel.entries.lastIndex) {

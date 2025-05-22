@@ -73,6 +73,7 @@ import dev.pandesal.sbp.presentation.transactions.TransactionsViewModel
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Currency
 
 @Composable
 fun HomeScreen(
@@ -130,7 +131,7 @@ private fun HomeScreenContent(
     val lazyListState = rememberLazyListState()
     LazyColumn(state = lazyListState) {
         item {
-            HeaderSection(totalAmount, state.dailySpent, onViewNotifications)
+            HeaderSection(totalAmount, state.dailySpent, state.currency, onViewNotifications)
         }
 
         item { AccountsSection(state.accounts) }
@@ -194,6 +195,7 @@ private fun LazyListScope.transactionsSection(
 private fun HeaderSection(
     totalAmount: BigDecimal,
     dailySpent: DailySpendUiModel,
+    currency: String,
     onViewNotifications: () -> Unit
 ) {
     ElevatedCard(
@@ -215,7 +217,7 @@ private fun HeaderSection(
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                AccountSummarySection(totalAmount, state.currency)
+                AccountSummarySection(totalAmount, currency)
                 HomeToolbar(onViewNotifications)
             }
             DailySpendBarChart(dailySpendUiModel = dailySpent, modifier = Modifier

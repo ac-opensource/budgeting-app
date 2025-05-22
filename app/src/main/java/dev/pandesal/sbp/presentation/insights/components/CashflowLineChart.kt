@@ -129,8 +129,8 @@ fun CashflowLineChart(
                                 val outflowPath = Path()
                                 entries.forEachIndexed { index, entry ->
                                     val x = spacing + stepX * index
-                                    val inflowY = chartHeight * (1f - (entry.inflow / maxY).toFloat())
-                                    val outflowY = chartHeight * (1f - (entry.outflow / maxY).toFloat())
+                                    val inflowY = chartHeight * (1f - (entry.inflow.divide(maxY, 2, RoundingMode.HALF_UP)).toFloat())
+                                    val outflowY = chartHeight * (1f - (entry.outflow.divide(maxY, 2, RoundingMode.HALF_UP)).toFloat())
                                     if (index == 0) {
                                         inflowPath.moveTo(x, inflowY)
                                         outflowPath.moveTo(x, outflowY)

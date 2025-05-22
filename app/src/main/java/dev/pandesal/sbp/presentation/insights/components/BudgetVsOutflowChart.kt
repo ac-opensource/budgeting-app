@@ -160,8 +160,8 @@ fun BudgetVsOutflowChart(
                                 )
 
                                 entries.forEachIndexed { index, entry ->
-                                    val budgetHeight = chartHeight * (entry.budget / maxY).toFloat()
-                                    val outflowHeight = chartHeight * (entry.outflow / maxY).toFloat()
+                                    val budgetHeight = chartHeight * (entry.budget.divide(maxY, 2, RoundingMode.HALF_UP)).toFloat()
+                                    val outflowHeight = chartHeight * (entry.outflow.divide(maxY, 2, RoundingMode.HALF_UP)).toFloat()
                                     val xOffset = spacing + index * groupWidth
                                     drawRoundRect(
                                         brush = Brush.verticalGradient(
