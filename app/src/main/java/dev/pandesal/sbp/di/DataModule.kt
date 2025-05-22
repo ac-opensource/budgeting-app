@@ -20,6 +20,7 @@ import dev.pandesal.sbp.data.repository.GoalRepository
 import dev.pandesal.sbp.data.repository.SettingsRepository
 import dev.pandesal.sbp.data.repository.RecurringTransactionRepository
 import dev.pandesal.sbp.data.repository.ReminderRepository
+import dev.pandesal.sbp.data.repository.AttendanceRepository
 import dev.pandesal.sbp.domain.repository.CategoryRepositoryInterface
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
@@ -27,6 +28,7 @@ import dev.pandesal.sbp.domain.repository.GoalRepositoryInterface
 import dev.pandesal.sbp.domain.repository.SettingsRepositoryInterface
 import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
 import dev.pandesal.sbp.domain.repository.ReminderRepositoryInterface
+import dev.pandesal.sbp.domain.repository.AttendanceRepositoryInterface
 import dev.pandesal.sbp.domain.service.ExchangeRateService
 import dev.pandesal.sbp.notification.SmsTransactionScanner
 import javax.inject.Singleton
@@ -135,6 +137,19 @@ object DataModule {
     ): ReminderRepositoryInterface {
         return ReminderRepository(dao)
     }
+
+    @Singleton
+    @Provides
+    fun provideAttendanceRepository(): AttendanceRepositoryInterface {
+        return AttendanceRepository()
+    }
+
+    @Singleton
+    @Provides
+    fun provideAttendanceUseCase(
+        repository: AttendanceRepositoryInterface
+    ): dev.pandesal.sbp.domain.usecase.AttendanceUseCase =
+        dev.pandesal.sbp.domain.usecase.AttendanceUseCase(repository)
 
     @Singleton
     @Provides

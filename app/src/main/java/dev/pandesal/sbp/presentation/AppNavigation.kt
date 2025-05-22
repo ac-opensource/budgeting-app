@@ -27,6 +27,7 @@ import dev.pandesal.sbp.presentation.categories.CategoryTransactionsScreen
 import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
 import dev.pandesal.sbp.presentation.goals.NewGoalScreen
+import dev.pandesal.sbp.presentation.attendance.AttendanceScreen
 import dev.pandesal.sbp.presentation.nav.parcelableTypeMap
 import java.math.BigDecimal
 import kotlinx.serialization.Serializable
@@ -44,6 +45,8 @@ sealed class NavigationDestination() {
     data object More : NavigationDestination()
     @Serializable
     data object Settings : NavigationDestination()
+    @Serializable
+    data object Attendance : NavigationDestination()
     @Serializable
     data object Transactions : NavigationDestination()
     @Serializable
@@ -196,6 +199,10 @@ fun AppNavigation(navController: NavHostController) {
 
             composable<NavigationDestination.Settings> {
                 SettingsScreen()
+            }
+
+            composable<NavigationDestination.Attendance> {
+                dev.pandesal.sbp.presentation.attendance.AttendanceScreen()
             }
 
         }

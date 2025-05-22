@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pandesal.sbp.presentation.LocalNavigationManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -67,6 +68,7 @@ private fun SettingsContent(
     onScanSms: () -> Unit
 ) {
     var showCurrencySheet by remember { mutableStateOf(false) }
+    val nav = LocalNavigationManager.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         onNotificationsChange(granted)
     }
@@ -146,6 +148,7 @@ private fun SettingsContent(
             Text("Preferences", style = MaterialTheme.typography.titleMedium)
             SettingAction("Currency: ${settings.currency} >") { showCurrencySheet = true }
             SettingSwitch("Travel Mode", settings.isTravelMode, onTravelModeChange)
+            SettingAction("Attendance") { nav.navigate(dev.pandesal.sbp.presentation.NavigationDestination.Attendance) }
         }
     }
 
