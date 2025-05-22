@@ -41,7 +41,12 @@ fun DailySpendBarChart(
     Column(
         modifier = modifier
     ) {
-        Text("Your spending this week ↓-10%", style = MaterialTheme.typography.labelMedium)
+        val arrow = if (dailySpendUiModel.changeFromLastWeek >= 0) "\u2191" else "\u2193"
+        val changeText = String.format("%.0f", kotlin.math.abs(dailySpendUiModel.changeFromLastWeek))
+        Text(
+            "Your spending this week $arrow$changeText%",
+            style = MaterialTheme.typography.labelMedium
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
@@ -61,8 +66,14 @@ fun DailySpendBarChart(
                     val barFillHeight = chartHeight * percentage
 
                     if (index == dailySpendUiModel.entries.lastIndex) {
+                        val prev = dailySpendUiModel.entries.getOrNull(index - 1)?.amount ?: BigDecimal.ZERO
+                        val diff = if (prev == BigDecimal.ZERO) 0.0 else ((entry.amount - prev)
+                            .divide(prev, java.math.MathContext.DECIMAL64)
+                            .toDouble() * 100)
+                        val arrowToday = if (diff >= 0) "\u2191" else "\u2193"
+                        val diffText = String.format("%.0f", kotlin.math.abs(diff))
                         Text(
-                            "↓ -50%",
+                            "$arrowToday $diffText%",
                             color = primary,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Black

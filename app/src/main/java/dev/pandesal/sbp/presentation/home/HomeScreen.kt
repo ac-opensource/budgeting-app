@@ -49,6 +49,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pandesal.sbp.extensions.currencySymbol
+import dev.pandesal.sbp.extensions.format
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
@@ -213,7 +215,7 @@ private fun HeaderSection(
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                AccountSummarySection(totalAmount)
+                AccountSummarySection(totalAmount, state.currency)
                 HomeToolbar(onViewNotifications)
             }
             DailySpendBarChart(dailySpendUiModel = dailySpent, modifier = Modifier
@@ -241,11 +243,12 @@ private fun HomeToolbar(onViewNotifications: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun AccountSummarySection(totalAmount: BigDecimal) {
+private fun AccountSummarySection(totalAmount: BigDecimal, currency: String) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text("Consolidated Account", style = MaterialTheme.typography.labelLarge)
+        val symbol = currency.currencySymbol()
         Text(
-            text = "$${"%,.2f".format(totalAmount)}",
+            text = "$symbol${totalAmount.format()}",
             style = MaterialTheme.typography.headlineLargeEmphasized,
         )
     }
@@ -402,7 +405,8 @@ fun HomeScreenPreview() {
                     ),
                     changeFromLastWeek = 10.0
                 ),
-                budgetSummary = BudgetSummaryUiModel(BigDecimal.ZERO, BigDecimal.ZERO)
+                budgetSummary = BudgetSummaryUiModel(BigDecimal.ZERO, BigDecimal.ZERO),
+                currency = "USD"
             ),
             transactions = listOf(
                 Transaction(

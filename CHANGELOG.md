@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.48.0] - 2025-05-24
+### Added
+- feat: Load real data for daily spending chart
+- feat: Show correct currency symbol on home screen
+- fix: Format amounts using locale-specific grouping
+
 ## [0.45.0] - 2025-05-23
 ### Added
 - feat: Merge Insights and Trends screen with improved charts.
