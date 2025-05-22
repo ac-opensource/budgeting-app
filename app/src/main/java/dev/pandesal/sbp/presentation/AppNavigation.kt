@@ -41,8 +41,6 @@ sealed class NavigationDestination() {
     @Serializable
     data object Insights : NavigationDestination()
     @Serializable
-    data object Trends : NavigationDestination()
-    @Serializable
     data object More : NavigationDestination()
     @Serializable
     data object Settings : NavigationDestination()
@@ -190,9 +188,6 @@ fun AppNavigation(navController: NavHostController) {
                 InsightsScreen()
             }
 
-            composable<NavigationDestination.Trends> {
-                dev.pandesal.sbp.presentation.trends.TrendsScreen()
-            }
 
             composable<NavigationDestination.More> {
 //                MoreScreen()

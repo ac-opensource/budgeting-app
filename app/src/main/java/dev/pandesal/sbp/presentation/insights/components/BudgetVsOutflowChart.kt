@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +31,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
@@ -73,7 +76,7 @@ fun BudgetVsOutflowChart(
             Spacer(modifier = Modifier.height(8.dp))
             Text(subtitle, style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.weight(1f))
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp)
@@ -83,61 +86,100 @@ fun BudgetVsOutflowChart(
                         Text("No data available")
                     }
                 } else {
-                    var groupWidth by remember { mutableStateOf(0f) }
-                    var spacingPx by remember { mutableStateOf(0f) }
-                    Canvas(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .pointerInput(entries) {
-                                detectTapGestures { offset ->
-                                    val index = ((offset.x - spacingPx) / groupWidth).toInt()
-                                    if (index in entries.indices) {
-                                        dialogEntry.value = entries[index]
+                    val maxY = entries.maxOfOrNull { max(it.budget, it.outflow) } ?: 0.0
+                    Row(Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .fillMaxHeight(),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            for (i in 4 downTo 0) {
+                                Text(
+                                    text = "${"%.0f".format(maxY * i / 4)}",
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            var groupWidth by remember { mutableStateOf(0f) }
+                            var spacingPx by remember { mutableStateOf(0f) }
+                            Canvas(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .pointerInput(entries) {
+                                        detectTapGestures { offset ->
+                                            val index = ((offset.x - spacingPx) / groupWidth).toInt()
+                                            if (index in entries.indices) {
+                                                dialogEntry.value = entries[index]
+                                            }
+                                        }
                                     }
+                            ) {
+                                val spacing = barWidth.toPx()
+                                spacingPx = spacing
+                                if (maxY == 0.0) return@Canvas
+                                val chartHeight = size.height - spacing
+                                groupWidth = (size.width - spacing * 2) / entries.size
+
+                                val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                                for (i in 0..4) {
+                                    val y = chartHeight * (1f - i / 4f)
+                                    drawLine(
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                        start = Offset(spacing, y),
+                                        end = Offset(size.width - spacing, y),
+                                        pathEffect = dashEffect,
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }
+
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        listOf(
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                            Color.Transparent
+                                        )
+                                    )
+                                )
+
+                                entries.forEachIndexed { index, entry ->
+                                    val budgetHeight = chartHeight * (entry.budget / maxY).toFloat()
+                                    val outflowHeight = chartHeight * (entry.outflow / maxY).toFloat()
+                                    val xOffset = spacing + index * groupWidth
+                                    drawRoundRect(
+                                        brush = Brush.verticalGradient(
+                                            listOf(primaryColor.copy(alpha = 0.8f), primaryColor.copy(alpha = 0.4f)),
+                                            startY = size.height - budgetHeight,
+                                            endY = size.height
+                                        ),
+                                        topLeft = Offset(xOffset, size.height - budgetHeight),
+                                        size = Size(barWidth.toPx(), budgetHeight),
+                                        cornerRadius = CornerRadius(4.dp.toPx())
+                                    )
+                                    drawRoundRect(
+                                        brush = Brush.verticalGradient(
+                                            listOf(errorColor.copy(alpha = 0.8f), errorColor.copy(alpha = 0.4f)),
+                                            startY = size.height - outflowHeight,
+                                            endY = size.height
+                                        ),
+                                        topLeft = Offset(xOffset + barWidth.toPx() + 4.dp.toPx(), size.height - outflowHeight),
+                                        size = Size(barWidth.toPx(), outflowHeight),
+                                        cornerRadius = CornerRadius(4.dp.toPx())
+                                    )
                                 }
                             }
-                    ) {
-                        val spacing = barWidth.toPx()
-                        spacingPx = spacing
-                        val maxY = entries.maxOfOrNull { max(it.budget, it.outflow) } ?: 0.0
-                        if (maxY == 0.0) return@Canvas
-                        val chartHeight = size.height - spacing
-                        groupWidth = (size.width - spacing * 2) / entries.size
-                        entries.forEachIndexed { index, entry ->
-                            val budgetHeight = chartHeight * (entry.budget / maxY).toFloat()
-                            val outflowHeight = chartHeight * (entry.outflow / maxY).toFloat()
-                            val xOffset = spacing + index * groupWidth
-                            drawRoundRect(
-                                brush = Brush.verticalGradient(
-                                    listOf(primaryColor.copy(alpha = 0.8f), primaryColor.copy(alpha = 0.4f)),
-                                    startY = size.height - budgetHeight,
-                                    endY = size.height
-                                ),
-                                topLeft = Offset(xOffset, size.height - budgetHeight),
-                                size = Size(barWidth.toPx(), budgetHeight),
-                                cornerRadius = CornerRadius(4.dp.toPx())
-                            )
-                            drawRoundRect(
-                                brush = Brush.verticalGradient(
-                                    listOf(errorColor.copy(alpha = 0.8f), errorColor.copy(alpha = 0.4f)),
-                                    startY = size.height - outflowHeight,
-                                    endY = size.height
-                                ),
-                                topLeft = Offset(xOffset + barWidth.toPx() + 4.dp.toPx(), size.height - outflowHeight),
-                                size = Size(barWidth.toPx(), outflowHeight),
-                                cornerRadius = CornerRadius(4.dp.toPx())
-                            )
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(top = 4.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
-                    ) {
-                        entries.forEach { entry ->
-                            Text(entry.label, style = MaterialTheme.typography.labelSmall)
+                            Row(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceAround
+                            ) {
+                                entries.forEach { entry ->
+                                    Text(entry.label, style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
                         }
                     }
                 }
