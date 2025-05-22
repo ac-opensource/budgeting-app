@@ -14,6 +14,7 @@ import dev.pandesal.sbp.presentation.model.CalendarEvent
 import dev.pandesal.sbp.presentation.model.CalendarEventType
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import dev.pandesal.sbp.presentation.insights.TimePeriod
+import java.math.BigDecimal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,18 +56,18 @@ class InsightsViewModel @Inject constructor(
                     groupTransactionsByPeriod(transactions, p)
                 }
 
-                val totalBudget = budgets.sumOf { it.allocated.toDouble() }
-                val totalSpent = budgets.sumOf { it.spent.toDouble() }
+                val totalBudget = budgets.fold(java.math.BigDecimal.ZERO) { acc, b -> acc + b.allocated }
+                val totalSpent = budgets.fold(java.math.BigDecimal.ZERO) { acc, b -> acc + b.spent }
                 val budgetVsOutflow = listOf(
                     BudgetOutflowUiModel("This Month", totalBudget, totalSpent)
                 )
 
                 val assets = accounts
                     .filter { it.type != AccountType.CREDIT_CARD }
-                    .sumOf { it.balance.toDouble() }
+                    .fold(java.math.BigDecimal.ZERO) { acc, a -> acc + a.balance }
                 val liabilities = accounts
                     .filter { it.type == AccountType.CREDIT_CARD }
-                    .sumOf { it.balance.toDouble() }
+                    .fold(java.math.BigDecimal.ZERO) { acc, a -> acc + a.balance }
                 val netWorth = listOf(NetWorthUiModel("Now", assets, liabilities))
 
                 val calendarEvents = transactions.mapNotNull { tx ->
@@ -100,9 +101,9 @@ class InsightsViewModel @Inject constructor(
                 .toSortedMap()
                 .map { (date, txs) ->
                     val inflow = txs.filter { it.transactionType == TransactionType.INFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     val outflow = txs.filter { it.transactionType == TransactionType.OUTFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     CashflowUiModel(date.dayOfMonth.toString(), inflow, outflow)
                 }
             TimePeriod.WEEKLY -> transactions
@@ -110,9 +111,9 @@ class InsightsViewModel @Inject constructor(
                 .toSortedMap(compareBy({ it.first }, { it.second }))
                 .map { (pair, txs) ->
                     val inflow = txs.filter { it.transactionType == TransactionType.INFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     val outflow = txs.filter { it.transactionType == TransactionType.OUTFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     CashflowUiModel("W${pair.second}", inflow, outflow)
                 }
             TimePeriod.MONTHLY -> transactions
@@ -120,9 +121,9 @@ class InsightsViewModel @Inject constructor(
                 .toSortedMap()
                 .map { (month, txs) ->
                     val inflow = txs.filter { it.transactionType == TransactionType.INFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     val outflow = txs.filter { it.transactionType == TransactionType.OUTFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     CashflowUiModel(month.month.name.take(3), inflow, outflow)
                 }
             TimePeriod.THREE_MONTH -> transactions
@@ -130,9 +131,9 @@ class InsightsViewModel @Inject constructor(
                 .toSortedMap(compareBy({ it.first }, { it.second }))
                 .map { (pair, txs) ->
                     val inflow = txs.filter { it.transactionType == TransactionType.INFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     val outflow = txs.filter { it.transactionType == TransactionType.OUTFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     CashflowUiModel("Q${pair.second + 1}", inflow, outflow)
                 }
             TimePeriod.SIX_MONTH -> transactions
@@ -140,9 +141,9 @@ class InsightsViewModel @Inject constructor(
                 .toSortedMap(compareBy({ it.first }, { it.second }))
                 .map { (pair, txs) ->
                     val inflow = txs.filter { it.transactionType == TransactionType.INFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     val outflow = txs.filter { it.transactionType == TransactionType.OUTFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     CashflowUiModel("H${pair.second + 1}", inflow, outflow)
                 }
             TimePeriod.YEARLY -> transactions
@@ -150,9 +151,9 @@ class InsightsViewModel @Inject constructor(
                 .toSortedMap()
                 .map { (year, txs) ->
                     val inflow = txs.filter { it.transactionType == TransactionType.INFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     val outflow = txs.filter { it.transactionType == TransactionType.OUTFLOW }
-                        .sumOf { it.amount.toDouble() }
+                        .fold(java.math.BigDecimal.ZERO) { acc, t -> acc + t.amount }
                     CashflowUiModel(year.toString(), inflow, outflow)
                 }
         }

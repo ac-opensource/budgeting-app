@@ -11,9 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import dev.pandesal.sbp.extensions.format
 import dev.pandesal.sbp.extensions.currencySymbol
+import java.math.BigDecimal
 
 @Composable
-fun BudgetSummaryHeader(unassigned: Double, assigned: Double, currency: String = "PHP") {
+fun BudgetSummaryHeader(unassigned: BigDecimal, assigned: BigDecimal, currency: String = "PHP") {
     Row(
         modifier = Modifier
             .fillMaxWidth(),

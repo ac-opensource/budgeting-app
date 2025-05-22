@@ -52,9 +52,11 @@ fun TransactionsScreen(
         val state = uiState.value as TransactionsUiState.Success
         TransactionsContent(
             state.transactions,
-            onNewTransactionClick = { navManager.navigate(NavigationDestination.NewTransaction(null)) },
+            onNewTransactionClick = {
+                navManager.navigate(NavigationDestination.NewTransaction(null))
+            },
             onTransactionClick = { transaction ->
-                navManager.navigate(NavigationDestination.TransactionDetails(transaction.id))
+                navManager.navigate(NavigationDestination.NewTransaction(transaction))
             }
         )
     }

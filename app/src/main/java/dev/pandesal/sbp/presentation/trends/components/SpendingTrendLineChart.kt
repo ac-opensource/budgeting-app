@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -60,7 +62,7 @@ fun SpendingTrendLineChart(
             Text("Spending Trend", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Spacer(modifier = Modifier.weight(1f))
-            val maxY = data.maxOfOrNull { it.amount } ?: 0.0
+            val maxY = data.maxOfOrNull { it.amount } ?: java.math.BigDecimal.ZERO
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(
                     modifier = Modifier
@@ -70,7 +72,7 @@ fun SpendingTrendLineChart(
                 ) {
                     for (i in 4 downTo 0) {
                         Text(
-                            text = "${"%.0f".format(maxY * i / 4)}",
+                            text = "${"%.0f".format(maxY.multiply(java.math.BigDecimal(i).divide(java.math.BigDecimal(4), java.math.MathContext.DECIMAL64)).toDouble())}",
                             fontSize = 10.sp,
                             style = MaterialTheme.typography.labelSmall
                         )
@@ -96,7 +98,7 @@ fun SpendingTrendLineChart(
                             val linePath = Path()
                             data.forEachIndexed { index, entry ->
                                 val x = spacing + stepX * index
-                                val y = chartHeight * (1f - (entry.amount / maxY).toFloat())
+                                val y = chartHeight * (1f - (entry.amount.divide(maxY, java.math.MathContext.DECIMAL64).toFloat()))
                                 if (index == 0) {
                                     linePath.moveTo(x, y)
                                 } else {
@@ -111,7 +113,31 @@ fun SpendingTrendLineChart(
                                 close()
                             }
 
+                            val color1 = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                            val elements = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+
                             Canvas(Modifier.fillMaxSize()) {
+                                val gridDashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                                for (i in 0..4) {
+                                    val y = chartHeight * (1f - i / 4f)
+                                    drawLine(
+                                        color = color1,
+                                        start = Offset(spacing, y),
+                                        end = Offset(size.width - spacing, y),
+                                        pathEffect = gridDashEffect,
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }
+
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        listOf(
+                                            elements,
+                                            Color.Transparent
+                                        )
+                                    )
+                                )
+
                                 drawPath(
                                     path = fillPath,
                                     brush = Brush.verticalGradient(
@@ -127,7 +153,7 @@ fun SpendingTrendLineChart(
                                 var lastY = 0f
                                 data.forEachIndexed { index, entry ->
                                     val x = spacing + stepX * index
-                                    val y = chartHeight * (1f - (entry.amount / maxY).toFloat())
+                                    val y = chartHeight * (1f - (entry.amount.divide(maxY, java.math.MathContext.DECIMAL64).toFloat()))
                                     if (index > 0) {
                                         val path = Path().apply {
                                             moveTo(lastX, lastY)
@@ -152,7 +178,7 @@ fun SpendingTrendLineChart(
                             data.forEachIndexed { index, entry ->
                                 val x = spacing + stepX * index - offsetRadius
                                 val y =
-                                    chartHeight * (1f - (entry.amount / maxY).toFloat()) - offsetRadius
+                                    chartHeight * (1f - (entry.amount.divide(maxY, java.math.MathContext.DECIMAL64).toFloat())) - offsetRadius
                                 Box(
                                     modifier = Modifier
                                         .offset { IntOffset(x.roundToInt(), y.roundToInt()) }

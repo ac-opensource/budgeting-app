@@ -39,6 +39,7 @@ private val LightColorScheme = lightColorScheme(
     onBackground = Color(0xFF212121),
     onSurface = Color(0xFF000000),
     onSurfaceVariant = Color(0xFF212121),
+    primaryContainer = Color.White
 )
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

@@ -35,11 +35,12 @@ fun RecurringTransactionsScreen(
 
     if (state.value is RecurringTransactionsUiState.Success) {
         val transactions = (state.value as RecurringTransactionsUiState.Success).transactions
-        RecurringTransactionsContent(transactions, nextDueDate = {
-            viewModel.nextDueDate(it, LocalDate.now())
-        }) { rec ->
+        RecurringTransactionsContent(
+            transactions,
+            nextDueDate = { viewModel.nextDueDate(it, LocalDate.now()) }
+        ) { rec ->
             navManager.navigate(
-                NavigationDestination.TransactionDetails(rec.transaction.id)
+                NavigationDestination.NewTransaction(rec.transaction)
             )
         }
     }

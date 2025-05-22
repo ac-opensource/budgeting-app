@@ -165,8 +165,12 @@ fun AccountsScreen(
         sheetContent = {
             TransactionsContent(
                 transactions = transactions,
-                onNewTransactionClick = { navigationManager.navigate(NavigationDestination.NewTransaction()) },
-                onTransactionClick = { navigationManager.navigate(NavigationDestination.TransactionDetails(it.id)) }
+                onNewTransactionClick = {
+                    navigationManager.navigate(NavigationDestination.NewTransaction(null))
+                },
+                onTransactionClick = {
+                    navigationManager.navigate(NavigationDestination.NewTransaction(it))
+                }
             )
         },
         sheetDragHandle = {
@@ -255,7 +259,7 @@ private fun AccountsContent(
     onAccountClick: (dev.pandesal.sbp.domain.model.Account) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val totalValue = accounts.sumOf { it.balance.toDouble() }
+    val totalValue = accounts.fold(java.math.BigDecimal.ZERO) { acc, accnt -> acc + accnt.balance }
     val symbol = accounts.firstOrNull()?.currency?.currencySymbol() ?: "₱"
 
     LazyColumn(

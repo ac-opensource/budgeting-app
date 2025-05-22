@@ -3,6 +3,7 @@ package dev.pandesal.sbp.domain.usecase
 import dev.pandesal.sbp.domain.model.AccountType
 import dev.pandesal.sbp.domain.model.NetWorthRecord
 import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
+import java.math.BigDecimal
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -14,10 +15,10 @@ class NetWorthUseCase @Inject constructor(
         accountRepository.getAccounts().map { accounts ->
             val assets = accounts
                 .filter { it.type != AccountType.CREDIT_CARD }
-                .sumOf { it.balance.toDouble() }
+                .fold(BigDecimal.ZERO) { acc, account -> acc + account.balance }
             val liabilities = accounts
                 .filter { it.type == AccountType.CREDIT_CARD }
-                .sumOf { it.balance.toDouble() }
+                .fold(BigDecimal.ZERO) { acc, account -> acc + account.balance }
             listOf(NetWorthRecord("Now", assets, liabilities))
         }
 }
