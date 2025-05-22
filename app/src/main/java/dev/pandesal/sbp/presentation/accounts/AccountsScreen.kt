@@ -136,8 +136,12 @@ fun AccountsScreen(
         sheetContent = {
             TransactionsContent(
                 transactions = transactions,
-                onNewTransactionClick = { navigationManager.navigate(NavigationDestination.NewTransaction()) },
-                onTransactionClick = { navigationManager.navigate(NavigationDestination.TransactionDetails(it.id)) }
+                onNewTransactionClick = {
+                    navigationManager.navigate(NavigationDestination.NewTransaction(null))
+                },
+                onTransactionClick = {
+                    navigationManager.navigate(NavigationDestination.NewTransaction(it))
+                }
             )
         },
         sheetDragHandle = {

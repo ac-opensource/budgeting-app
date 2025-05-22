@@ -25,8 +25,12 @@ fun CategoryTransactionsScreen(
         is TransactionsUiState.Success -> {
             TransactionsContent(
                 transactions = state.transactions,
-                onNewTransactionClick = { navManager.navigate(NavigationDestination.NewTransaction(null)) },
-                onTransactionClick = { navManager.navigate(NavigationDestination.TransactionDetails(it.id)) }
+                onNewTransactionClick = {
+                    navManager.navigate(NavigationDestination.NewTransaction(null))
+                },
+                onTransactionClick = {
+                    navManager.navigate(NavigationDestination.NewTransaction(it))
+                }
             )
         }
         is TransactionsUiState.Error -> SkeletonLoader()
