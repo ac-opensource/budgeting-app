@@ -82,6 +82,7 @@ fun AccountsScreen(
     val navigationManager = LocalNavigationManager.current
 
     var selectedAccount by remember { mutableStateOf<dev.pandesal.sbp.domain.model.Account?>(null) }
+    var sheetTrigger by remember { mutableStateOf(0L) }
     var showRename by remember { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
     var showAdjust by remember { mutableStateOf(false) }
@@ -94,7 +95,7 @@ fun AccountsScreen(
         isIconExpanded = scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
     }
 
-    LaunchedEffect(selectedAccount) {
+    LaunchedEffect(sheetTrigger) {
         selectedAccount?.let {
             txViewModel.load(it.id.toString())
             scope.launch { scaffoldState.bottomSheetState.expand() }
@@ -238,7 +239,10 @@ fun AccountsScreen(
                     AccountsContent(
                         accounts = state.accounts,
                         onAddWallet = { navigationManager.navigate(NavigationDestination.NewAccount) },
-                        onAccountClick = { selectedAccount = it },
+                        onAccountClick = {
+                            selectedAccount = it
+                            sheetTrigger = System.currentTimeMillis()
+                        },
                         modifier = Modifier.padding(padding)
                     )
                 }

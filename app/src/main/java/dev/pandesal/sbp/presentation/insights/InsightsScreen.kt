@@ -104,23 +104,25 @@ fun InsightsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Box {
-                    BudgetVsOutflowChart(data.budgetVsOutflow, budgetPeriod.label)
-                    TimePeriodDropdown(
-                        modifier = Modifier.align(Alignment.TopEnd),
-                        period = budgetPeriod, onPeriodChange = { budgetPeriod = it }
-                    )
-                }
+            Box {
+                val budgetEntries = data.budgetVsOutflow[budgetPeriod] ?: emptyList()
+                BudgetVsOutflowChart(budgetEntries, budgetPeriod.label)
+                TimePeriodDropdown(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    period = budgetPeriod, onPeriodChange = { budgetPeriod = it }
+                )
+            }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Box {
-                    NetWorthBarChart(data.netWorthData)
-                    TimePeriodDropdown(
-                        modifier = Modifier.align(Alignment.TopEnd),
-                        period = netWorthPeriod, onPeriodChange = { netWorthPeriod = it }
-                    )
-                }
+            Box {
+                val netWorthEntries = data.netWorthByPeriod[netWorthPeriod] ?: emptyList()
+                NetWorthBarChart(netWorthEntries)
+                TimePeriodDropdown(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    period = netWorthPeriod, onPeriodChange = { netWorthPeriod = it }
+                )
+            }
 
                 if (trendState is TrendsUiState.Ready) {
                     Spacer(modifier = Modifier.height(16.dp))

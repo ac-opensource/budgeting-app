@@ -1,10 +1,21 @@
 package dev.pandesal.sbp.presentation.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Flight
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -35,22 +46,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val settings by viewModel.settings.collectAsState()
-    SettingsContent(
-        settings = settings,
-        onDarkModeChange = viewModel::setDarkMode,
-        onNotificationsChange = viewModel::setNotificationsEnabled,
-        onDetectFinanceAppUsageChange = viewModel::setDetectFinanceAppUsage,
-        onDetectFinanceApps = viewModel::detectFinanceApps,
-        onCurrencyChange = viewModel::setCurrency,
-        onTravelModeChange = viewModel::setTravelMode,
-        onScanSms = viewModel::scanSms
-    )
+    Column {
+        CenterAlignedTopAppBar(title = { Text("Settings") })
+        SettingsContent(
+            settings = settings,
+            onDarkModeChange = viewModel::setDarkMode,
+            onNotificationsChange = viewModel::setNotificationsEnabled,
+            onDetectFinanceAppUsageChange = viewModel::setDetectFinanceAppUsage,
+            onDetectFinanceApps = viewModel::detectFinanceApps,
+            onCurrencyChange = viewModel::setCurrency,
+            onTravelModeChange = viewModel::setTravelMode,
+            onScanSms = viewModel::scanSms
+        )
+    }
 }
 
 
@@ -79,73 +94,95 @@ private fun SettingsContent(
     val context = LocalContext.current
 
     LazyColumn(
-        modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
-            Text(
-                text = "Settings",
-                style = MaterialTheme.typography.titleLargeEmphasized
-            )
+            SettingSection("Appearance") {
+                SettingSwitch(
+                    icon = Icons.Default.DarkMode,
+                    title = "Dark Mode",
+                    checked = settings.darkMode,
+                    onCheckedChange = onDarkModeChange
+                )
+            }
         }
 
-        item { Spacer(modifier = Modifier.height(24.dp)) }
         item {
-            Text("Appearance", style = MaterialTheme.typography.titleMedium)
-            SettingSwitch("Dark Mode", settings.darkMode, onDarkModeChange)
+            SettingSection("Notifications") {
+                SettingSwitch(
+                    icon = Icons.Default.Notifications,
+                    title = "Enable Notifications",
+                    checked = settings.notificationsEnabled
+                ) { enabled ->
+                    if (enabled) {
+                        val permission = Manifest.permission.POST_NOTIFICATIONS
+                        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                            onNotificationsChange(true)
+                        } else {
+                            launcher.launch(permission)
+                        }
+                    } else {
+                        onNotificationsChange(false)
+                    }
+                }
+            }
         }
 
-        item { Spacer(modifier = Modifier.height(24.dp)) }
         item {
-            Text("Notifications", style = MaterialTheme.typography.titleMedium)
-            SettingSwitch("Enable Notifications", settings.notificationsEnabled) { enabled ->
-                if (enabled) {
-                    val permission = Manifest.permission.POST_NOTIFICATIONS
+            SettingSection("Permissions") {
+                SettingSwitch(
+                    icon = Icons.Default.BarChart,
+                    title = "Detect Finance App Usage",
+                    checked = settings.detectFinanceAppUsage
+                ) { enabled ->
+                    if (enabled) {
+                        if (hasUsageAccess(context)) {
+                            onDetectFinanceAppUsageChange(true)
+                            onDetectFinanceApps()
+                        } else {
+                            context.startActivity(
+                                android.content.Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                            onDetectFinanceAppUsageChange(true)
+                        }
+                    } else {
+                        onDetectFinanceAppUsageChange(false)
+                    }
+                }
+
+                SettingButton(
+                    icon = Icons.Default.Sms,
+                    title = "Import SMS Transactions"
+                ) {
+                    val permission = Manifest.permission.READ_SMS
                     if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
-                        onNotificationsChange(true)
+                        onScanSms()
                     } else {
-                        launcher.launch(permission)
+                        smsLauncher.launch(permission)
                     }
-                } else {
-                    onNotificationsChange(false)
                 }
             }
         }
 
-        item { Spacer(modifier = Modifier.height(24.dp)) }
         item {
-            Text("Data & Permissions", style = MaterialTheme.typography.titleMedium)
-            SettingSwitch("Detect Finance App Usage", settings.detectFinanceAppUsage) { enabled ->
-                if (enabled) {
-                    if (hasUsageAccess(context)) {
-                        onDetectFinanceAppUsageChange(true)
-                        onDetectFinanceApps()
-                    } else {
-                        context.startActivity(
-                            android.content.Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                        )
-                        onDetectFinanceAppUsageChange(true)
-                    }
-                } else {
-                    onDetectFinanceAppUsageChange(false)
-                }
-            }
-            SettingButton("Import SMS Transactions") {
-                val permission = Manifest.permission.READ_SMS
-                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
-                    onScanSms()
-                } else {
-                    smsLauncher.launch(permission)
-                }
-            }
-        }
+            SettingSection("Preferences") {
+                SettingAction(
+                    icon = Icons.Default.AttachMoney,
+                    title = "Currency: ${'$'}{settings.currency} >",
+                    onClick = { showCurrencySheet = true }
+                )
 
-        item { Spacer(modifier = Modifier.height(24.dp)) }
-        item {
-            Text("Preferences", style = MaterialTheme.typography.titleMedium)
-            SettingAction("Currency: ${settings.currency} >") { showCurrencySheet = true }
-            SettingSwitch("Travel Mode", settings.isTravelMode, onTravelModeChange)
+                SettingSwitch(
+                    icon = Icons.Default.Flight,
+                    title = "Travel Mode",
+                    checked = settings.isTravelMode,
+                    onCheckedChange = onTravelModeChange
+                )
+            }
         }
     }
 
@@ -170,8 +207,14 @@ private fun SettingsContent(
 }
 
 @Composable
-private fun SettingSwitch(title: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+private fun SettingSwitch(
+    icon: ImageVector,
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     ListItem(
+        leadingContent = { Icon(icon, contentDescription = null) },
         headlineContent = { Text(title) },
         trailingContent = { Switch(checked = checked, onCheckedChange = onCheckedChange) }
     )
@@ -187,8 +230,28 @@ private fun SettingText(title: String, value: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun SettingButton(title: String, onClick: () -> Unit) {
+private fun SettingSection(title: String, content: @Composable () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        content()
+    }
+}
+
+@Composable
+private fun SettingButton(
+    icon: ImageVector,
+    title: String,
+    onClick: () -> Unit
+) {
     ListItem(
+        leadingContent = { Icon(icon, contentDescription = null) },
         headlineContent = { Text(title) },
         trailingContent = {
             Button(onClick = onClick) { Text("Import") }
@@ -197,8 +260,13 @@ private fun SettingButton(title: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun SettingAction(title: String, onClick: () -> Unit) {
+private fun SettingAction(
+    icon: ImageVector,
+    title: String,
+    onClick: () -> Unit
+) {
     ListItem(
+        leadingContent = { Icon(icon, contentDescription = null) },
         headlineContent = { Text(title) },
         modifier = Modifier.clickable { onClick() }
     )
