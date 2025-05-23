@@ -73,6 +73,30 @@ class RecurringTransactionUseCase @Inject constructor(
         return due == date
     }
 
+    fun occurrencesInRange(
+        rec: RecurringTransaction,
+        start: LocalDate,
+        end: LocalDate
+    ): List<LocalDate> {
+        val results = mutableListOf<LocalDate>()
+        var next = nextDueDate(rec, start.minusDays(1))
+        while (!next.isAfter(end)) {
+            if (!next.isBefore(start)) {
+                results.add(next)
+            }
+            next = when (rec.interval) {
+                RecurringInterval.DAILY -> next.plusDays(1)
+                RecurringInterval.WEEKLY -> next.plusWeeks(1)
+                RecurringInterval.MONTHLY -> next.plusMonths(1)
+                RecurringInterval.AFTER_CUTOFF -> next.plusMonths(1).withDayOfMonth(rec.cutoffDays)
+                RecurringInterval.QUARTERLY -> next.plusMonths(3)
+                RecurringInterval.HALF_YEARLY -> next.plusMonths(6)
+                RecurringInterval.YEARLY -> next.plusYears(1)
+            }
+        }
+        return results
+    }
+
     fun getRecurringTransactionsOn(date: LocalDate): Flow<List<RecurringTransaction>> =
         repository.getRecurringTransactions().map { list ->
             list.filter { occursOn(it, date) }
