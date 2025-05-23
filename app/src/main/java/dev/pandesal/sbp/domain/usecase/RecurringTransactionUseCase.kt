@@ -31,7 +31,8 @@ class RecurringTransactionUseCase @Inject constructor(
                 if (!next.isAfter(endDate)) {
                     Notification(
                         message = "${rec.transaction.name} due on $next",
-                        type = NotificationType.BILL_REMINDER
+                        type = NotificationType.BILL_REMINDER,
+                        timestamp = next.atStartOfDay()
                     )
                 } else {
                     null
