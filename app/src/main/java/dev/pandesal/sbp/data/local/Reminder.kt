@@ -9,17 +9,20 @@ import java.time.LocalDate
 data class ReminderEntity(
     @PrimaryKey val id: String,
     val date: String,
-    val message: String
+    val message: String,
+    val shouldNotify: Boolean = true
 )
 
 fun ReminderEntity.toDomainModel() = Reminder(
     id = id,
     date = LocalDate.parse(date),
-    message = message
+    message = message,
+    shouldNotify = shouldNotify
 )
 
 fun Reminder.toEntity() = ReminderEntity(
     id = id,
     date = date.toString(),
-    message = message
+    message = message,
+    shouldNotify = shouldNotify
 )

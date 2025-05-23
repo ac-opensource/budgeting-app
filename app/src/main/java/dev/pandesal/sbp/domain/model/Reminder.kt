@@ -9,5 +9,6 @@ import java.util.UUID
 data class Reminder(
     val id: String = UUID.randomUUID().toString(),
     val date: LocalDate,
-    val message: String
+    val message: String,
+    val shouldNotify: Boolean = true
 ) : Parcelable
