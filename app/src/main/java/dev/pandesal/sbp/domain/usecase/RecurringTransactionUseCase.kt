@@ -4,14 +4,17 @@ import dev.pandesal.sbp.domain.model.Notification
 import dev.pandesal.sbp.domain.model.NotificationType
 import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
+import dev.pandesal.sbp.domain.repository.ReminderRepositoryInterface
 import dev.pandesal.sbp.domain.model.RecurringTransaction
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import javax.inject.Inject
 
 class RecurringTransactionUseCase @Inject constructor(
-    private val repository: RecurringTransactionRepositoryInterface
+    private val repository: RecurringTransactionRepositoryInterface,
+    private val reminderRepository: ReminderRepositoryInterface
 ) {
 
     fun getRecurringTransactionById(id: String): Flow<RecurringTransaction> =
@@ -25,8 +28,11 @@ class RecurringTransactionUseCase @Inject constructor(
         withinDays: Long = 7
     ): Flow<List<Notification>> {
         val endDate = currentDate.plusDays(withinDays)
-        return repository.getRecurringTransactions().map { list ->
-            list.filter { it.reminderEnabled }.mapNotNull { rec ->
+        return combine(
+            repository.getRecurringTransactions(),
+            reminderRepository.getReminders()
+        ) { recList, reminders ->
+            val recurringNotifs = recList.filter { it.reminderEnabled }.mapNotNull { rec ->
                 val next = nextDueDate(rec, currentDate)
                 if (!next.isAfter(endDate)) {
                     Notification(
@@ -38,6 +44,16 @@ class RecurringTransactionUseCase @Inject constructor(
                     null
                 }
             }
+            val reminderNotifs = reminders.filter {
+                it.shouldNotify && it.date.isAfter(currentDate)
+            }.map { rem ->
+                Notification(
+                    message = "Reminder: ${rem.message} on ${rem.date}",
+                    type = NotificationType.GENERAL,
+                    timestamp = rem.date.atStartOfDay()
+                )
+            }
+            (recurringNotifs + reminderNotifs).sortedBy { it.timestamp }
         }
     }
 
