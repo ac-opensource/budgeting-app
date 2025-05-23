@@ -12,9 +12,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - fix: Refine tooltip anchor, styling, and calendar highlights
 
 
-## [0.50.0] - 2025-05-25
-### Added
-- feat: Enable pull to refresh on home screen
+## [0.51.0] - 2025-05-26
+### Changed
+- feat: render net worth as wick chart
+- fix: filter empty bars on daily and weekly budget chart
+
+## [0.50.1] - 2025-05-26
+### Fixed
+- fix: show 5 period bars on insights charts
+
+
 
 ## [0.49.2] - 2025-05-25
 ### Fixed
