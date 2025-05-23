@@ -84,7 +84,10 @@ fun InsightsScreen(
                     events = monthEvents,
                     month = calendarMonth,
                     selectedDate = selectedDate,
-                    onMonthChange = { calendarMonth = it },
+                    onMonthChange = {
+                        calendarMonth = it
+                        viewModel.setCalendarMonth(it)
+                    },
                     onDateClick = { date, offset ->
                         selectedDate = date
                         tooltipOffset = offset

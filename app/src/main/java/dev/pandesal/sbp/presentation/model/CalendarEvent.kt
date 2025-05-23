@@ -5,7 +5,8 @@ import java.time.LocalDate
 enum class CalendarEventType {
     INFLOW,
     OUTFLOW,
-    BILL
+    BILL,
+    RECURRING
 }
 
 data class CalendarEvent(

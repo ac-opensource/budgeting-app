@@ -169,8 +169,10 @@ fun CalendarView(
     }
 }
 
+@Composable
 private fun colorFor(type: CalendarEventType): Color = when (type) {
     CalendarEventType.INFLOW -> Color(0xFF2E7D32)
     CalendarEventType.OUTFLOW -> Color(0xFFC62828)
     CalendarEventType.BILL -> Color.Gray
+    CalendarEventType.RECURRING -> MaterialTheme.colorScheme.tertiary
 }

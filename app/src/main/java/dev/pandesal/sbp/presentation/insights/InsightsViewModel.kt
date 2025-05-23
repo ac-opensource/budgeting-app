@@ -10,6 +10,7 @@ import dev.pandesal.sbp.domain.usecase.CategoryUseCase
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import dev.pandesal.sbp.domain.usecase.RecurringTransactionUseCase
 import dev.pandesal.sbp.domain.usecase.ReminderUseCase
+import dev.pandesal.sbp.domain.model.RecurringTransaction
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.CalendarEvent
@@ -45,12 +46,19 @@ class InsightsViewModel @Inject constructor(
     private val _tooltipState = MutableStateFlow<DayTooltipUiState>(DayTooltipUiState.Loading)
     val tooltipState: StateFlow<DayTooltipUiState> = _tooltipState.asStateFlow()
 
+    private val _calendarMonth = MutableStateFlow(YearMonth.now())
+    val calendarMonth: StateFlow<YearMonth> = _calendarMonth.asStateFlow()
+
     init {
         observeData()
     }
 
     fun setPeriod(period: TimePeriod) {
         _period.value = period
+    }
+
+    fun setCalendarMonth(month: YearMonth) {
+        _calendarMonth.value = month
     }
 
     private fun observeData() {
@@ -61,8 +69,9 @@ class InsightsViewModel @Inject constructor(
                 categoryUseCase.getMonthlyBudgetsByYearMonth(YearMonth.now()),
                 accountUseCase.getAccounts(),
                 recurringUseCase.getRecurringTransactions(),
-                reminderUseCase.getReminders()
-            ) { transactions, budgets, accounts, recurring, reminders ->
+                reminderUseCase.getReminders(),
+                _calendarMonth
+            ) { transactions, budgets, accounts, recurring, reminders, month ->
                 val cashflowByPeriod = TimePeriod.values().associateWith { p ->
                     groupTransactionsByPeriod(transactions, p)
                 }
@@ -91,25 +100,21 @@ class InsightsViewModel @Inject constructor(
                     buildNetWorthByRanges(transactions, accounts, buildRanges(p))
                 }
 
-                val monthStart = YearMonth.now().atDay(1)
-                val monthEnd = YearMonth.now().plusMonths(1).atEndOfMonth()
+                val monthStart = month.atDay(1)
+                val monthEnd = month.atEndOfMonth()
 
-                val calendarEvents = transactions.mapNotNull { tx ->
-                    val type = when (tx.transactionType) {
-                        TransactionType.INFLOW -> CalendarEventType.INFLOW
-                        TransactionType.OUTFLOW -> CalendarEventType.OUTFLOW
-                        else -> null
-                    }
-                    type?.let { CalendarEvent(tx.createdAt, it) }
-                }.toMutableList()
+                val calendarEvents = transactions
+                    .filter { !it.createdAt.isBefore(monthStart) && !it.createdAt.isAfter(monthEnd) }
+                    .mapNotNull { tx ->
+                        val type = when (tx.transactionType) {
+                            TransactionType.INFLOW -> CalendarEventType.INFLOW
+                            TransactionType.OUTFLOW -> CalendarEventType.OUTFLOW
+                            else -> null
+                        }
+                        type?.let { CalendarEvent(tx.createdAt, it) }
+                    }.toMutableList()
 
-                recurring.filter { it.transaction.transactionType == TransactionType.OUTFLOW }
-                    .forEach { rec ->
-                        recurringUseCase.occurrencesInRange(rec, monthStart, monthEnd)
-                            .forEach { date ->
-                                calendarEvents.add(CalendarEvent(date, CalendarEventType.BILL))
-                            }
-                    }
+                calendarEvents += getRecurringInstancesForMonth(month, recurring)
 
                 reminders.filter { it.message.contains("bill", ignoreCase = true) }
                     .filter { !it.date.isBefore(monthStart) && !it.date.isAfter(monthEnd) }
@@ -247,6 +252,26 @@ class InsightsViewModel @Inject constructor(
                     Range(year.toString(), LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31))
                 }
         }
+    }
+
+    private fun getRecurringInstancesForMonth(
+        month: YearMonth,
+        recurring: List<RecurringTransaction>
+    ): List<CalendarEvent> {
+        val start = month.atDay(1)
+        val end = month.atEndOfMonth()
+        val events = mutableListOf<CalendarEvent>()
+        recurring.forEach { rec ->
+            recurringUseCase.occurrencesInRange(rec, start, end).forEach { date ->
+                val type = if (rec.transaction.transactionType == TransactionType.OUTFLOW) {
+                    CalendarEventType.BILL
+                } else {
+                    CalendarEventType.RECURRING
+                }
+                events.add(CalendarEvent(date, type))
+            }
+        }
+        return events
     }
 
     fun loadDayDetails(date: java.time.LocalDate) {
