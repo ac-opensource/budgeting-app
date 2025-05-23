@@ -59,8 +59,10 @@ class InsightsViewModel @Inject constructor(
             combine(
                 transactionUseCase.getAllTransactions(),
                 categoryUseCase.getMonthlyBudgetsByYearMonth(YearMonth.now()),
-                accountUseCase.getAccounts()
-            ) { transactions, budgets, accounts ->
+                accountUseCase.getAccounts(),
+                recurringUseCase.getRecurringTransactions(),
+                reminderUseCase.getReminders()
+            ) { transactions, budgets, accounts, recurring, reminders ->
                 val cashflowByPeriod = TimePeriod.values().associateWith { p ->
                     groupTransactionsByPeriod(transactions, p)
                 }
@@ -89,6 +91,9 @@ class InsightsViewModel @Inject constructor(
                     buildNetWorthByRanges(transactions, accounts, buildRanges(p))
                 }
 
+                val monthStart = YearMonth.now().atDay(1)
+                val monthEnd = YearMonth.now().plusMonths(1).atEndOfMonth()
+
                 val calendarEvents = transactions.mapNotNull { tx ->
                     val type = when (tx.transactionType) {
                         TransactionType.INFLOW -> CalendarEventType.INFLOW
@@ -96,7 +101,19 @@ class InsightsViewModel @Inject constructor(
                         else -> null
                     }
                     type?.let { CalendarEvent(tx.createdAt, it) }
-                }
+                }.toMutableList()
+
+                recurring.filter { it.transaction.transactionType == TransactionType.OUTFLOW }
+                    .forEach { rec ->
+                        recurringUseCase.occurrencesInRange(rec, monthStart, monthEnd)
+                            .forEach { date ->
+                                calendarEvents.add(CalendarEvent(date, CalendarEventType.BILL))
+                            }
+                    }
+
+                reminders.filter { it.message.contains("bill", ignoreCase = true) }
+                    .filter { !it.date.isBefore(monthStart) && !it.date.isAfter(monthEnd) }
+                    .forEach { rem -> calendarEvents.add(CalendarEvent(rem.date, CalendarEventType.BILL)) }
 
                 InsightsUiState.Success(
                     cashflowByPeriod = cashflowByPeriod,
