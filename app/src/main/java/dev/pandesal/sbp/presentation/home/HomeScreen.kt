@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,6 +44,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.Alignment
@@ -176,7 +178,7 @@ private fun HomeScreenContent(
     val lazyListState = rememberLazyListState()
     LazyColumn(state = lazyListState) {
         item {
-            HeaderSection(totalAmount, state.dailySpent, state.currency, onViewNotifications)
+            HeaderSection(totalAmount, state.dailySpent, state.currency, onViewNotifications, onBarClicked)
         }
 
         item { AccountsSection(state.accounts) }
@@ -241,7 +243,8 @@ private fun HeaderSection(
     totalAmount: BigDecimal,
     dailySpent: DailySpendUiModel,
     currency: String,
-    onViewNotifications: () -> Unit
+    onViewNotifications: () -> Unit,
+    onBarClicked: (Int, IntOffset) -> Unit
 ) {
     ElevatedCard(
         modifier = Modifier
