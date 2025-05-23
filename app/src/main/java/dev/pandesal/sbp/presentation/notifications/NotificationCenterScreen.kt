@@ -10,15 +10,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.stickyHeader
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Payments
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Tab
@@ -27,6 +34,8 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +56,8 @@ import dev.pandesal.sbp.domain.model.NotificationType
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,6 +107,19 @@ fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewMo
         else -> notifications
     }
 
+    val pullRefreshState = rememberPullToRefreshState()
+    val groupedNotifications = filteredNotifications
+        .sortedByDescending { it.timestamp }
+        .groupBy {
+            val date = it.timestamp.toLocalDate()
+            when (date) {
+                LocalDate.now() -> "Today"
+                LocalDate.now().minusDays(1) -> "Yesterday"
+                in LocalDate.now().minusDays(6)..LocalDate.now().minusDays(2) -> "This Week"
+                else -> date.format(DateTimeFormatter.ofPattern("MMM d"))
+            }
+        }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -143,33 +167,55 @@ fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewMo
             }
         }
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
+        PullToRefreshBox(
+            isRefreshing = false,
+            state = pullRefreshState,
+            onRefresh = { viewModel.refresh() }
         ) {
-            items(filteredNotifications, key = { it.id }) { notif ->
-                val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
-                    if (it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart) {
-                        InAppNotificationCenter.archive(notif.id)
-                        true
-                    } else {
-                        false
-                    }
-                })
-                SwipeToDismissBox(
-                    state = dismissState,
-                    backgroundContent = {},
-                ) {
-                    NotificationItem(
-                        notification = notif,
-                        onMarkRead = { InAppNotificationCenter.markAsRead(notif.id) },
-                        onCreateTransaction = {
-                            coroutineScope.launch {
-                                val tx = viewModel.parseTransaction(notif.message)
-                                InAppNotificationCenter.markAsRead(notif.id)
-                                navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction(tx))
-                            }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (filteredNotifications.isEmpty()) {
+                    item { EmptyState() }
+                }
+                groupedNotifications.forEach { (label, list) ->
+                    stickyHeader {
+                        Surface(color = MaterialTheme.colorScheme.surface) {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
                         }
-                    )
+                    }
+                    items(list, key = { it.id }) { notif ->
+                        val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
+                            if (it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart) {
+                                InAppNotificationCenter.archive(notif.id)
+                                true
+                            } else {
+                                false
+                            }
+                        })
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            backgroundContent = {},
+                        ) {
+                            NotificationItem(
+                                notification = notif,
+                                onMarkRead = { InAppNotificationCenter.markAsRead(notif.id) },
+                                onCreateTransaction = {
+                                    coroutineScope.launch {
+                                        val tx = viewModel.parseTransaction(notif.message)
+                                        InAppNotificationCenter.markAsRead(notif.id)
+                                        navController.navigate(dev.pandesal.sbp.presentation.NavigationDestination.NewTransaction(tx))
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -182,33 +228,76 @@ private fun NotificationItem(
     onMarkRead: () -> Unit,
     onCreateTransaction: () -> Unit
 ) {
-    Column(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (!notification.isRead) {
-                    Box(
-                        Modifier
-                            .padding(end = 8.dp)
-                            .background(color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small)
-                            .padding(4.dp)
-                    ) {}
+                Icon(
+                    imageVector = when (notification.type) {
+                        NotificationType.BILL_REMINDER -> Icons.Outlined.Event
+                        NotificationType.TRANSACTION_SUGGESTION -> Icons.Outlined.Payments
+                        else -> Icons.Outlined.Notifications
+                    },
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+
+                Column(modifier = Modifier.padding(start = 12.dp)) {
+                    Text(
+                        text = when (notification.type) {
+                            NotificationType.BILL_REMINDER -> "Bill Reminder"
+                            NotificationType.TRANSACTION_SUGGESTION -> "Transaction Alert"
+                            else -> "Notification"
+                        },
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = notification.message,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
-                Text(notification.message)
             }
-            if (notification.canCreateTransaction) {
-                TextButton(onClick = onCreateTransaction) {
-                    Text("Add")
+
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = notification.timestamp.format(DateTimeFormatter.ofPattern("MMM d, h:mm a")),
+                    style = MaterialTheme.typography.labelSmall
+                )
+                if (notification.canCreateTransaction) {
+                    TextButton(onClick = onCreateTransaction) { Text("Add") }
                 }
             }
         }
     }
     onMarkRead()
+}
+
+@Composable
+private fun EmptyState() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 64.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Notifications,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        Text(text = "You're all caught up!", style = MaterialTheme.typography.bodyMedium)
+    }
 }

@@ -2,6 +2,7 @@ package dev.pandesal.sbp.notification
 
 import dev.pandesal.sbp.domain.model.Notification
 import dev.pandesal.sbp.domain.model.NotificationType
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,12 +12,14 @@ object InAppNotificationCenter {
         listOf(
             Notification(
                 message = "Electric bill due tomorrow",
-                type = NotificationType.BILL_REMINDER
+                type = NotificationType.BILL_REMINDER,
+                timestamp = LocalDateTime.now()
             ),
             Notification(
                 message = "Did you spend with GCash today?",
                 type = NotificationType.TRANSACTION_SUGGESTION,
-                canCreateTransaction = true
+                canCreateTransaction = true,
+                timestamp = LocalDateTime.now()
             )
         )
     )
@@ -25,13 +28,15 @@ object InAppNotificationCenter {
     fun postNotification(
         message: String,
         type: NotificationType = NotificationType.GENERAL,
-        canCreateTransaction: Boolean = false
+        canCreateTransaction: Boolean = false,
+        timestamp: LocalDateTime = LocalDateTime.now()
     ) {
         _notifications.value =
             _notifications.value + Notification(
                 message = message,
                 type = type,
-                canCreateTransaction = canCreateTransaction
+                canCreateTransaction = canCreateTransaction,
+                timestamp = timestamp
             )
     }
 

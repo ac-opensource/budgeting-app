@@ -40,5 +40,8 @@ class NotificationCenterViewModel @Inject constructor(
         viewModelScope.launch { settingsUseCase.setNotificationsEnabled(enabled) }
     }
 
+    fun refresh() {
+    }
+
     suspend fun parseTransaction(text: String): Transaction = geminiService.parseSms(text)
 }

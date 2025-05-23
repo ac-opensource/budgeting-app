@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [0.54.0] - 2025-05-23
 ### Added
+- feat: Redesign notification center with card layout and sticky headers
+
+## [0.53.0] - 2025-05-23
+### Added
 - feat: Implement recurring notification worker and permission checks
 
 ## [0.52.2] - 2025-05-22
