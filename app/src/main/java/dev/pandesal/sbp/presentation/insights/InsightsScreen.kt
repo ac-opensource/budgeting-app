@@ -84,7 +84,8 @@ fun InsightsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Box {
-                BudgetVsOutflowChart(data.budgetVsOutflow, budgetPeriod.label)
+                val budgetEntries = data.budgetVsOutflow[budgetPeriod] ?: emptyList()
+                BudgetVsOutflowChart(budgetEntries, budgetPeriod.label)
                 TimePeriodDropdown(
                     modifier = Modifier.align(Alignment.TopEnd),
                     period = budgetPeriod, onPeriodChange = { budgetPeriod = it }
@@ -94,7 +95,8 @@ fun InsightsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Box {
-                NetWorthBarChart(data.netWorthData)
+                val netWorthEntries = data.netWorthByPeriod[netWorthPeriod] ?: emptyList()
+                NetWorthBarChart(netWorthEntries)
                 TimePeriodDropdown(
                     modifier = Modifier.align(Alignment.TopEnd),
                     period = netWorthPeriod, onPeriodChange = { netWorthPeriod = it }

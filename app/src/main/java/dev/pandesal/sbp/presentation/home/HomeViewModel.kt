@@ -149,8 +149,10 @@ private fun Account.toUiModel(): AccountSummaryUiModel {
     )
 }
 
-private fun dev.pandesal.sbp.domain.model.NetWorthRecord.toUiModel(): NetWorthUiModel =
-    NetWorthUiModel(label, assets, liabilities)
+private fun dev.pandesal.sbp.domain.model.NetWorthRecord.toUiModel(): NetWorthUiModel {
+    val value = assets - liabilities
+    return NetWorthUiModel(label, value, value, value, value)
+}
 
 private fun dev.pandesal.sbp.domain.model.CategoryWithBudget.toBudgetUiModel(): BudgetCategoryUiModel {
     val allocated = budget?.allocated ?: java.math.BigDecimal.ZERO

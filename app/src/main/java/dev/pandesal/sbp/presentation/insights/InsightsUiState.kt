@@ -10,8 +10,8 @@ sealed interface InsightsUiState {
     data object Loading : InsightsUiState
     data class Success(
         val cashflowByPeriod: Map<TimePeriod, List<CashflowUiModel>>,
-        val budgetVsOutflow: List<BudgetOutflowUiModel>,
-        val netWorthData: List<NetWorthUiModel>,
+        val budgetVsOutflow: Map<TimePeriod, List<BudgetOutflowUiModel>>,
+        val netWorthByPeriod: Map<TimePeriod, List<NetWorthUiModel>>,
         val calendarEvents: List<CalendarEvent>
     ) : InsightsUiState
     data class Error(val errorMessage: String) : InsightsUiState
