@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -42,6 +43,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,6 +68,8 @@ import dev.pandesal.sbp.presentation.components.SkeletonLoader
 import dev.pandesal.sbp.presentation.components.TransactionItem
 import dev.pandesal.sbp.presentation.home.components.AccountCard
 import dev.pandesal.sbp.presentation.home.components.DailySpendBarChart
+import dev.pandesal.sbp.presentation.home.components.DailySpendPopup
+import dev.pandesal.sbp.presentation.home.DayPopupUiState
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
@@ -89,6 +96,9 @@ fun HomeScreen(
     val transactionsState by transactionsViewModel.uiState.collectAsState()
     val refreshing = homeState is HomeUiState.Loading || transactionsState is TransactionsUiState.Loading
     val pullRefreshState = rememberPullToRefreshState()
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+    var popupOffset by remember { mutableStateOf(IntOffset.Zero) }
+    val popupState by viewModel.popupState.collectAsState()
 
 
     PullToRefreshBox(
@@ -114,8 +124,25 @@ fun HomeScreen(
                             NavigationDestination.NewTransaction(tx)
                         )
                     },
-                    onViewNotifications = { navController.navigate(NavigationDestination.Notifications) }
+                    onViewNotifications = { navController.navigate(NavigationDestination.Notifications) },
+                    onBarClicked = { index, offset ->
+                        val date = LocalDate.now().minusDays((state.dailySpent.entries.size - 1 - index).toLong())
+                        selectedDate = date
+                        popupOffset = offset
+                        viewModel.loadDayDetails(date)
+                    }
                 )
+            }
+        }
+        selectedDate?.let { date ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable { selectedDate = null }
+            )
+            Popup(alignment = Alignment.TopStart, offset = popupOffset) {
+                DailySpendPopup(date = date, state = popupState)
             }
         }
     }
@@ -126,7 +153,8 @@ private fun HomeScreenContent(
     state: HomeUiState.Success,
     transactions: List<Transaction>,
     onTransactionClicked: (Transaction) -> Unit,
-    onViewNotifications: () -> Unit
+    onViewNotifications: () -> Unit,
+    onBarClicked: (Int, IntOffset) -> Unit
 ) {
     val totalAmount = state.accounts.sumOf { it.balance }
     val totalAllocated = state.favoriteBudgets.sumOf { it.allocated }
@@ -150,7 +178,7 @@ private fun HomeScreenContent(
     val lazyListState = rememberLazyListState()
     LazyColumn(state = lazyListState) {
         item {
-            HeaderSection(totalAmount, state.dailySpent, state.currency, onViewNotifications)
+            HeaderSection(totalAmount, state.dailySpent, state.currency, onViewNotifications, onBarClicked)
         }
 
         item { AccountsSection(state.accounts) }
@@ -215,7 +243,8 @@ private fun HeaderSection(
     totalAmount: BigDecimal,
     dailySpent: DailySpendUiModel,
     currency: String,
-    onViewNotifications: () -> Unit
+    onViewNotifications: () -> Unit,
+    onBarClicked: (Int, IntOffset) -> Unit
 ) {
     ElevatedCard(
         modifier = Modifier
@@ -239,9 +268,13 @@ private fun HeaderSection(
                 AccountSummarySection(totalAmount, currency)
                 HomeToolbar(onViewNotifications)
             }
-            DailySpendBarChart(dailySpendUiModel = dailySpent, modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth())
+            DailySpendBarChart(
+                dailySpendUiModel = dailySpent,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                onBarClick = onBarClicked
+            )
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -452,7 +485,8 @@ fun HomeScreenPreview() {
                 )
             ),
             onTransactionClicked = { _ -> },
-            onViewNotifications = {}
+            onViewNotifications = {},
+            onBarClicked = { _, _ -> }
         )
     }
 }

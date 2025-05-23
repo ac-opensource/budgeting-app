@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -26,6 +27,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.positionInRoot
 import dev.pandesal.sbp.presentation.model.DailySpend
 import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
@@ -37,7 +44,8 @@ fun DailySpendBarChart(
     dailySpendUiModel: DailySpendUiModel,
     modifier: Modifier = Modifier,
     barWidth: Dp = 64.dp,
-    chartHeight: Dp = 200.dp
+    chartHeight: Dp = 200.dp,
+    onBarClick: (Int, IntOffset) -> Unit = { _, _ -> }
 ) {
     val primary = Color(0xFF4BE263)// MaterialTheme.colorScheme.primary
     val secondary = Color(0xFF4BE263) //MaterialTheme.colorScheme.secondary
@@ -60,10 +68,21 @@ fun DailySpendBarChart(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
+        var rowCoords: LayoutCoordinates? = null
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(chartHeight),
+                .height(chartHeight)
+                .onGloballyPositioned { rowCoords = it }
+                .pointerInput(dailySpendUiModel.entries) {
+                    detectTapGestures { offset ->
+                        val index = (offset.x / (size.width / dailySpendUiModel.entries.size)).toInt()
+                        if (index in dailySpendUiModel.entries.indices) {
+                            val global = (rowCoords?.positionInRoot() ?: Offset.Zero) + offset
+                            onBarClick(index, IntOffset(global.x.toInt(), global.y.toInt()))
+                        }
+                    }
+                },
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {

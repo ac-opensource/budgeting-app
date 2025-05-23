@@ -46,6 +46,9 @@ class HomeViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Initial)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private val _popupState = MutableStateFlow<DayPopupUiState>(DayPopupUiState.Loading)
+    val popupState: StateFlow<DayPopupUiState> = _popupState.asStateFlow()
+
     private var loadJob: kotlinx.coroutines.Job? = null
 
     init {
@@ -129,6 +132,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun loadDayDetails(date: LocalDate) {
+        _popupState.value = DayPopupUiState.Loading
+        viewModelScope.launch {
+            transactionUseCase.getTransactionsByDateRange(date, date).collect { txs ->
+                val inflow = txs.filter { it.transactionType == dev.pandesal.sbp.domain.model.TransactionType.INFLOW }
+                    .fold(BigDecimal.ZERO) { acc, t -> acc + t.amount }
+                val outflow = txs.filter { it.transactionType == dev.pandesal.sbp.domain.model.TransactionType.OUTFLOW }
+                    .fold(BigDecimal.ZERO) { acc, t -> acc + t.amount }
+                _popupState.value = DayPopupUiState.Ready(inflow, outflow, BigDecimal.ZERO, txs)
+            }
+        }
+    }
+
 
 }
 
@@ -149,8 +165,10 @@ private fun Account.toUiModel(): AccountSummaryUiModel {
     )
 }
 
-private fun dev.pandesal.sbp.domain.model.NetWorthRecord.toUiModel(): NetWorthUiModel =
-    NetWorthUiModel(label, assets, liabilities)
+private fun dev.pandesal.sbp.domain.model.NetWorthRecord.toUiModel(): NetWorthUiModel {
+    val value = assets - liabilities
+    return NetWorthUiModel(label, value, value, value, value)
+}
 
 private fun dev.pandesal.sbp.domain.model.CategoryWithBudget.toBudgetUiModel(): BudgetCategoryUiModel {
     val allocated = budget?.allocated ?: java.math.BigDecimal.ZERO
