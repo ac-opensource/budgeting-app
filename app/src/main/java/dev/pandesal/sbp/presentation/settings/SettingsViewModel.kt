@@ -11,10 +11,15 @@ import dev.pandesal.sbp.domain.usecase.SettingsUseCase
 import dev.pandesal.sbp.domain.usecase.TravelModeUseCase
 import dev.pandesal.sbp.notification.SmsTransactionScanner
 import dev.pandesal.sbp.notification.FinancialAppUsageService
+import dev.pandesal.sbp.notification.ReminderWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,7 +38,12 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, java.math.BigDecimal.ZERO)
 
     init {
-        viewModelScope.launch { travelUseCase.refreshRateIfNeeded() }
+        viewModelScope.launch {
+            travelUseCase.refreshRateIfNeeded()
+            if (useCase.getSettings().first().notificationsEnabled) {
+                scheduleReminderWork()
+            }
+        }
     }
 
     fun setDarkMode(enabled: Boolean) {
@@ -41,7 +51,23 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setNotificationsEnabled(enabled: Boolean) {
-        viewModelScope.launch { useCase.setNotificationsEnabled(enabled) }
+        viewModelScope.launch {
+            useCase.setNotificationsEnabled(enabled)
+            if (enabled) scheduleReminderWork() else cancelReminderWork()
+        }
+    }
+
+    private fun scheduleReminderWork() {
+        val request = PeriodicWorkRequestBuilder<ReminderWorker>(1, java.util.concurrent.TimeUnit.DAYS).build()
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            ReminderWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            request
+        )
+    }
+
+    private fun cancelReminderWork() {
+        WorkManager.getInstance(context).cancelUniqueWork(ReminderWorker.WORK_NAME)
     }
 
     fun setDetectFinanceAppUsage(enabled: Boolean) {
