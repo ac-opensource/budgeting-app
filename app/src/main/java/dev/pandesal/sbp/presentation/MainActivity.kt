@@ -145,7 +145,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(statusBarHeight)
-                                    .background(MaterialTheme.colorScheme.primaryContainer) // This shows *behind* the status bar
+                                    .background(Color(0xFFECECEC))
                             ) {}
                         }
 
@@ -284,7 +284,6 @@ class MainActivity : ComponentActivity() {
                                     Icon(Icons.Filled.MoreVert, contentDescription = "Settings")
                                 }
                             },
-                            scrollBehavior = exitAlwaysScrollBehavior
                         )
                     }
                 }

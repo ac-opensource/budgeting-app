@@ -74,6 +74,7 @@ import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
 import dev.pandesal.sbp.domain.model.AccountType
+import dev.pandesal.sbp.presentation.components.AnimatedGradientBackground
 import dev.pandesal.sbp.presentation.model.DailySpend
 import dev.pandesal.sbp.presentation.model.DailySpendUiModel
 import dev.pandesal.sbp.presentation.theme.StopBeingPoorTheme
@@ -246,13 +247,14 @@ private fun HeaderSection(
     onViewNotifications: () -> Unit,
     onBarClicked: (Int, IntOffset) -> Unit
 ) {
+
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentSize()
             .padding(bottom = 16.dp),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = Color.Transparent
         ),
         shape = RoundedCornerShape(
             topStart = 0.dp,
@@ -261,22 +263,28 @@ private fun HeaderSection(
             bottomEnd = 24.dp
         ),
     ) {
-        Column {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                AccountSummarySection(totalAmount, currency)
-                HomeToolbar(onViewNotifications)
-            }
-            DailySpendBarChart(
-                dailySpendUiModel = dailySpent,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
-                onBarClick = onBarClicked
+        Box {
+            AnimatedGradientBackground(
+                modifier = Modifier.matchParentSize()
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    AccountSummarySection(totalAmount, currency)
+                    HomeToolbar(onViewNotifications)
+                }
+                DailySpendBarChart(
+                    dailySpendUiModel = dailySpent,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    onBarClick = onBarClicked
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
+
     }
 }
 

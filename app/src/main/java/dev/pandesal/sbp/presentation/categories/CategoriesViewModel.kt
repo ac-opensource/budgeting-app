@@ -121,9 +121,7 @@ class CategoriesViewModel @Inject constructor(
 
     fun setBudgetForCategory(categoryId: Int, targetAmount: BigDecimal, yearMonth: YearMonth = YearMonth.now()) {
         viewModelScope.launch {
-            val existing = useCase
-                .getMonthlyBudgetByCategoryIdAndMonth(categoryId, yearMonth)
-                .firstOrNull()
+            val existing = useCase.getMonthlyBudgetByCategoryIdAndMonth(categoryId, yearMonth)
             val budget = existing?.copy(allocated = targetAmount)
                 ?: MonthlyBudget(
                     categoryId = categoryId,

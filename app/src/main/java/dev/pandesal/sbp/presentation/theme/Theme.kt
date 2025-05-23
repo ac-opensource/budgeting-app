@@ -24,6 +24,7 @@ private val DarkColorScheme = darkColorScheme(
     onTertiary = Color.Black, // Dark text/icons on the lighter tertiary
     onBackground = Color(0xFFE0E0E0), // Light text/icons on the dark background
     onSurface = Color(0xFFF0F0F0), // Light text/icons on the dark surface
+    inverseOnSurface = Color(0xFF000000), // Light text/icons on the dark surface
     onSurfaceVariant = Color(0xFFC0C0C0), // A slightly less bright light color for surface variants
 )
 
@@ -32,12 +33,13 @@ private val LightColorScheme = lightColorScheme(
     secondary = Color(0xFF544E61), // English Violet
     tertiary = Color(0xFF6E8894), // Slate Gray
     background = Color(0xFF85BAA1), // Cambridge Blue
-    surface = Color(0xFFCEEDDB), // Honeydew
+    surface = Color(0xFFF0F0F0), // Honeydew
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.White,
     onBackground = Color(0xFF212121),
     onSurface = Color(0xFF000000),
+    inverseOnSurface = Color(0xFFFFFFFF),
     onSurfaceVariant = Color(0xFF212121),
     primaryContainer = Color.White
 )

@@ -69,15 +69,16 @@ class CategoryRepository @Inject constructor(private val dao: CategoryDao): Cate
         dao.getMonthlyBudgetsByCategoryId(categoryId)
             .map { it.map { entity -> entity.toDomainModel() } }
 
-    override fun getMonthlyBudgetByCategoryIdAndMonth(
+    override suspend fun getMonthlyBudgetByCategoryIdAndMonth(
         categoryId: Int,
         yearMonth: YearMonth
-    ): Flow<MonthlyBudget?> =
-        flow {
-            val entity = dao.getMonthlyBudgetByCategoryIdAndYearMonth(categoryId, yearMonth.toString())
-            emit(entity?.toDomainModel())
-        }
-
+    ): MonthlyBudget? = try {
+                val entity = dao.getMonthlyBudgetByCategoryIdAndYearMonth(categoryId, yearMonth.toString())
+                entity?.toDomainModel()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
 
     override suspend fun insertMonthlyBudget(value: MonthlyBudget) =
         dao.insert(value.toEntity())

@@ -75,7 +75,7 @@ class CategoryUseCase @Inject constructor(
     fun getMonthlyBudgetsByCategoryId(categoryId: String): Flow<List<MonthlyBudget>> =
         repository.getMonthlyBudgetsByCategoryId(categoryId)
 
-    fun getMonthlyBudgetByCategoryIdAndMonth(categoryId: Int, yearMonth: YearMonth): Flow<MonthlyBudget?> =
+    suspend fun getMonthlyBudgetByCategoryIdAndMonth(categoryId: Int, yearMonth: YearMonth): MonthlyBudget? =
         repository.getMonthlyBudgetByCategoryIdAndMonth(categoryId, yearMonth)
 
     suspend fun insertMonthlyBudget(value: MonthlyBudget) =

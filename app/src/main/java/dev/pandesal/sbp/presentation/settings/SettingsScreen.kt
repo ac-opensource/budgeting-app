@@ -43,18 +43,25 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import android.app.AppOpsManager
 import android.os.Build
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.graphics.vector.ImageVector
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val settings by viewModel.settings.collectAsState()
     Column {
-        CenterAlignedTopAppBar(title = { Text("Settings") })
+        Text(
+            text = "Settings",
+            modifier = Modifier.padding(16.dp),
+            style = MaterialTheme.typography.titleLargeEmphasized
+        )
+        Spacer(Modifier.size(16.dp))
         SettingsContent(
             settings = settings,
             onDarkModeChange = viewModel::setDarkMode,
