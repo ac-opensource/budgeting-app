@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -62,6 +63,14 @@ fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewMo
     ) { granted ->
         viewModel.setNotificationsEnabled(granted)
     }
+    val permissionGranted = remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
 
     LaunchedEffect(notificationsEnabled) {
         if (notificationsEnabled &&
@@ -71,6 +80,8 @@ fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewMo
             if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                 permissionLauncher.launch(permission)
             }
+            permissionGranted.value =
+                ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
         }
     }
     val tabTitles = listOf(
@@ -113,6 +124,21 @@ fun NotificationCenterScreen(viewModel: NotificationCenterViewModel = hiltViewMo
                     selected = selectedIndex.intValue == index,
                     onClick = { selectedIndex.intValue = index },
                     text = { Text(title) }
+                )
+            }
+        }
+
+        if (notificationsEnabled && !permissionGranted.value) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = "Notification permission denied",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onErrorContainer
                 )
             }
         }
