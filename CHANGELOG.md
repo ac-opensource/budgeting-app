@@ -3,9 +3,23 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## [0.52.0] - 2025-05-30
+
+## [0.54.0] - 2025-05-23
 ### Added
 - feat: Implement recurring notification worker and permission checks
+
+## [0.52.2] - 2025-05-22
+### Changed
+- style: Redesign settings screen with modern layout and icons
+
+## [0.52.1] - 2025-05-22
+### Fixed
+- fix: Always open transaction details when an account is tapped
+
+## [0.52.0] - 2025-05-22
+### Added
+- feat: Show contextual popup when tapping daily spend bar
+
 ## [0.51.0] - 2025-05-22
 ### Added
 - feat: Show tooltip with daily details and reminders on calendar dates
@@ -14,10 +28,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Fixed
 - fix: Refine tooltip anchor, styling, and calendar highlights
 
+## [0.51.0] - 2025-05-26
+### Changed
+- feat: render net worth as wick chart
+- fix: filter empty bars on daily and weekly budget chart
 
-## [0.50.0] - 2025-05-25
-### Added
-- feat: Enable pull to refresh on home screen
+## [0.50.1] - 2025-05-26
+### Fixed
+- fix: show 5 period bars on insights charts
 
 ## [0.49.2] - 2025-05-25
 ### Fixed
