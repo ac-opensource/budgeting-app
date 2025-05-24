@@ -3,7 +3,9 @@ package dev.pandesal.sbp.presentation.insights
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.AccountType
+import dev.pandesal.sbp.domain.model.MonthlyBudget
 import dev.pandesal.sbp.domain.model.TransactionType
 import dev.pandesal.sbp.domain.usecase.AccountUseCase
 import dev.pandesal.sbp.domain.usecase.CategoryUseCase
@@ -11,6 +13,8 @@ import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import dev.pandesal.sbp.domain.usecase.RecurringTransactionUseCase
 import dev.pandesal.sbp.domain.usecase.ReminderUseCase
 import dev.pandesal.sbp.domain.model.RecurringTransaction
+import dev.pandesal.sbp.domain.model.Reminder
+import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.CalendarEvent
@@ -71,7 +75,15 @@ class InsightsViewModel @Inject constructor(
                 recurringUseCase.getRecurringTransactions(),
                 reminderUseCase.getReminders(),
                 _calendarMonth
-            ) { transactions, budgets, accounts, recurring, reminders, month ->
+            ) { args ->
+
+                val transactions = args[0] as List<Transaction>
+                val budgets = args[1] as List<MonthlyBudget>
+                val accounts = args[2] as List<Account>
+                val recurring = args[3] as List<RecurringTransaction>
+                val reminders = args[4] as List<Reminder>
+                val month = args[5] as YearMonth
+
                 val cashflowByPeriod = TimePeriod.values().associateWith { p ->
                     groupTransactionsByPeriod(transactions, p)
                 }

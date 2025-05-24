@@ -28,6 +28,7 @@ interface TransactionRepositoryInterface {
     fun getPagedTransactionsByCategory(categoryId: String, limit: Int, offset: Int): Flow<List<Transaction>>
     fun getTotalAmountByCategory(type: TransactionType): Flow<List<Pair<Int, BigDecimal>>>
     fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>>
+    suspend fun getLastMerchantForCategory(categoryId: String): String?
     suspend fun insert(transaction: Transaction)
     suspend fun delete(transaction: Transaction)
 }

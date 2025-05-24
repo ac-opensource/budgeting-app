@@ -3,12 +3,19 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+
 ## [0.58.0] - 2025-05-24
 ### Added
 - feat: Add reminder creation button in empty state
-## [0.57.0] - 2025-05-23
-### Added
 - feat: Show reminders screen with combined upcoming items
+- 
+## [0.57.0] - 2025-05-24
+### Added
+- feat: Enable save button only when required fields are filled
+- feat: Mark optional fields in new transaction screen
+- feat: Prefill merchant from last entry when selecting category
+
 ## [0.56.0] - 2025-05-23
 ### Added
 - feat: Load recurring transactions when navigating calendar months

@@ -18,7 +18,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -52,6 +54,11 @@ class NewTransactionsViewModel @Inject constructor(
             transactionType = TransactionType.OUTFLOW
         )
     )
+
+    val canSave: StateFlow<Boolean> = _transaction
+        .combine(_validationErrors) { tx, _ ->
+            tx.amount > BigDecimal.ZERO && tx.category != null && tx.createdAt != null
+        }.stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, false)
 
     init {
         subscribeUiState()
@@ -155,12 +162,24 @@ class NewTransactionsViewModel @Inject constructor(
                 defaultCategory?.let { newCategory ->
                     newTransaction = newTransaction.copy(category = newCategory)
                     loadMerchants(newCategory.id.toString())
+                    viewModelScope.launch {
+                        val lastMerchant = transactionUseCase.getLastMerchantForCategory(newCategory.id.toString())
+                        if (!lastMerchant.isNullOrBlank()) {
+                            _transaction.value = _transaction.value.copy(merchantName = lastMerchant)
+                        }
+                    }
                 }
             }
         }
 
         if (_transaction.value.category?.id != newTransaction.category?.id && newTransaction.category != null) {
             loadMerchants(newTransaction.category.id.toString())
+            viewModelScope.launch {
+                val lastMerchant = transactionUseCase.getLastMerchantForCategory(newTransaction.category.id.toString())
+                if (!lastMerchant.isNullOrBlank()) {
+                    _transaction.value = _transaction.value.copy(merchantName = lastMerchant)
+                }
+            }
         }
 
         _transaction.value = newTransaction

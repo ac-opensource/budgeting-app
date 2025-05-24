@@ -33,7 +33,7 @@ fun ReminderFormDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = { viewModel.save(date, text, reminderId = reminderId) { onDismiss() } }) {
+            Button(onClick = { viewModel.save(date, text, reminderId) { onDismiss() } }) {
                 Text("Save")
             }
         },

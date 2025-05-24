@@ -108,6 +108,7 @@ fun NewTransactionScreen(
     viewModel: NewTransactionsViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState()
+    val canSave = viewModel.canSave.collectAsState()
     val navManager = LocalNavigationManager.current
 
     LaunchedEffect(transactionId, initialTransaction) {
@@ -531,7 +532,7 @@ private fun NewTransactionScreen(
                             visible = transactionTypes[selectedIndex] == TransactionType.OUTFLOW || transactionTypes[selectedIndex] == TransactionType.TRANSFER
                         ) {
                             Column(modifier = Modifier.padding(top = 16.dp)) {
-                                Text("From Account", style = MaterialTheme.typography.bodyMedium)
+                                Text("From Account (optional)", style = MaterialTheme.typography.bodyMedium)
                                 ElevatedCard(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
@@ -604,7 +605,7 @@ private fun NewTransactionScreen(
                         ) {
                             // Merchant
                             Column(modifier = Modifier.padding(top = 16.dp)) {
-                                Text("To / Merchant", style = MaterialTheme.typography.bodyMedium)
+                                Text("To / Merchant (optional)", style = MaterialTheme.typography.bodyMedium)
                                 ElevatedCard(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
@@ -672,7 +673,7 @@ private fun NewTransactionScreen(
                             visible = transactionTypes[selectedIndex] == TransactionType.INFLOW || transactionTypes[selectedIndex] == TransactionType.TRANSFER
                         ) {
                             Column(modifier = Modifier.padding(top = 16.dp)) {
-                                Text("To Account", style = MaterialTheme.typography.bodyMedium)
+                                Text("To Account (optional)", style = MaterialTheme.typography.bodyMedium)
                                 ElevatedCard(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
@@ -739,7 +740,7 @@ private fun NewTransactionScreen(
 
 
                         Column(modifier = Modifier.padding(top = 16.dp)) {
-                            Text("Receipt Photo", style = MaterialTheme.typography.bodyMedium)
+                            Text("Receipt Photo (optional)", style = MaterialTheme.typography.bodyMedium)
                             ElevatedCard(
                                 modifier = Modifier
                                     .padding(top = 4.dp)
@@ -952,6 +953,7 @@ private fun NewTransactionScreen(
                                     reminderEnabled
                                 )
                             },
+                            enabled = canSave.value,
                         ) {
                             Icon(Icons.Default.Check, "Localized description")
                         }
