@@ -952,8 +952,7 @@ private fun NewTransactionScreen(
                                     cutoffDays,
                                     reminderEnabled
                                 )
-                            },
-                            enabled = canSave.value,
+                            }
                         ) {
                             Icon(Icons.Default.Check, "Localized description")
                         }
