@@ -127,6 +127,14 @@ fun InsightsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            val tagSummary by viewModel.tagSummary.collectAsState()
+            Text("Top 5 Hobbies you spend on", style = MaterialTheme.typography.titleMedium)
+            tagSummary.take(5).forEach { summary ->
+                Text("${summary.tag}: ${summary.total}", style = MaterialTheme.typography.bodyMedium)
+            }
+
                 if (trendState is TrendsUiState.Ready) {
                     Spacer(modifier = Modifier.height(16.dp))
                     val trendData =
