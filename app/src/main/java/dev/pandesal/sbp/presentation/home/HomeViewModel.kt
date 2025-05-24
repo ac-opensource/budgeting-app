@@ -17,7 +17,7 @@ import dev.pandesal.sbp.domain.usecase.SettingsUseCase
 import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import dev.pandesal.sbp.presentation.model.AccountSummaryUiModel
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
-import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import dev.pandesal.sbp.presentation.model.NetWorthBarGroup
 import dev.pandesal.sbp.presentation.model.BudgetSummaryUiModel
 import dev.pandesal.sbp.presentation.model.DailySpend
 import dev.pandesal.sbp.presentation.model.DailySpendUiModel
@@ -165,9 +165,8 @@ private fun Account.toUiModel(): AccountSummaryUiModel {
     )
 }
 
-private fun dev.pandesal.sbp.domain.model.NetWorthRecord.toUiModel(): NetWorthUiModel {
-    val value = assets - liabilities
-    return NetWorthUiModel(label, value, value, value, value)
+private fun dev.pandesal.sbp.domain.model.NetWorthRecord.toUiModel(): NetWorthBarGroup {
+    return NetWorthBarGroup(label, assets, liabilities)
 }
 
 private fun dev.pandesal.sbp.domain.model.CategoryWithBudget.toBudgetUiModel(): BudgetCategoryUiModel {

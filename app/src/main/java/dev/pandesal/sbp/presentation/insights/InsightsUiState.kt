@@ -3,7 +3,7 @@ package dev.pandesal.sbp.presentation.insights
 import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.CalendarEvent
-import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import dev.pandesal.sbp.presentation.model.NetWorthBarGroup
 
 sealed interface InsightsUiState {
     data object Initial : InsightsUiState
@@ -11,7 +11,7 @@ sealed interface InsightsUiState {
     data class Success(
         val cashflowByPeriod: Map<TimePeriod, List<CashflowUiModel>>,
         val budgetVsOutflow: Map<TimePeriod, List<BudgetOutflowUiModel>>,
-        val netWorthByPeriod: Map<TimePeriod, List<NetWorthUiModel>>,
+        val netWorthByPeriod: Map<TimePeriod, List<NetWorthBarGroup>>,
         val calendarEvents: List<CalendarEvent>
     ) : InsightsUiState
     data class Error(val errorMessage: String) : InsightsUiState
