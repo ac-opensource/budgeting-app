@@ -92,6 +92,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.Context
 import androidx.compose.material.icons.twotone.Camera
 import androidx.compose.ui.draw.alpha
 import java.math.BigDecimal
@@ -99,6 +100,11 @@ import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.delay
 import androidx.core.content.ContextCompat
+import androidx.compose.ui.unit.IntOffset
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 
 @Composable
 fun NewTransactionScreen(
@@ -110,6 +116,30 @@ fun NewTransactionScreen(
     val uiState = viewModel.uiState.collectAsState()
     val canSave = viewModel.canSave.collectAsState()
     val navManager = LocalNavigationManager.current
+    val context = LocalContext.current
+    var jiggleTrigger by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        viewModel.feedback.collect { event ->
+            if (event is NewTransactionsViewModel.FeedbackEvent.InvalidForm) {
+                jiggleTrigger++
+                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                    manager.defaultVibrator
+                } else {
+                    context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                }
+                if (vibrator.hasVibrator()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator.vibrate(100)
+                    }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(transactionId, initialTransaction) {
         transactionId?.let { viewModel.loadTransaction(it) }
@@ -122,7 +152,6 @@ fun NewTransactionScreen(
         val state = uiState.value as NewTransactionUiState.Success
         var editable by remember { mutableStateOf(!readOnly) }
         var showDelete by remember { mutableStateOf(false) }
-        val context = LocalContext.current
         val attachmentLauncher = rememberLauncherForActivityResult(
             ActivityResultContracts.GetContent()
         ) { uri ->
@@ -136,6 +165,7 @@ fun NewTransactionScreen(
             transaction = state.transaction,
             merchants = state.merchants,
             errors = state.errors,
+            validationTrigger = jiggleTrigger,
             editable = editable,
             onEdit = { editable = true },
             onDelete = { showDelete = true },
@@ -176,6 +206,40 @@ fun NewTransactionScreen(
     }
 }
 
+@Composable
+private fun JiggleErrorText(
+    text: String,
+    visible: Boolean,
+    trigger: Int,
+    modifier: Modifier = Modifier
+) {
+    val offsetX = remember { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(trigger) {
+        if (visible) {
+            offsetX.snapTo(0f)
+            offsetX.animateTo(
+                targetValue = 0f,
+                animationSpec = androidx.compose.animation.core.keyframes {
+                    durationMillis = 400
+                    -10f at 50
+                    10f at 100
+                    -8f at 150
+                    8f at 200
+                    0f at 250
+                }
+            )
+        }
+    }
+    if (visible) {
+        Text(
+            text = text,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = modifier.offset { IntOffset(offsetX.value.roundToInt(), 0) }
+        )
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -185,6 +249,7 @@ private fun NewTransactionScreen(
     transaction: Transaction,
     merchants: List<String>,
     errors: NewTransactionUiState.ValidationErrors,
+    validationTrigger: Int,
     editable: Boolean,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -391,20 +456,18 @@ private fun NewTransactionScreen(
                             )
                         }
                     }
-                    if (errors.amount) {
-                        Text(
-                            text = "Amount is required",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier
-                                .align(Alignment.End)
-                                .background(
-                                    MaterialTheme.colorScheme.errorContainer,
-                                    RoundedCornerShape(50)
-                                )
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
-                    }
+                    JiggleErrorText(
+                        text = "Amount is required",
+                        visible = errors.amount,
+                        trigger = validationTrigger,
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .background(
+                                MaterialTheme.colorScheme.errorContainer,
+                                RoundedCornerShape(50)
+                            )
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
                 }
             }
 
@@ -452,14 +515,12 @@ private fun NewTransactionScreen(
                                 }
 
                             }
-                            if (errors.category) {
-                                Text(
-                                    text = "Category is required",
-                                    color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-                                )
-                            }
+                            JiggleErrorText(
+                                text = "Category is required",
+                                visible = errors.category,
+                                trigger = validationTrigger,
+                                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                            )
 
                             if (expanded) {
                                 ModalBottomSheet(onDismissRequest = { expanded = false }) {
@@ -562,14 +623,12 @@ private fun NewTransactionScreen(
                                         )
                                     }
                                 }
-                                if (errors.from) {
-                                    Text(
-                                        text = "Source account is required",
-                                        color = MaterialTheme.colorScheme.error,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-                                    )
-                                }
+                                JiggleErrorText(
+                                    text = "Source account is required",
+                                    visible = errors.from,
+                                    trigger = validationTrigger,
+                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                )
                             }
 
                             if (fromAccountExpanded) {
@@ -639,14 +698,12 @@ private fun NewTransactionScreen(
                                     }
                                 }
 
-                                if (errors.to) {
-                                    Text(
-                                        text = "Payee is required",
-                                        color = MaterialTheme.colorScheme.error,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-                                    )
-                                }
+                                JiggleErrorText(
+                                    text = "Payee is required",
+                                    visible = errors.to,
+                                    trigger = validationTrigger,
+                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                )
                             }
 
                             if (merchantExpanded) {
@@ -702,14 +759,12 @@ private fun NewTransactionScreen(
                                     }
                                 }
 
-                                if (errors.to) {
-                                    Text(
-                                        text = "Destination account is required",
-                                        color = MaterialTheme.colorScheme.error,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-                                    )
-                                }
+                                JiggleErrorText(
+                                    text = "Destination account is required",
+                                    visible = errors.to,
+                                    trigger = validationTrigger,
+                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                )
                             }
 
                             if (toAccountExpanded) {

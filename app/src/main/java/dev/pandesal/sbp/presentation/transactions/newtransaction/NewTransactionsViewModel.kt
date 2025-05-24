@@ -15,6 +15,8 @@ import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -38,6 +40,13 @@ class NewTransactionsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<NewTransactionUiState>(NewTransactionUiState.Initial)
     val uiState: StateFlow<NewTransactionUiState> = _uiState.asStateFlow()
+
+    sealed interface FeedbackEvent {
+        data object InvalidForm : FeedbackEvent
+    }
+
+    private val _feedback = MutableSharedFlow<FeedbackEvent>()
+    val feedback: SharedFlow<FeedbackEvent> = _feedback
 
     private val _merchants = MutableStateFlow<List<String>>(emptyList())
     private var merchantJob: kotlinx.coroutines.Job? = null
@@ -235,6 +244,7 @@ class NewTransactionsViewModel @Inject constructor(
                     if (current != null) {
                         _uiState.value = current.copy(errors = _validationErrors.value)
                     }
+                    _feedback.emit(FeedbackEvent.InvalidForm)
                     onResult(false)
                     return@launch
                 }
