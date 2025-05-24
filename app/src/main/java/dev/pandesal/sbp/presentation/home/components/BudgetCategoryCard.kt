@@ -21,7 +21,6 @@ import dev.pandesal.sbp.extensions.currencySymbol
 import dev.pandesal.sbp.presentation.home.HomeScreen
 import dev.pandesal.sbp.presentation.home.HomeUiState
 import dev.pandesal.sbp.presentation.model.BudgetCategoryUiModel
-import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import java.math.BigDecimal
 
 @Composable

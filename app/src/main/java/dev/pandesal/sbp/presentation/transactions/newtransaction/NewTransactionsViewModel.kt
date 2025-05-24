@@ -51,6 +51,8 @@ class NewTransactionsViewModel @Inject constructor(
     private val _merchants = MutableStateFlow<List<String>>(emptyList())
     private var merchantJob: kotlinx.coroutines.Job? = null
 
+    private val _tags = MutableStateFlow<List<String>>(emptyList())
+
     private val _validationErrors: MutableStateFlow<NewTransactionUiState.ValidationErrors> =
         MutableStateFlow(NewTransactionUiState.ValidationErrors())
 
@@ -71,6 +73,7 @@ class NewTransactionsViewModel @Inject constructor(
 
     init {
         subscribeUiState()
+        loadTags()
     }
 
     private fun subscribeUiState() {
@@ -83,11 +86,16 @@ class NewTransactionsViewModel @Inject constructor(
                 accountUseCase.getAccounts(),
                 _transaction,
                 _merchants,
-            ) { groups, categories, accounts, transaction, merchants ->
+                _tags,
+            ) { groups, categories, accounts, transaction, merchants, tags ->
                 NewTransactionUiState.Success(
                     groupedCategories = groups.associateWith { group ->
                         categories.filter { it.categoryGroupId == group.id }
-                    }, accounts = accounts, transaction = transaction, merchants = merchants
+                    },
+                    accounts = accounts,
+                    transaction = transaction,
+                    merchants = merchants,
+                    tags = tags
                 )
             }.zip(
                     _validationErrors
@@ -111,10 +119,19 @@ class NewTransactionsViewModel @Inject constructor(
                     if (current is NewTransactionUiState.Success) {
                         _uiState.value = current.copy(
                             merchants = merchants,
+                            tags = _tags.value,
                             errors = _validationErrors.value,
                         )
                     }
                 }
+        }
+    }
+
+    private fun loadTags() {
+        viewModelScope.launch {
+            transactionUseCase.getTags().collect { list ->
+                _tags.value = list
+            }
         }
     }
 
@@ -174,7 +191,7 @@ class NewTransactionsViewModel @Inject constructor(
                     viewModelScope.launch {
                         val lastMerchant = transactionUseCase.getLastMerchantForCategory(newCategory.id.toString())
                         if (!lastMerchant.isNullOrBlank()) {
-                            _transaction.value = _transaction.value.copy(merchantName = lastMerchant)
+                            newTransaction = _transaction.value.copy(merchantName = lastMerchant)
                         }
                     }
                 }
@@ -182,11 +199,11 @@ class NewTransactionsViewModel @Inject constructor(
         }
 
         if (_transaction.value.category?.id != newTransaction.category?.id && newTransaction.category != null) {
-            loadMerchants(newTransaction.category.id.toString())
+            loadMerchants(newTransaction.category?.id.toString())
             viewModelScope.launch {
-                val lastMerchant = transactionUseCase.getLastMerchantForCategory(newTransaction.category.id.toString())
+                val lastMerchant = transactionUseCase.getLastMerchantForCategory(newTransaction.category?.id.toString())
                 if (!lastMerchant.isNullOrBlank()) {
-                    _transaction.value = _transaction.value.copy(merchantName = lastMerchant)
+                    newTransaction = _transaction.value.copy(merchantName = lastMerchant)
                 }
             }
         }
@@ -210,6 +227,7 @@ class NewTransactionsViewModel @Inject constructor(
             accounts = (_uiState.value as? NewTransactionUiState.Success)?.accounts ?: listOf(),
             transaction = newTransaction,
             merchants = _merchants.value,
+            tags = _tags.value,
             errors = _validationErrors.value,
         )
     }

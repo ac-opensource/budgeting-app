@@ -19,7 +19,9 @@ import dev.pandesal.sbp.presentation.model.BudgetOutflowUiModel
 import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.CalendarEvent
 import dev.pandesal.sbp.presentation.model.CalendarEventType
+import dev.pandesal.sbp.presentation.model.NetWorthBarGroup
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import dev.pandesal.sbp.domain.model.TagSummary
 import dev.pandesal.sbp.presentation.insights.TimePeriod
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -53,8 +55,16 @@ class InsightsViewModel @Inject constructor(
     private val _calendarMonth = MutableStateFlow(YearMonth.now())
     val calendarMonth: StateFlow<YearMonth> = _calendarMonth.asStateFlow()
 
+    private val _tagSummary = MutableStateFlow<List<TagSummary>>(emptyList())
+    val tagSummary: StateFlow<List<TagSummary>> = _tagSummary.asStateFlow()
+
     init {
         observeData()
+        viewModelScope.launch {
+            transactionUseCase.getTotalAmountByTag(TransactionType.OUTFLOW).collect {
+                _tagSummary.value = it
+            }
+        }
     }
 
     fun setPeriod(period: TimePeriod) {
@@ -90,7 +100,7 @@ class InsightsViewModel @Inject constructor(
 
                 val budgetByPeriod = TimePeriod.values().associateWith { p ->
                     val ranges = buildRanges(p)
-                    val allocated = budgets.fold(BigDecimal.ZERO) { acc, b -> acc + b.allocated }
+
                     val entries = ranges.map { r ->
                         val outflow = transactions
                             .filter {
@@ -99,6 +109,13 @@ class InsightsViewModel @Inject constructor(
                                     !it.createdAt.isAfter(r.end)
                             }
                             .fold(BigDecimal.ZERO) { acc, t -> acc + t.amount }
+
+                        val allocated = budgets
+                            .filter {
+                                        !it.month.atDay(r.start.dayOfMonth) .isBefore(r.start) &&
+                                        !it.month.atDay(r.end.dayOfMonth).isAfter(r.end)
+                            }
+                            .fold(BigDecimal.ZERO) { acc, b -> acc + b.allocated }
                         BudgetOutflowUiModel(r.label, allocated, outflow)
                     }
                     if (p == TimePeriod.DAILY || p == TimePeriod.WEEKLY) {
@@ -148,51 +165,56 @@ class InsightsViewModel @Inject constructor(
         transactions: List<dev.pandesal.sbp.domain.model.Transaction>,
         accounts: List<dev.pandesal.sbp.domain.model.Account>,
         ranges: List<Range>
-    ): List<NetWorthUiModel> {
-        val assets = accounts
-            .filter { it.type != AccountType.CREDIT_CARD }
-            .fold(BigDecimal.ZERO) { acc, a -> acc + a.balance }
-        val liabilities = accounts
-            .filter { it.type == AccountType.CREDIT_CARD }
-            .fold(BigDecimal.ZERO) { acc, a -> acc + a.balance }
-        val currentNetWorth = assets - liabilities
+    ): List<NetWorthBarGroup> {
+        val assetAccounts = accounts.filter { it.type != AccountType.CREDIT_CARD }
+        val liabilityAccounts = accounts.filter { it.type == AccountType.CREDIT_CARD }
+
+        val assetBalances = assetAccounts.associate { it.id to it.balance }.toMutableMap()
+        val liabilityBalances = liabilityAccounts.associate { it.id to it.balance }.toMutableMap()
+
         val sortedTx = transactions.sortedByDescending { it.createdAt }
 
-        fun netWorthAt(date: LocalDate): BigDecimal {
-            var value = currentNetWorth
+        fun valuesAt(date: LocalDate): Pair<BigDecimal, BigDecimal> {
+            val assetsMap = assetBalances.toMutableMap()
+            val liabilitiesMap = liabilityBalances.toMutableMap()
             for (tx in sortedTx) {
                 if (tx.createdAt > date) {
-                    value = when (tx.transactionType) {
-                        TransactionType.INFLOW -> value - tx.amount
-                        TransactionType.OUTFLOW -> value + tx.amount
-                        else -> value
+                    when (tx.transactionType) {
+                        TransactionType.INFLOW -> {
+                            tx.to?.let { id ->
+                                assetsMap[id]?.let { assetsMap[id] = it - tx.amount }
+                                liabilitiesMap[id]?.let { liabilitiesMap[id] = it - tx.amount }
+                            }
+                        }
+                        TransactionType.OUTFLOW -> {
+                            tx.from?.let { id ->
+                                assetsMap[id]?.let { assetsMap[id] = it + tx.amount }
+                                liabilitiesMap[id]?.let { liabilitiesMap[id] = it + tx.amount }
+                            }
+                        }
+                        TransactionType.TRANSFER, TransactionType.ADJUSTMENT -> {
+                            tx.from?.let { id ->
+                                assetsMap[id]?.let { assetsMap[id] = it + tx.amount }
+                                liabilitiesMap[id]?.let { liabilitiesMap[id] = it + tx.amount }
+                            }
+                            tx.to?.let { id ->
+                                assetsMap[id]?.let { assetsMap[id] = it - tx.amount }
+                                liabilitiesMap[id]?.let { liabilitiesMap[id] = it - tx.amount }
+                            }
+                        }
                     }
                 } else {
                     break
                 }
             }
-            return value
+            val assets = assetsMap.values.fold(BigDecimal.ZERO) { acc, v -> acc + v }
+            val liabilities = liabilitiesMap.values.fold(BigDecimal.ZERO) { acc, v -> acc + v }
+            return assets to liabilities
         }
 
         return ranges.map { range ->
-            val start = netWorthAt(range.start.minusDays(1))
-            val end = netWorthAt(range.end)
-            var min = minOf(start, end)
-            var max = maxOf(start, end)
-            var value = start
-            val txsInRange = transactions
-                .filter { !it.createdAt.isBefore(range.start) && !it.createdAt.isAfter(range.end) }
-                .sortedBy { it.createdAt }
-            txsInRange.forEach { tx ->
-                value = when (tx.transactionType) {
-                    TransactionType.INFLOW -> value + tx.amount
-                    TransactionType.OUTFLOW -> value - tx.amount
-                    else -> value
-                }
-                if (value < min) min = value
-                if (value > max) max = value
-            }
-            NetWorthUiModel(range.label, start, end, min, max)
+            val (assets, liabilities) = valuesAt(range.end)
+            NetWorthBarGroup(range.label, assets, liabilities)
         }
     }
 

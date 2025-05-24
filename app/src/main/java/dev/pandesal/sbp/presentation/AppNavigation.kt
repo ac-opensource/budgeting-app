@@ -28,6 +28,7 @@ import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
 import dev.pandesal.sbp.presentation.goals.NewGoalScreen
 import dev.pandesal.sbp.presentation.nav.parcelableTypeMap
+import dev.pandesal.sbp.presentation.reminders.RemindersScreen
 import java.math.BigDecimal
 import kotlinx.serialization.Serializable
 import kotlin.reflect.typeOf
@@ -50,6 +51,8 @@ sealed class NavigationDestination() {
     data class NewTransaction(val transaction: Transaction? = null) : NavigationDestination()
     @Serializable
     data object Notifications : NavigationDestination()
+    @Serializable
+    data object Reminders : NavigationDestination()
     @Serializable
     data object Accounts : NavigationDestination()
     @Serializable
@@ -92,6 +95,9 @@ fun AppNavigation(navController: NavHostController) {
             }
             composable<NavigationDestination.Categories> {
                 CategoriesScreen()
+            }
+            composable<NavigationDestination.Reminders> {
+                RemindersScreen()
             }
             composable<NavigationDestination.Accounts> {
                 AccountsScreen()
