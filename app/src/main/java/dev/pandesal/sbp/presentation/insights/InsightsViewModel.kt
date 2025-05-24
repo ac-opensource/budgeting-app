@@ -99,7 +99,7 @@ class InsightsViewModel @Inject constructor(
 
                 val budgetByPeriod = TimePeriod.values().associateWith { p ->
                     val ranges = buildRanges(p)
-                    val allocated = budgets.fold(BigDecimal.ZERO) { acc, b -> acc + b.allocated }
+
                     val entries = ranges.map { r ->
                         val outflow = transactions
                             .filter {
@@ -108,6 +108,13 @@ class InsightsViewModel @Inject constructor(
                                     !it.createdAt.isAfter(r.end)
                             }
                             .fold(BigDecimal.ZERO) { acc, t -> acc + t.amount }
+
+                        val allocated = budgets
+                            .filter {
+                                        !it.month.atDay(r.start.dayOfMonth) .isBefore(r.start) &&
+                                        !it.month.atDay(r.end.dayOfMonth).isAfter(r.end)
+                            }
+                            .fold(BigDecimal.ZERO) { acc, b -> acc + b.allocated }
                         BudgetOutflowUiModel(r.label, allocated, outflow)
                     }
                     if (p == TimePeriod.DAILY || p == TimePeriod.WEEKLY) {

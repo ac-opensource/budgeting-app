@@ -182,7 +182,7 @@ class NewTransactionsViewModel @Inject constructor(
                     viewModelScope.launch {
                         val lastMerchant = transactionUseCase.getLastMerchantForCategory(newCategory.id.toString())
                         if (!lastMerchant.isNullOrBlank()) {
-                            _transaction.value = _transaction.value.copy(merchantName = lastMerchant)
+                            newTransaction = _transaction.value.copy(merchantName = lastMerchant)
                         }
                     }
                 }
@@ -190,11 +190,11 @@ class NewTransactionsViewModel @Inject constructor(
         }
 
         if (_transaction.value.category?.id != newTransaction.category?.id && newTransaction.category != null) {
-            loadMerchants(newTransaction.category.id.toString())
+            loadMerchants(newTransaction.category?.id.toString())
             viewModelScope.launch {
-                val lastMerchant = transactionUseCase.getLastMerchantForCategory(newTransaction.category.id.toString())
+                val lastMerchant = transactionUseCase.getLastMerchantForCategory(newTransaction.category?.id.toString())
                 if (!lastMerchant.isNullOrBlank()) {
-                    _transaction.value = _transaction.value.copy(merchantName = lastMerchant)
+                    newTransaction = _transaction.value.copy(merchantName = lastMerchant)
                 }
             }
         }

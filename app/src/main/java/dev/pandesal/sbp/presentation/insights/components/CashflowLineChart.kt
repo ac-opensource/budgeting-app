@@ -93,6 +93,8 @@ fun CashflowLineChart(
                                     style = MaterialTheme.typography.labelSmall
                                 )
                             }
+
+                            Spacer(modifier = Modifier.height(30.dp))
                         }
                         Box(modifier = Modifier.weight(1f)) {
                             val lineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
@@ -178,8 +180,9 @@ fun CashflowLineChart(
                             }
                             Row(
                                 modifier = Modifier
+                                    .padding(top = 16.dp)
+                                    .height(14.dp)
                                     .align(Alignment.BottomStart)
-                                    .padding(top = 4.dp)
                                     .fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
