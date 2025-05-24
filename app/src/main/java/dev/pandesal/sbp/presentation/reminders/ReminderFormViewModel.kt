@@ -27,13 +27,13 @@ class ReminderFormViewModel @Inject constructor(
     fun save(
         date: LocalDate,
         text: String,
-        id: String? = null,
+        reminderId: String? = null,
         shouldNotify: Boolean = true,
         onDone: () -> Unit
     ) {
         viewModelScope.launch {
             val reminder = Reminder(
-                id = id ?: java.util.UUID.randomUUID().toString(),
+                id = reminderId ?: java.util.UUID.randomUUID().toString(),
                 date = date,
                 message = text,
                 shouldNotify = shouldNotify
