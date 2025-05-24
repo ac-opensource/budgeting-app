@@ -20,6 +20,7 @@ import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.CalendarEvent
 import dev.pandesal.sbp.presentation.model.CalendarEventType
 import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import dev.pandesal.sbp.domain.model.TagSummary
 import dev.pandesal.sbp.presentation.insights.TimePeriod
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -53,8 +54,16 @@ class InsightsViewModel @Inject constructor(
     private val _calendarMonth = MutableStateFlow(YearMonth.now())
     val calendarMonth: StateFlow<YearMonth> = _calendarMonth.asStateFlow()
 
+    private val _tagSummary = MutableStateFlow<List<TagSummary>>(emptyList())
+    val tagSummary: StateFlow<List<TagSummary>> = _tagSummary.asStateFlow()
+
     init {
         observeData()
+        viewModelScope.launch {
+            transactionUseCase.getTotalAmountByTag(TransactionType.OUTFLOW).collect {
+                _tagSummary.value = it
+            }
+        }
     }
 
     fun setPeriod(period: TimePeriod) {
