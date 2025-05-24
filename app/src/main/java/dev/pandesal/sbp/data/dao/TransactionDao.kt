@@ -232,6 +232,18 @@ interface TransactionDao {
     )
     fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>>
 
+    @Query(
+        """
+        SELECT merchantName FROM transactions
+        WHERE category_id = :categoryId
+          AND merchantName IS NOT NULL
+          AND merchantName != ''
+        ORDER BY createdAt DESC
+        LIMIT 1
+        """
+    )
+    suspend fun getLastMerchantForCategory(categoryId: String): String?
+
     @Upsert
     suspend fun insert(value: TransactionEntity)
 

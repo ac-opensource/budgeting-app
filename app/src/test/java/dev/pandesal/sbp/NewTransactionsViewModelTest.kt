@@ -90,4 +90,36 @@ class NewTransactionsViewModelTest {
         advanceUntilIdle()
         assertEquals(account.balance - BigDecimal.TEN, accountRepo.insertedAccounts.last().balance)
     }
+
+    @Test
+    fun canSaveReflectsRequiredFields() = runTest {
+        val vm = NewTransactionsViewModel(transactionUseCase, categoryUseCase, accountUseCase, recurringTransactionUseCase)
+        assertTrue(!vm.canSave.value)
+        vm.updateTransaction(
+            Transaction(
+                name = "T",
+                amount = BigDecimal.TEN,
+                category = Category(id = 1, name = "C", description = "", icon = "", categoryGroupId = 1, categoryType = TransactionType.OUTFLOW, weight = 0),
+                createdAt = LocalDate.now(),
+                updatedAt = LocalDate.now(),
+                transactionType = TransactionType.OUTFLOW
+            )
+        )
+        advanceUntilIdle()
+        assertTrue(vm.canSave.value)
+    }
+
+    @Test
+    fun selectingCategoryPrefillsMerchant() = runTest {
+        transactionRepo.merchantsFlow.value = listOf("Shop")
+        val vm = NewTransactionsViewModel(transactionUseCase, categoryUseCase, accountUseCase, recurringTransactionUseCase)
+        vm.updateTransaction(
+            Transaction(name = "T", amount = BigDecimal.TEN, createdAt = LocalDate.now(), updatedAt = LocalDate.now(), transactionType = TransactionType.OUTFLOW)
+        )
+        vm.updateTransaction(
+            Transaction(name = "T", amount = BigDecimal.TEN, createdAt = LocalDate.now(), updatedAt = LocalDate.now(), transactionType = TransactionType.OUTFLOW, category = Category(id = 1, name = "C", description = "", icon = "", categoryGroupId = 1, categoryType = TransactionType.OUTFLOW, weight = 0))
+        )
+        advanceUntilIdle()
+        assertEquals("Shop", vm.uiState.value.let { (it as NewTransactionUiState.Success).transaction.merchantName })
+    }
 }
