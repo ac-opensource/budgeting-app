@@ -119,6 +119,9 @@ class TransactionRepository @Inject constructor(
     override fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>> =
         dao.getMerchantsByCategoryId(categoryId)
 
+    override suspend fun getLastMerchantForCategory(categoryId: String): String? =
+        dao.getLastMerchantForCategory(categoryId)
+
     override suspend fun insert(transaction: Transaction) {
         dao.insert(transaction.toEntity())
 

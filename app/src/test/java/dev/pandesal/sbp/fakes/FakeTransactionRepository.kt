@@ -33,6 +33,7 @@ class FakeTransactionRepository : TransactionRepositoryInterface {
     override fun getPagedTransactionsByCategory(categoryId: String, limit: Int, offset: Int): Flow<List<Transaction>> = flowOf(emptyList())
     override fun getTotalAmountByCategory(type: TransactionType): Flow<List<Pair<Int, BigDecimal>>> = flowOf(emptyList())
     override fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>> = merchantsFlow
+    override suspend fun getLastMerchantForCategory(categoryId: String): String? = merchantsFlow.value.lastOrNull()
     override suspend fun insert(transaction: Transaction) { insertedTransactions.add(transaction) }
     override suspend fun delete(transaction: Transaction) {}
 }

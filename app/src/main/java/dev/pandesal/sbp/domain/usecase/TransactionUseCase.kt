@@ -65,6 +65,9 @@ class TransactionUseCase @Inject constructor(
     fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>> =
         repository.getMerchantsByCategoryId(categoryId)
 
+    suspend fun getLastMerchantForCategory(categoryId: String): String? =
+        repository.getLastMerchantForCategory(categoryId)
+
     suspend fun insert(transaction: Transaction) {
         repository.insert(transaction)
 
