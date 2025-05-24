@@ -7,6 +7,7 @@ import dev.pandesal.sbp.data.local.toEntity
 import dev.pandesal.sbp.data.local.MonthlyBudgetEntity
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
+import dev.pandesal.sbp.domain.model.TagSummary
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -118,6 +119,19 @@ class TransactionRepository @Inject constructor(
 
     override fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>> =
         dao.getMerchantsByCategoryId(categoryId)
+
+    override fun getTags(): Flow<List<String>> =
+        dao.getAllTransactions().map { list ->
+            list.flatMap { it.tags }.distinct()
+        }
+
+    override fun getTotalAmountByTag(type: TransactionType): Flow<List<TagSummary>> =
+        dao.getAllTransactions().map { list ->
+            list.filter { it.transactionType == type }
+                .flatMap { tx -> tx.tags.map { it to tx.amount } }
+                .groupBy({ it.first }, { it.second })
+                .map { TagSummary(it.key, it.value.fold(BigDecimal.ZERO, BigDecimal::add)) }
+        }
 
     override suspend fun getLastMerchantForCategory(categoryId: String): String? =
         dao.getLastMerchantForCategory(categoryId)

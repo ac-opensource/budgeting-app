@@ -71,7 +71,7 @@ fun SpendingTrendLineChart(
                 Column(
                     modifier = Modifier
                         .width(50.dp)
-                        .height(100.dp),
+                        .height(130.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     for (i in 4 downTo 0) {
@@ -89,11 +89,13 @@ fun SpendingTrendLineChart(
                             style = MaterialTheme.typography.labelSmall
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(30.dp))
                 }
                 BoxWithConstraints(
                     modifier = Modifier
                         .weight(1f)
-                        .height(100.dp)
+                        .height(130.dp)
                 ) {
                     if (data.isEmpty()) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -206,8 +208,9 @@ fun SpendingTrendLineChart(
 
                         Row(
                             modifier = Modifier
+                                .padding(top = 16.dp)
+                                .height(14.dp)
                                 .align(Alignment.BottomStart)
-                                .padding(top = 4.dp)
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround
                         ) {

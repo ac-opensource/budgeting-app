@@ -34,6 +34,7 @@ import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.material.icons.twotone.Favorite
 import androidx.compose.material.icons.twotone.Wallet
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -56,6 +57,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberDatePickerState
+import com.google.accompanist.flowlayout.FlowRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
@@ -135,6 +137,7 @@ fun NewTransactionScreen(
             accounts = state.accounts,
             transaction = state.transaction,
             merchants = state.merchants,
+            tags = state.tags,
             errors = state.errors,
             editable = editable,
             onEdit = { editable = true },
@@ -184,6 +187,7 @@ private fun NewTransactionScreen(
     accounts: List<Account>,
     transaction: Transaction,
     merchants: List<String>,
+    tags: List<String>,
     errors: NewTransactionUiState.ValidationErrors,
     editable: Boolean,
     onEdit: () -> Unit,
@@ -231,6 +235,7 @@ private fun NewTransactionScreen(
 
     var expanded by remember { mutableStateOf(false) }
     var merchantExpanded by remember { mutableStateOf(false) }
+    var tagExpanded by remember { mutableStateOf(false) }
     var fromAccountExpanded by remember { mutableStateOf(false) }
     var toAccountExpanded by remember { mutableStateOf(false) }
     var isRecurring by remember { mutableStateOf(false) }
@@ -737,7 +742,75 @@ private fun NewTransactionScreen(
                             }
                         }
 
+                        // Tags section
+                        Column(modifier = Modifier.padding(top = 16.dp)) {
+                            var newTag by remember { mutableStateOf("") }
+                            Text("Track to Hobby/Activity (optional)", style = MaterialTheme.typography.bodyMedium)
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                FlowRow(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth(),
+                                    mainAxisSpacing = 4.dp,
+                                    crossAxisSpacing = 4.dp
+                                ) {
+                                    transaction.tags.forEach { tag ->
+                                        AssistChip(
+                                            onClick = {},
+                                            label = { Text(tag) },
+                                            trailingIcon = {
+                                                Icon(
+                                                    Icons.Default.Close,
+                                                    contentDescription = null,
+                                                    modifier = Modifier
+                                                        .size(18.dp)
+                                                        .clickable(enabled = editable) {
+                                                            onUpdate(transaction.copy(tags = transaction.tags - tag))
+                                                        }
+                                                )
+                                            }
+                                        )
+                                    }
+                                    BasicTextField(
+                                        value = newTag,
+                                        onValueChange = { newTag = it },
+                                        modifier = Modifier
+                                            .widthIn(min = 40.dp)
+                                            .clickable { tagExpanded = true }
+                                    )
+                                    IconButton(enabled = editable, onClick = {
+                                        if (newTag.isNotBlank()) {
+                                            onUpdate(transaction.copy(tags = (transaction.tags + newTag).distinct()))
+                                            newTag = ""
+                                        }
+                                    }) {
+                                    Icon(Icons.Default.Check, contentDescription = null)
+                                    }
+                                }
+                            }
+                        }
 
+                        if (tagExpanded) {
+                            ModalBottomSheet(onDismissRequest = { tagExpanded = false }) {
+                                LazyColumn {
+                                    items(tags) { item ->
+                                        Text(
+                                            text = item,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { newTag = item; tagExpanded = false }
+                                                .padding(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Column(modifier = Modifier.padding(top = 16.dp)) {
 
                         Column(modifier = Modifier.padding(top = 16.dp)) {
                             Text("Receipt Photo (optional)", style = MaterialTheme.typography.bodyMedium)
@@ -952,8 +1025,7 @@ private fun NewTransactionScreen(
                                     cutoffDays,
                                     reminderEnabled
                                 )
-                            },
-                            enabled = canSave.value,
+                            }
                         ) {
                             Icon(Icons.Default.Check, "Localized description")
                         }

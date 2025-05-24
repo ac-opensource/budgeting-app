@@ -3,6 +3,7 @@ package dev.pandesal.sbp.domain.usecase
 import dev.pandesal.sbp.domain.model.Notification
 import dev.pandesal.sbp.domain.model.NotificationType
 import dev.pandesal.sbp.domain.model.RecurringInterval
+import dev.pandesal.sbp.domain.model.UpcomingReminder
 import dev.pandesal.sbp.domain.repository.RecurringTransactionRepositoryInterface
 import dev.pandesal.sbp.domain.repository.ReminderRepositoryInterface
 import dev.pandesal.sbp.domain.model.RecurringTransaction
@@ -54,6 +55,35 @@ class RecurringTransactionUseCase @Inject constructor(
                 )
             }
             (recurringNotifs + reminderNotifs).sortedBy { it.timestamp }
+        }
+    }
+
+    fun getUpcomingReminders(
+        currentDate: LocalDate = LocalDate.now()
+    ): Flow<List<UpcomingReminder>> {
+        return combine(
+            repository.getRecurringTransactions(),
+            reminderRepository.getReminders()
+        ) { recs, reminders ->
+            val recurringItems = recs.filter { it.reminderEnabled }.map { rec ->
+                val next = nextDueDate(rec, currentDate)
+                UpcomingReminder(
+                    id = rec.transaction.id,
+                    title = rec.transaction.name,
+                    dueDate = next,
+                    interval = rec.interval,
+                    amount = rec.transaction.amount,
+                    category = rec.transaction.category
+                )
+            }
+            val reminderItems = reminders.map { rem ->
+                UpcomingReminder(
+                    id = rem.id,
+                    title = rem.message,
+                    dueDate = rem.date
+                )
+            }
+            (recurringItems + reminderItems).sortedBy { it.dueDate }
         }
     }
 

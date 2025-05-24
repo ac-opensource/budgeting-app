@@ -20,6 +20,8 @@ import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.CalendarEvent
 import dev.pandesal.sbp.presentation.model.CalendarEventType
 import dev.pandesal.sbp.presentation.model.NetWorthBarGroup
+import dev.pandesal.sbp.presentation.model.NetWorthUiModel
+import dev.pandesal.sbp.domain.model.TagSummary
 import dev.pandesal.sbp.presentation.insights.TimePeriod
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -53,8 +55,16 @@ class InsightsViewModel @Inject constructor(
     private val _calendarMonth = MutableStateFlow(YearMonth.now())
     val calendarMonth: StateFlow<YearMonth> = _calendarMonth.asStateFlow()
 
+    private val _tagSummary = MutableStateFlow<List<TagSummary>>(emptyList())
+    val tagSummary: StateFlow<List<TagSummary>> = _tagSummary.asStateFlow()
+
     init {
         observeData()
+        viewModelScope.launch {
+            transactionUseCase.getTotalAmountByTag(TransactionType.OUTFLOW).collect {
+                _tagSummary.value = it
+            }
+        }
     }
 
     fun setPeriod(period: TimePeriod) {
@@ -90,7 +100,7 @@ class InsightsViewModel @Inject constructor(
 
                 val budgetByPeriod = TimePeriod.values().associateWith { p ->
                     val ranges = buildRanges(p)
-                    val allocated = budgets.fold(BigDecimal.ZERO) { acc, b -> acc + b.allocated }
+
                     val entries = ranges.map { r ->
                         val outflow = transactions
                             .filter {
@@ -99,6 +109,13 @@ class InsightsViewModel @Inject constructor(
                                     !it.createdAt.isAfter(r.end)
                             }
                             .fold(BigDecimal.ZERO) { acc, t -> acc + t.amount }
+
+                        val allocated = budgets
+                            .filter {
+                                        !it.month.atDay(r.start.dayOfMonth) .isBefore(r.start) &&
+                                        !it.month.atDay(r.end.dayOfMonth).isAfter(r.end)
+                            }
+                            .fold(BigDecimal.ZERO) { acc, b -> acc + b.allocated }
                         BudgetOutflowUiModel(r.label, allocated, outflow)
                     }
                     if (p == TimePeriod.DAILY || p == TimePeriod.WEEKLY) {
