@@ -20,9 +20,7 @@ import dev.pandesal.sbp.presentation.model.CashflowUiModel
 import dev.pandesal.sbp.presentation.model.CalendarEvent
 import dev.pandesal.sbp.presentation.model.CalendarEventType
 import dev.pandesal.sbp.presentation.model.NetWorthBarGroup
-import dev.pandesal.sbp.presentation.model.NetWorthUiModel
 import dev.pandesal.sbp.domain.model.TagSummary
-import dev.pandesal.sbp.presentation.insights.TimePeriod
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.temporal.WeekFields

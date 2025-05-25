@@ -80,14 +80,26 @@ class NewTransactionsViewModel @Inject constructor(
         _uiState.value = NewTransactionUiState.Loading
 
         viewModelScope.launch {
+            // Assign each of the flows to local variables
+            val categoryGroupsFlow = categoryUseCase.getCategoryGroups()
+            val categoriesFlow = categoryUseCase.getCategories()
+            val accountsFlow = accountUseCase.getAccounts()
+            val transactionFlow = _transaction
+            val merchantsFlow = _merchants
+            val tagsFlow = _tags
+
+            // Combine up to 5 flows at once, then combine with tagsFlow
             combine(
-                categoryUseCase.getCategoryGroups(),
-                categoryUseCase.getCategories(),
-                accountUseCase.getAccounts(),
-                _transaction,
-                _merchants,
-                _tags,
-            ) { groups, categories, accounts, transaction, merchants, tags ->
+                categoryGroupsFlow,
+                categoriesFlow,
+                accountsFlow,
+                transactionFlow,
+                merchantsFlow
+            ) { groups, categories, accounts, transaction, merchants ->
+                Quintuple(groups, categories, accounts, transaction, merchants)
+            }
+            .combine(tagsFlow) { quintuple, tags ->
+                val (groups, categories, accounts, transaction, merchants) = quintuple
                 NewTransactionUiState.Success(
                     groupedCategories = groups.associateWith { group ->
                         categories.filter { it.categoryGroupId == group.id }
@@ -97,18 +109,28 @@ class NewTransactionsViewModel @Inject constructor(
                     merchants = merchants,
                     tags = tags
                 )
-            }.zip(
-                    _validationErrors
-                ) { uiState, validationErrors ->
-                    uiState.copy(errors = validationErrors)
-                }.catch { e ->
-                    _uiState.value =
-                        NewTransactionUiState.Error(e.localizedMessage ?: "Unknown error")
-                }.collect { state ->
-                    _uiState.value = state
-                }
+            }
+            .combine(_validationErrors) { uiState, validationErrors ->
+                uiState.copy(errors = validationErrors)
+            }
+            .catch { e ->
+                _uiState.value =
+                    NewTransactionUiState.Error(e.localizedMessage ?: "Unknown error")
+            }
+            .collect { state ->
+                _uiState.value = state
+            }
         }
     }
+
+// Helper data class for combine tuple
+private data class Quintuple<A, B, C, D, E>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D,
+    val fifth: E
+)
 
     private fun loadMerchants(categoryId: String) {
         merchantJob?.cancel()

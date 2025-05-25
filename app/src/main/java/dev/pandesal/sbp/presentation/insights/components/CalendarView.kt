@@ -66,7 +66,7 @@ fun CalendarView(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Transaction Calendar", style = MaterialTheme.typography.titleMedium)
+            Text("Calendar", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(

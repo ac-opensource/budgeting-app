@@ -127,7 +127,7 @@ class TransactionRepository @Inject constructor(
 
     override fun getTotalAmountByTag(type: TransactionType): Flow<List<TagSummary>> =
         dao.getAllTransactions().map { list ->
-            list.filter { it.transactionType == type }
+            list
                 .flatMap { tx -> tx.tags.map { it to tx.amount } }
                 .groupBy({ it.first }, { it.second })
                 .map { TagSummary(it.key, it.value.fold(BigDecimal.ZERO, BigDecimal::add)) }

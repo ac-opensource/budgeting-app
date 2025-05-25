@@ -1,9 +1,18 @@
 package dev.pandesal.sbp.presentation.transactions.newtransaction
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,11 +20,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,25 +39,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.twotone.ArrowDropDown
+import androidx.compose.material.icons.twotone.Camera
 import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.material.icons.twotone.Favorite
 import androidx.compose.material.icons.twotone.Wallet
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -54,13 +70,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberDatePickerState
-import com.google.accompanist.flowlayout.FlowRow
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -68,45 +85,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
+import dev.pandesal.sbp.domain.model.Account
 import dev.pandesal.sbp.domain.model.Category
 import dev.pandesal.sbp.domain.model.CategoryGroup
+import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
-import dev.pandesal.sbp.domain.model.Account
-import dev.pandesal.sbp.domain.model.RecurringInterval
 import dev.pandesal.sbp.presentation.LocalNavigationManager
 import dev.pandesal.sbp.presentation.NavigationDestination
 import dev.pandesal.sbp.presentation.components.SkeletonLoader
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Switch
-import androidx.compose.material3.TextButton
-import android.Manifest
-import android.content.pm.PackageManager
-import android.content.Context
-import androidx.compose.material.icons.twotone.Camera
-import androidx.compose.ui.draw.alpha
+import kotlinx.coroutines.delay
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
-import kotlinx.coroutines.delay
-import androidx.core.content.ContextCompat
-import androidx.compose.ui.unit.IntOffset
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
+import kotlin.math.roundToInt
 
 @Composable
 fun NewTransactionScreen(
@@ -300,6 +305,7 @@ private fun NewTransactionScreen(
 
     var expanded by remember { mutableStateOf(false) }
     var merchantExpanded by remember { mutableStateOf(false) }
+    var newTag by remember { mutableStateOf("") }
     var tagExpanded by remember { mutableStateOf(false) }
     var fromAccountExpanded by remember { mutableStateOf(false) }
     var toAccountExpanded by remember { mutableStateOf(false) }
@@ -598,7 +604,10 @@ private fun NewTransactionScreen(
                             visible = transactionTypes[selectedIndex] == TransactionType.OUTFLOW || transactionTypes[selectedIndex] == TransactionType.TRANSFER
                         ) {
                             Column(modifier = Modifier.padding(top = 16.dp)) {
-                                Text("From Account (optional)", style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    "From Account (optional)",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                                 ElevatedCard(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
@@ -669,7 +678,10 @@ private fun NewTransactionScreen(
                         ) {
                             // Merchant
                             Column(modifier = Modifier.padding(top = 16.dp)) {
-                                Text("To / Merchant (optional)", style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    "To / Merchant (optional)",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                                 ElevatedCard(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
@@ -735,7 +747,10 @@ private fun NewTransactionScreen(
                             visible = transactionTypes[selectedIndex] == TransactionType.INFLOW || transactionTypes[selectedIndex] == TransactionType.TRANSFER
                         ) {
                             Column(modifier = Modifier.padding(top = 16.dp)) {
-                                Text("To Account (optional)", style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    "To Account (optional)",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                                 ElevatedCard(
                                     modifier = Modifier
                                         .padding(top = 4.dp)
@@ -799,24 +814,25 @@ private fun NewTransactionScreen(
 
                         // Tags section
                         Column(modifier = Modifier.padding(top = 16.dp)) {
-                            var newTag by remember { mutableStateOf("") }
-                            Text("Track to Hobby/Activity (optional)", style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                "Track to Hobby/Activity (optional)",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                             ElevatedCard(
                                 modifier = Modifier
                                     .padding(top = 4.dp)
                                     .fillMaxWidth()
                             ) {
-                                FlowRow(
+                                androidx.compose.foundation.layout.FlowRow(
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .fillMaxWidth(),
-                                    mainAxisSpacing = 4.dp,
-                                    crossAxisSpacing = 4.dp
+                                    verticalArrangement = Arrangement.Center,
                                 ) {
                                     transaction.tags.forEach { tag ->
                                         AssistChip(
                                             onClick = {},
-                                            label = { Text(tag) },
+                                            label = { Text(tag, style = MaterialTheme.typography.labelMedium) },
                                             trailingIcon = {
                                                 Icon(
                                                     Icons.Default.Close,
@@ -830,21 +846,30 @@ private fun NewTransactionScreen(
                                             }
                                         )
                                     }
-                                    BasicTextField(
+
+                                    if (transaction.tags.isNotEmpty()) {
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
+
+                                    OutlinedTextField(
                                         value = newTag,
                                         onValueChange = { newTag = it },
+                                        textStyle = MaterialTheme.typography.labelMedium.copy(lineHeight = TextUnit.Unspecified),
                                         modifier = Modifier
                                             .widthIn(min = 40.dp)
+                                            .heightIn(min = 24.dp)
                                             .clickable { tagExpanded = true }
                                     )
+
                                     IconButton(enabled = editable, onClick = {
                                         if (newTag.isNotBlank()) {
                                             onUpdate(transaction.copy(tags = (transaction.tags + newTag).distinct()))
                                             newTag = ""
                                         }
                                     }) {
-                                    Icon(Icons.Default.Check, contentDescription = null)
+                                        Icon(Icons.Default.Add, contentDescription = null)
                                     }
+
                                 }
                             }
                         }
@@ -867,196 +892,242 @@ private fun NewTransactionScreen(
 
                         Column(modifier = Modifier.padding(top = 16.dp)) {
 
-                        Column(modifier = Modifier.padding(top = 16.dp)) {
-                            Text("Receipt Photo (optional)", style = MaterialTheme.typography.bodyMedium)
-                            ElevatedCard(
-                                modifier = Modifier
-                                    .padding(top = 4.dp)
-                                    .fillMaxWidth()
-                                    .clickable(enabled = editable) { onAttach() },
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    if (transaction.attachment != null) {
-                                        AsyncImage(
-                                            model = transaction.attachment,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(64.dp)
-                                                .padding(8.dp)
-                                        )
-                                    } else {
-                                        Text(
-                                            text = "Add Receipt",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            modifier = Modifier.padding(16.dp)
-                                        )
-                                    }
-                                    Icon(
-                                        Icons.TwoTone.Camera,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .padding(end = 8.dp)
-                                            .size(24.dp)
-                                    )
-                                }
-                            }
-                        }
-
-
-                        // Date
-                        Column(modifier = Modifier.padding(top = 16.dp)) {
-                            Text("Transaction Date", style = MaterialTheme.typography.bodyMedium)
-                            ElevatedCard(
-                                modifier = Modifier
-                                    .padding(top = 4.dp)
-                                    .fillMaxWidth()
-                                    .clickable(enabled = editable) {
-                                        showDatePicker.value = true
-                                    }) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text(
-                                        text = transaction.createdAt.toString(),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(16.dp)
-                                    )
-
-                                    Icon(
-                                        Icons.TwoTone.DateRange,
-                                        contentDescription = "Reorder",
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
-                                }
-                            }
-
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp)
-                                    .clickable(enabled = editable) { isRecurring = !isRecurring },
-                                verticalAlignment = Alignment.CenterVertically
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Switch(
-                                    enabled = editable,
-                                    checked = isRecurring,
-                                    onCheckedChange = { isRecurring = it }
-                                )
-                                Text(
-                                    text = "Recurring",
-                                    modifier = Modifier.padding(start = 8.dp),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
 
-                            if (isRecurring) {
-                                ElevatedCard(
-                                    modifier = Modifier
-                                        .padding(top = 4.dp)
-                                        .fillMaxWidth()
-                                        .clickable(enabled = editable) { recurringExpanded = true }
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier.fillMaxWidth()
+                                Column(modifier = Modifier.padding(top = 16.dp).weight(1f)) {
+                                    Text(
+                                        "Receipt Photo (optional)",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    ElevatedCard(
+                                        modifier = Modifier
+                                            .padding(top = 4.dp)
+                                            .fillMaxWidth()
+                                            .clickable(enabled = editable) { onAttach() },
                                     ) {
-                                        Text(
-                                            text = selectedInterval.name.replace('_', ' ')
-                                                .lowercase()
-                                                .replaceFirstChar { it.uppercaseChar() },
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            modifier = Modifier.padding(16.dp)
-                                        )
-
-                                        Icon(
-                                            Icons.TwoTone.ArrowDropDown,
-                                            contentDescription = "Interval",
-                                            modifier = Modifier.padding(end = 8.dp)
-                                        )
-                                    }
-
-                                    DropdownMenu(
-                                        expanded = recurringExpanded,
-                                        onDismissRequest = { recurringExpanded = false }
-                                    ) {
-                                        RecurringInterval.values().forEach { interval ->
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Text(
-                                                        interval.name.replace('_', ' ').lowercase()
-                                                            .replaceFirstChar { it.uppercaseChar() })
-                                                },
-                                                onClick = {
-                                                    selectedInterval = interval
-                                                    recurringExpanded = false
-                                                }
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            if (transaction.attachment != null) {
+                                                AsyncImage(
+                                                    model = transaction.attachment,
+                                                    contentDescription = null,
+                                                    modifier = Modifier
+                                                        .size(64.dp)
+                                                        .padding(8.dp)
+                                                )
+                                            } else {
+                                                Text(
+                                                    text = "Add Receipt",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    modifier = Modifier.padding(16.dp)
+                                                )
+                                            }
+                                            Icon(
+                                                Icons.TwoTone.Camera,
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .padding(end = 8.dp)
+                                                    .size(24.dp)
                                             )
                                         }
                                     }
                                 }
 
-                                if (selectedInterval == RecurringInterval.AFTER_CUTOFF) {
-                                    OutlinedTextField(
-                                        enabled = editable,
-                                        value = cutoffDays.toString(),
-                                        onValueChange = { input ->
-                                            cutoffDays = input.toIntOrNull() ?: 21
-                                        },
-                                        label = { Text("Days After Cutoff") },
-                                        modifier = Modifier
-                                            .padding(top = 16.dp)
-                                            .fillMaxWidth()
-                                    )
-                                }
-
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    val context = LocalContext.current
-                                    val permissionLauncher = rememberLauncherForActivityResult(
-                                        ActivityResultContracts.RequestPermission()
-                                    ) { granted ->
-                                        reminderEnabled = granted
-                                    }
-                                    Switch(
-                                        enabled = editable,
-                                        checked = reminderEnabled,
-                                        onCheckedChange = { checked ->
-                                            if (checked && android.os.Build.VERSION.SDK_INT >= 33) {
-                                                val permission =
-                                                    Manifest.permission.POST_NOTIFICATIONS
-                                                if (ContextCompat.checkSelfPermission(
-                                                        context,
-                                                        permission
-                                                    ) == PackageManager.PERMISSION_GRANTED
-                                                ) {
-                                                    reminderEnabled = true
-                                                } else {
-                                                    permissionLauncher.launch(permission)
-                                                }
-                                            } else {
-                                                reminderEnabled = checked
-                                            }
-                                        }
-                                    )
+                                Column(modifier = Modifier.padding(top = 16.dp).weight(1f)) {
                                     Text(
-                                        text = "Reminders",
-                                        modifier = Modifier.padding(start = 8.dp),
+                                        "Transaction Date",
                                         style = MaterialTheme.typography.bodyMedium
                                     )
+                                    ElevatedCard(
+                                        modifier = Modifier
+                                            .padding(top = 4.dp)
+                                            .fillMaxWidth()
+                                            .clickable(enabled = editable) {
+                                                showDatePicker.value = true
+                                            }) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text(
+                                                text = transaction.createdAt.toString(),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.padding(16.dp)
+                                            )
+
+                                            Icon(
+                                                Icons.TwoTone.DateRange,
+                                                contentDescription = "Reorder",
+                                                modifier = Modifier.padding(end = 8.dp)
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
+
+
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                                .clickable(enabled = editable) {
+                                    isRecurring = !isRecurring
+                                },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Switch(
+                                enabled = editable,
+                                checked = isRecurring,
+                                onCheckedChange = { isRecurring = it }
+                            )
+                            Text(
+                                text = "Recurring",
+                                modifier = Modifier.padding(start = 8.dp),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        if (isRecurring) {
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable(enabled = editable) {
+                                        recurringExpanded = true
+                                    }
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = selectedInterval.name.replace('_', ' ')
+                                            .lowercase()
+                                            .replaceFirstChar { it.uppercaseChar() },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+
+                                    Icon(
+                                        Icons.TwoTone.ArrowDropDown,
+                                        contentDescription = "Interval",
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = recurringExpanded,
+                                    onDismissRequest = { recurringExpanded = false }
+                                ) {
+                                    RecurringInterval.values().forEach { interval ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    interval.name.replace('_', ' ')
+                                                        .lowercase()
+                                                        .replaceFirstChar { it.uppercaseChar() })
+                                            },
+                                            onClick = {
+                                                selectedInterval = interval
+                                                recurringExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (selectedInterval == RecurringInterval.AFTER_CUTOFF) {
+                                OutlinedTextField(
+                                    enabled = editable,
+                                    value = cutoffDays.toString(),
+                                    onValueChange = { input ->
+                                        cutoffDays = input.toIntOrNull() ?: 21
+                                    },
+                                    label = { Text("Days After Cutoff") },
+                                    modifier = Modifier
+                                        .padding(top = 16.dp)
+                                        .fillMaxWidth()
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val context = LocalContext.current
+                                val permissionLauncher = rememberLauncherForActivityResult(
+                                    ActivityResultContracts.RequestPermission()
+                                ) { granted ->
+                                    reminderEnabled = granted
+                                }
+                                Switch(
+                                    enabled = editable,
+                                    checked = reminderEnabled,
+                                    onCheckedChange = { checked ->
+                                        if (checked && android.os.Build.VERSION.SDK_INT >= 33) {
+                                            val permission =
+                                                Manifest.permission.POST_NOTIFICATIONS
+                                            if (ContextCompat.checkSelfPermission(
+                                                    context,
+                                                    permission
+                                                ) == PackageManager.PERMISSION_GRANTED
+                                            ) {
+                                                reminderEnabled = true
+                                            } else {
+                                                permissionLauncher.launch(permission)
+                                            }
+                                        } else {
+                                            reminderEnabled = checked
+                                        }
+                                    }
+                                )
+                                Text(
+                                    text = "Reminders",
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+
+                    }
+                }
+
+                if (showDatePicker.value) {
+                    DatePickerDialog(
+                        onDismissRequest = { showDatePicker.value = false },
+                        confirmButton = {
+                            Button(onClick = {
+                                datePickerState.selectedDateMillis?.let { millis ->
+                                    val newDate =
+                                        Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
+                                            .toLocalDate()
+                                    onUpdate(transaction.copy(createdAt = newDate))
+                                }
+                                showDatePicker.value = false
+                            }) {
+                                Text("OK")
+                            }
+                        },
+                        dismissButton = {
+                            OutlinedButton(onClick = { showDatePicker.value = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    ) {
+                        DatePicker(state = datePickerState)
                     }
                 }
             }
@@ -1066,7 +1137,9 @@ private fun NewTransactionScreen(
                     .align(Alignment.CenterHorizontally),
                 visible = showButtons,
                 enter = fadeIn(animationSpec = tween(300)) +
-                        slideInVertically(animationSpec = tween(300), initialOffsetY = { it / 2 })
+                        slideInVertically(
+                            animationSpec = tween(300),
+                            initialOffsetY = { it / 2 })
             ) {
                 HorizontalFloatingToolbar(
                     expanded = true,
@@ -1128,32 +1201,6 @@ private fun NewTransactionScreen(
                         }
                     }
                 )
-            }
-
-            if (showDatePicker.value) {
-                DatePickerDialog(
-                    onDismissRequest = { showDatePicker.value = false },
-                    confirmButton = {
-                        Button(onClick = {
-                            datePickerState.selectedDateMillis?.let { millis ->
-                                val newDate =
-                                    Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
-                                        .toLocalDate()
-                                onUpdate(transaction.copy(createdAt = newDate))
-                            }
-                            showDatePicker.value = false
-                        }) {
-                            Text("OK")
-                        }
-                    },
-                    dismissButton = {
-                        OutlinedButton(onClick = { showDatePicker.value = false }) {
-                            Text("Cancel")
-                        }
-                    }
-                ) {
-                    DatePicker(state = datePickerState)
-                }
             }
         }
     }

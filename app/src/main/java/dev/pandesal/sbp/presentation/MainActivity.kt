@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.BarChart
@@ -282,6 +284,21 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }) {
                                     Icon(Icons.Filled.MoreVert, contentDescription = "Settings")
+                                }
+
+                                IconButton(onClick = {
+                                    navController.navigate(NavigationDestination.Accounts) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }) {
+                                    Icon(
+                                        Icons.Filled.AccountCircle,
+                                        contentDescription = "Localized description"
+                                    )
                                 }
                             },
                         )
