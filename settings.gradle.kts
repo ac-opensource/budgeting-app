@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Stop Being Poor"
 include(":app")
+include(":shared")
  
