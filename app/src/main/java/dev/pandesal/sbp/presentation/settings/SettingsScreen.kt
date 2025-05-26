@@ -78,7 +78,7 @@ fun SettingsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun SettingsContent(
+fun SettingsContent(
     settings: dev.pandesal.sbp.domain.model.Settings,
     onDarkModeChange: (Boolean) -> Unit,
     onNotificationsChange: (Boolean) -> Unit,

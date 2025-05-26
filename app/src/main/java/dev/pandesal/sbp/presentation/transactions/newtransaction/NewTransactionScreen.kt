@@ -273,12 +273,12 @@ private fun NewTransactionScreen(
         AlertDialog(
             onDismissRequest = {
                 navManager.navigateUp()
-                navManager.navigate(NavigationDestination.Accounts)
+                navManager.navigate(NavigationDestination.More)
             },
             confirmButton = {
                 TextButton(onClick = {
                     navManager.navigateUp()
-                    navManager.navigate(NavigationDestination.Accounts)
+                    navManager.navigate(NavigationDestination.More)
                 }) { Text("Add Account") }
             },
             title = { Text("No Accounts") },
