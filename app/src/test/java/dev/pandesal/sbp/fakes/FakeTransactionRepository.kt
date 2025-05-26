@@ -2,6 +2,7 @@ package dev.pandesal.sbp.fakes
 
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
+import dev.pandesal.sbp.domain.model.TagSummary
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +15,7 @@ class FakeTransactionRepository : TransactionRepositoryInterface {
     val pagedFlow = MutableStateFlow<List<Transaction>>(emptyList())
     val categoryFlow = MutableStateFlow<List<Transaction>>(emptyList())
     val merchantsFlow = MutableStateFlow<List<String>>(emptyList())
+    val tagsFlow = MutableStateFlow<List<String>>(emptyList())
     val insertedTransactions = mutableListOf<Transaction>()
 
     override fun getAllTransactions(): Flow<List<Transaction>> = transactionsFlow
@@ -33,6 +35,8 @@ class FakeTransactionRepository : TransactionRepositoryInterface {
     override fun getPagedTransactionsByCategory(categoryId: String, limit: Int, offset: Int): Flow<List<Transaction>> = flowOf(emptyList())
     override fun getTotalAmountByCategory(type: TransactionType): Flow<List<Pair<Int, BigDecimal>>> = flowOf(emptyList())
     override fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>> = merchantsFlow
+    override fun getTags(): Flow<List<String>> = tagsFlow
+    override fun getTotalAmountByTag(type: TransactionType): Flow<List<TagSummary>> = flowOf(emptyList())
     override suspend fun getLastMerchantForCategory(categoryId: String): String? = merchantsFlow.value.lastOrNull()
     override suspend fun insert(transaction: Transaction) { insertedTransactions.add(transaction) }
     override suspend fun delete(transaction: Transaction) {}

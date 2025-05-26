@@ -2,6 +2,7 @@ package dev.pandesal.sbp.domain.usecase
 
 import dev.pandesal.sbp.domain.model.Transaction
 import dev.pandesal.sbp.domain.model.TransactionType
+import dev.pandesal.sbp.domain.model.TagSummary
 import dev.pandesal.sbp.domain.repository.TransactionRepositoryInterface
 import dev.pandesal.sbp.domain.repository.AccountRepositoryInterface
 import kotlinx.coroutines.flow.Flow
@@ -64,6 +65,11 @@ class TransactionUseCase @Inject constructor(
 
     fun getMerchantsByCategoryId(categoryId: String): Flow<List<String>> =
         repository.getMerchantsByCategoryId(categoryId)
+
+    fun getTags(): Flow<List<String>> = repository.getTags()
+
+    fun getTotalAmountByTag(type: TransactionType): Flow<List<TagSummary>> =
+        repository.getTotalAmountByTag(type)
 
     suspend fun getLastMerchantForCategory(categoryId: String): String? =
         repository.getLastMerchantForCategory(categoryId)

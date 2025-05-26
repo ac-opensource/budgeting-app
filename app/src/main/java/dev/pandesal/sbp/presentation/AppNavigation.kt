@@ -10,8 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.toRoute
 import dev.pandesal.sbp.presentation.categories.CategoriesScreen
-import dev.pandesal.sbp.presentation.accounts.AccountsScreen
 import dev.pandesal.sbp.presentation.accounts.NewAccountScreen
+import dev.pandesal.sbp.presentation.more.MoreScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryGroupScreen
 import dev.pandesal.sbp.presentation.categories.new.NewCategoryScreen
 import dev.pandesal.sbp.presentation.home.HomeScreen
@@ -24,10 +24,10 @@ import dev.pandesal.sbp.presentation.transactions.recurringdetails.RecurringTran
 import dev.pandesal.sbp.presentation.transactions.recurring.RecurringTransactionsScreen
 import dev.pandesal.sbp.presentation.categories.budget.SetBudgetScreen
 import dev.pandesal.sbp.presentation.categories.CategoryTransactionsScreen
-import dev.pandesal.sbp.presentation.settings.SettingsScreen
 import dev.pandesal.sbp.presentation.notifications.NotificationCenterScreen
 import dev.pandesal.sbp.presentation.goals.NewGoalScreen
 import dev.pandesal.sbp.presentation.nav.parcelableTypeMap
+import dev.pandesal.sbp.presentation.reminders.RemindersScreen
 import java.math.BigDecimal
 import kotlinx.serialization.Serializable
 import kotlin.reflect.typeOf
@@ -43,15 +43,13 @@ sealed class NavigationDestination() {
     @Serializable
     data object More : NavigationDestination()
     @Serializable
-    data object Settings : NavigationDestination()
-    @Serializable
     data object Transactions : NavigationDestination()
     @Serializable
     data class NewTransaction(val transaction: Transaction? = null) : NavigationDestination()
     @Serializable
     data object Notifications : NavigationDestination()
     @Serializable
-    data object Accounts : NavigationDestination()
+    data object Reminders : NavigationDestination()
     @Serializable
     data object NewAccount : NavigationDestination()
     @Serializable
@@ -93,8 +91,8 @@ fun AppNavigation(navController: NavHostController) {
             composable<NavigationDestination.Categories> {
                 CategoriesScreen()
             }
-            composable<NavigationDestination.Accounts> {
-                AccountsScreen()
+            composable<NavigationDestination.Reminders> {
+                RemindersScreen()
             }
 
             dialog<NavigationDestination.NewAccount>(
@@ -190,12 +188,7 @@ fun AppNavigation(navController: NavHostController) {
 
 
             composable<NavigationDestination.More> {
-//                MoreScreen()
-                HomeScreen()
-            }
-
-            composable<NavigationDestination.Settings> {
-                SettingsScreen()
+                MoreScreen()
             }
 
         }

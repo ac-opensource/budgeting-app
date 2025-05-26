@@ -26,13 +26,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PieChart
-import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -244,7 +246,7 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 IconButton(onClick = {
-                                    navController.navigate(NavigationDestination.Accounts) {
+                                    navController.navigate(NavigationDestination.Reminders) {
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = true
                                         }
@@ -253,8 +255,8 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }) {
                                     Icon(
-                                        Icons.Filled.AccountBalanceWallet,
-                                        contentDescription = "Localized description"
+                                        Icons.Filled.Event,
+                                        contentDescription = "Reminders"
                                     )
                                 }
 
@@ -273,7 +275,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 IconButton(onClick = {
-                                    navController.navigate(NavigationDestination.Settings) {
+                                    navController.navigate(NavigationDestination.More) {
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = true
                                         }
@@ -281,7 +283,7 @@ class MainActivity : ComponentActivity() {
                                         restoreState = true
                                     }
                                 }) {
-                                    Icon(Icons.Filled.MoreVert, contentDescription = "Settings")
+                                    Icon(Icons.Filled.AccountCircle, contentDescription = "More")
                                 }
                             },
                         )

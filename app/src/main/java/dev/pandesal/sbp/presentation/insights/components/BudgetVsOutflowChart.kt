@@ -114,12 +114,15 @@ fun BudgetVsOutflowChart(
                                     style = MaterialTheme.typography.labelSmall
                                 )
                             }
+
+                            Spacer(Modifier.height(30.dp))
                         }
                         Box(modifier = Modifier.weight(1f)) {
                             val lineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                             val lineBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                             Box(
                                 modifier = Modifier
+                                    .padding(bottom = 30.dp)
                                     .matchParentSize()
                                     .drawBehind {
                                         val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
@@ -169,7 +172,9 @@ fun BudgetVsOutflowChart(
                                         val outflowPct = if (maxY == BigDecimal.ZERO) 0f else (entry.outflow.divide(maxY, 2, RoundingMode.HALF_UP)).toFloat()
                                         val budgetHeight = animateDpAsState(targetValue = chartHeight * budgetPct)
                                         val outflowHeight = animateDpAsState(targetValue = chartHeight * outflowPct)
+
                                         Row(
+                                            modifier = Modifier.weight(1f),
                                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                                             verticalAlignment = Alignment.Bottom
                                         ) {
@@ -181,9 +186,9 @@ fun BudgetVsOutflowChart(
                                                     .background(
                                                         Brush.verticalGradient(
                                                             listOf(primaryColor.copy(alpha = 0.8f), primaryColor.copy(alpha = 0.4f))
-                                                        )
+                                                        ),
+                                                        RoundedCornerShape(8.dp)
                                                     )
-                                                    .clip(RoundedCornerShape(4.dp))
                                             )
                                             Box(
                                                 modifier = Modifier
@@ -193,13 +198,14 @@ fun BudgetVsOutflowChart(
                                                     .background(
                                                         Brush.verticalGradient(
                                                             listOf(errorColor.copy(alpha = 0.8f), errorColor.copy(alpha = 0.4f))
-                                                        )
+                                                        ),
+                                                        RoundedCornerShape(8.dp)
                                                     )
-                                                    .clip(RoundedCornerShape(4.dp))
+
                                             )
                                         }
                                         Spacer(modifier = Modifier.height(4.dp))
-                                        Text(entry.label, style = MaterialTheme.typography.labelSmall)
+                                        Text(entry.label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.height(26.dp))
                                     }
                                 }
                             }

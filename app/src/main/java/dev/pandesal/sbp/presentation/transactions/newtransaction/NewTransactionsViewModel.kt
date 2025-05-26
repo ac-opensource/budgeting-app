@@ -15,6 +15,8 @@ import dev.pandesal.sbp.domain.usecase.TransactionUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -39,8 +41,17 @@ class NewTransactionsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<NewTransactionUiState>(NewTransactionUiState.Initial)
     val uiState: StateFlow<NewTransactionUiState> = _uiState.asStateFlow()
 
+    sealed interface FeedbackEvent {
+        data object InvalidForm : FeedbackEvent
+    }
+
+    private val _feedback = MutableSharedFlow<FeedbackEvent>()
+    val feedback: SharedFlow<FeedbackEvent> = _feedback
+
     private val _merchants = MutableStateFlow<List<String>>(emptyList())
     private var merchantJob: kotlinx.coroutines.Job? = null
+
+    private val _tags = MutableStateFlow<List<String>>(emptyList())
 
     private val _validationErrors: MutableStateFlow<NewTransactionUiState.ValidationErrors> =
         MutableStateFlow(NewTransactionUiState.ValidationErrors())
@@ -62,36 +73,64 @@ class NewTransactionsViewModel @Inject constructor(
 
     init {
         subscribeUiState()
+        loadTags()
     }
 
     private fun subscribeUiState() {
         _uiState.value = NewTransactionUiState.Loading
 
         viewModelScope.launch {
+            // Assign each of the flows to local variables
+            val categoryGroupsFlow = categoryUseCase.getCategoryGroups()
+            val categoriesFlow = categoryUseCase.getCategories()
+            val accountsFlow = accountUseCase.getAccounts()
+            val transactionFlow = _transaction
+            val merchantsFlow = _merchants
+            val tagsFlow = _tags
+
+            // Combine up to 5 flows at once, then combine with tagsFlow
             combine(
-                categoryUseCase.getCategoryGroups(),
-                categoryUseCase.getCategories(),
-                accountUseCase.getAccounts(),
-                _transaction,
-                _merchants,
+                categoryGroupsFlow,
+                categoriesFlow,
+                accountsFlow,
+                transactionFlow,
+                merchantsFlow
             ) { groups, categories, accounts, transaction, merchants ->
+                Quintuple(groups, categories, accounts, transaction, merchants)
+            }
+            .combine(tagsFlow) { quintuple, tags ->
+                val (groups, categories, accounts, transaction, merchants) = quintuple
                 NewTransactionUiState.Success(
                     groupedCategories = groups.associateWith { group ->
                         categories.filter { it.categoryGroupId == group.id }
-                    }, accounts = accounts, transaction = transaction, merchants = merchants
+                    },
+                    accounts = accounts,
+                    transaction = transaction,
+                    merchants = merchants,
+                    tags = tags
                 )
-            }.zip(
-                    _validationErrors
-                ) { uiState, validationErrors ->
-                    uiState.copy(errors = validationErrors)
-                }.catch { e ->
-                    _uiState.value =
-                        NewTransactionUiState.Error(e.localizedMessage ?: "Unknown error")
-                }.collect { state ->
-                    _uiState.value = state
-                }
+            }
+            .combine(_validationErrors) { uiState, validationErrors ->
+                uiState.copy(errors = validationErrors)
+            }
+            .catch { e ->
+                _uiState.value =
+                    NewTransactionUiState.Error(e.localizedMessage ?: "Unknown error")
+            }
+            .collect { state ->
+                _uiState.value = state
+            }
         }
     }
+
+// Helper data class for combine tuple
+private data class Quintuple<A, B, C, D, E>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D,
+    val fifth: E
+)
 
     private fun loadMerchants(categoryId: String) {
         merchantJob?.cancel()
@@ -102,10 +141,19 @@ class NewTransactionsViewModel @Inject constructor(
                     if (current is NewTransactionUiState.Success) {
                         _uiState.value = current.copy(
                             merchants = merchants,
+                            tags = _tags.value,
                             errors = _validationErrors.value,
                         )
                     }
                 }
+        }
+    }
+
+    private fun loadTags() {
+        viewModelScope.launch {
+            transactionUseCase.getTags().collect { list ->
+                _tags.value = list
+            }
         }
     }
 
@@ -165,7 +213,7 @@ class NewTransactionsViewModel @Inject constructor(
                     viewModelScope.launch {
                         val lastMerchant = transactionUseCase.getLastMerchantForCategory(newCategory.id.toString())
                         if (!lastMerchant.isNullOrBlank()) {
-                            _transaction.value = _transaction.value.copy(merchantName = lastMerchant)
+                            newTransaction = _transaction.value.copy(merchantName = lastMerchant)
                         }
                     }
                 }
@@ -173,11 +221,11 @@ class NewTransactionsViewModel @Inject constructor(
         }
 
         if (_transaction.value.category?.id != newTransaction.category?.id && newTransaction.category != null) {
-            loadMerchants(newTransaction.category.id.toString())
+            loadMerchants(newTransaction.category?.id.toString())
             viewModelScope.launch {
-                val lastMerchant = transactionUseCase.getLastMerchantForCategory(newTransaction.category.id.toString())
+                val lastMerchant = transactionUseCase.getLastMerchantForCategory(newTransaction.category?.id.toString())
                 if (!lastMerchant.isNullOrBlank()) {
-                    _transaction.value = _transaction.value.copy(merchantName = lastMerchant)
+                    newTransaction = _transaction.value.copy(merchantName = lastMerchant)
                 }
             }
         }
@@ -201,6 +249,7 @@ class NewTransactionsViewModel @Inject constructor(
             accounts = (_uiState.value as? NewTransactionUiState.Success)?.accounts ?: listOf(),
             transaction = newTransaction,
             merchants = _merchants.value,
+            tags = _tags.value,
             errors = _validationErrors.value,
         )
     }
@@ -235,6 +284,7 @@ class NewTransactionsViewModel @Inject constructor(
                     if (current != null) {
                         _uiState.value = current.copy(errors = _validationErrors.value)
                     }
+                    _feedback.emit(FeedbackEvent.InvalidForm)
                     onResult(false)
                     return@launch
                 }

@@ -21,6 +21,7 @@ sealed interface NewTransactionUiState {
         val accounts: List<Account>,
         val transaction: Transaction,
         val merchants: List<String>,
+        val tags: List<String>,
         val errors: ValidationErrors = ValidationErrors(),
     ) : NewTransactionUiState
 
