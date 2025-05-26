@@ -257,7 +257,7 @@ fun AccountsScreen(
 }
 
 @Composable
-private fun AccountsContent(
+fun AccountsContent(
     accounts: List<dev.pandesal.sbp.domain.model.Account>,
     onAddWallet: () -> Unit,
     onAccountClick: (dev.pandesal.sbp.domain.model.Account) -> Unit,

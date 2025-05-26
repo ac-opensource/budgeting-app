@@ -275,7 +275,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 IconButton(onClick = {
-                                    navController.navigate(NavigationDestination.Settings) {
+                                    navController.navigate(NavigationDestination.More) {
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = true
                                         }
@@ -283,22 +283,7 @@ class MainActivity : ComponentActivity() {
                                         restoreState = true
                                     }
                                 }) {
-                                    Icon(Icons.Filled.MoreVert, contentDescription = "Settings")
-                                }
-
-                                IconButton(onClick = {
-                                    navController.navigate(NavigationDestination.Accounts) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }) {
-                                    Icon(
-                                        Icons.Filled.AccountCircle,
-                                        contentDescription = "Localized description"
-                                    )
+                                    Icon(Icons.Filled.AccountCircle, contentDescription = "More")
                                 }
                             },
                         )
