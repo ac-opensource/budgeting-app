@@ -15,6 +15,8 @@ plugins {
     alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin) apply false
     alias(libs.plugins.kotlin.compose) apply false
-    kotlin("plugin.serialization") version "2.1.20"
-
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
 }

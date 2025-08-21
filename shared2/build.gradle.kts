@@ -11,7 +11,7 @@ kotlin {
     androidLibrary {
         namespace = "dev.pandesal"
         compileSdk = 36
-        minSdk = 26
+        minSdk = 24
 
         withHostTestBuilder {
         }
@@ -30,7 +30,7 @@ kotlin {
     // A step-by-step guide on how to include this library in an XCode
     // project can be found here:
     // https://developer.android.com/kotlin/multiplatform/migrate
-    val xcfName = "sharedKit"
+    val xcfName = "shared2Kit"
 
     iosX64 {
         binaries.framework {
